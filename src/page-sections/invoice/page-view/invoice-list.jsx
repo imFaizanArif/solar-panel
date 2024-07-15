@@ -269,7 +269,7 @@ const InvoiceListPageView = () => {
         compare: (a, b) => a.id - b.id,
         multiple: 1,
       },
-      fixed: 'left',
+      // fixed: 'left',
     },
     {
       title: 'Name',
@@ -280,7 +280,7 @@ const InvoiceListPageView = () => {
         compare: (a, b) => a.name.localeCompare(b.name),
         multiple: 2,
       },
-      fixed: 'left',
+      // fixed: 'left',
       render: (record) => {
         return (
           <span>{record.name}</span>
@@ -370,7 +370,7 @@ const InvoiceListPageView = () => {
     {
       title: "Option",
       width: 100,
-      fixed: 'right',
+      // fixed: 'right',
       render: (text, record) => {
         // console.log(text.id);
         return (
