@@ -45,6 +45,26 @@ export const navigations = [{
 // }, 
 {
   type: "label",
+  label: "Management"
+},
+{
+  name: "Invoice",
+  icon: duotone.Invoice,
+  children: [{
+    name: "Invoice List",
+    path: "/dashboard/invoice-list"
+  },
+  // {
+  //   name: "Invoice Details",
+  //   path: "/dashboard/invoice-details"
+  // }, 
+  {
+    name: "Create Invoice",
+    path: "/dashboard/create-invoice"
+  }]
+},
+{
+  type: "label",
   label: "Services"
 },
 {
@@ -73,9 +93,21 @@ export const navigations = [{
   path: "/dashboard/net-metering-list"
 },
 {
-  type: "label",
-  label: "Management"
+  name: "Installation",
+  icon: duotone.LayerGroup,
+  path: "/dashboard/installation-list"
 },
+{
+  name: "Batteries",
+  icon: duotone.AdminEcommerce,
+  path: "/dashboard/batteries-list"
+},
+{
+  name: "Lightning Arrestor",
+  icon: duotone.Apps,
+  path: "/dashboard/lightning-arrestor-list"
+},
+
 // {
 //   name: "Profiles",
 //   icon: duotone.UserProfile,
@@ -121,22 +153,6 @@ export const navigations = [{
 //     path: "/dashboard/product-details"
 //   }]
 // }, 
-{
-  name: "Invoice",
-  icon: duotone.Invoice,
-  children: [{
-    name: "Invoice List",
-    path: "/dashboard/invoice-list"
-  },
-  // {
-  //   name: "Invoice Details",
-  //   path: "/dashboard/invoice-details"
-  // }, 
-  {
-    name: "Create Invoice",
-    path: "/dashboard/create-invoice"
-  }]
-},
 // {
 //   name: "Ecommerce",
 //   icon: duotone.Ecommerce,

@@ -41,8 +41,20 @@ const CablingUpdate = Loadable(lazy(() => import("@/pages/dashboard/cabling/upda
 const NetMeteringList = Loadable(lazy(() => import("@/pages/dashboard/net-metering/list")));
 const NetMeteringCreate = Loadable(lazy(() => import("@/pages/dashboard/net-metering/create")));
 const NetMeteringUpdate = Loadable(lazy(() => import("@/pages/dashboard/net-metering/update")));
+
+const InstallationList = Loadable(lazy(() => import("@/pages/dashboard/installation/list")));
+const InstallationCreate = Loadable(lazy(() => import("@/pages/dashboard/installation/create")));
+const InstallationUpdate = Loadable(lazy(() => import("@/pages/dashboard/installation/update")));
 // const InvoiceCreate = Loadable(lazy(() => import("@/pages/dashboard/invoice/create")));
 // const InvoiceDetails = Loadable(lazy(() => import("@/pages/dashboard/invoice/details"))); // PRODUCT RELATED PAGES
+
+const BatteriesList = Loadable(lazy(() => import("@/pages/dashboard/batteries/list")));
+const BatteriesCreate = Loadable(lazy(() => import("@/pages/dashboard/batteries/create")));
+const BatteriesUpdate = Loadable(lazy(() => import("@/pages/dashboard/batteries/update"))); // PRODUCT RELATED PAGES
+
+const LightningArrestorList = Loadable(lazy(() => import("@/pages/dashboard/lightning-arrestor/list")));
+const LightningArrestorCreate = Loadable(lazy(() => import("@/pages/dashboard/lightning-arrestor/create")));
+const LightningArrestorUpdate = Loadable(lazy(() => import("@/pages/dashboard/lightning-arrestor/update"))); // PRODUCT RELATED PAGES
 
 const InvoiceList = Loadable(lazy(() => import("@/pages/dashboard/invoice/list")));
 const InvoiceCreate = Loadable(lazy(() => import("@/pages/dashboard/invoice/create")));
@@ -187,6 +199,42 @@ export const DashboardRoutes = [{
   {
     path: "update-net-metering/:id",
     element: <NetMeteringUpdate />
+  },
+  {
+    path: "installation-list",
+    element: <InstallationList />
+  },
+  {
+    path: "create-installation",
+    element: <InstallationCreate />
+  },
+  {
+    path: "update-installation/:id",
+    element: <InstallationUpdate />
+  },
+  {
+    path: "batteries-list",
+    element: <BatteriesList />
+  },
+  {
+    path: "create-batteries",
+    element: <BatteriesCreate />
+  },
+  {
+    path: "update-batteries/:id",
+    element: <BatteriesUpdate />
+  },
+  {
+    path: "lightning-arrestor-list",
+    element: <LightningArrestorList />
+  },
+  {
+    path: "create-lightning-arrestor",
+    element: <LightningArrestorCreate />
+  },
+  {
+    path: "update-lightning-arrestor/:id",
+    element: <LightningArrestorUpdate />
   },
   {
     path: "account",

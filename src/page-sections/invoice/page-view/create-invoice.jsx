@@ -52,6 +52,18 @@ const CreateInvoicePageView = () => {
   const [netMeteringSpecificRecord, setNetMeteringSpecificRecord] = useState("");
   const [netMeteringData, setNetMeteringData] = useState([]);
   const [netMeteringDiscount, setNetMeteringDiscount] = useState(0);
+  const [installationId, setInstallationId] = useState(null);
+  const [installationSpecificRecord, setInstallationSpecificRecord] = useState("");
+  const [installationData, setInstallationData] = useState([]);
+  const [installationDiscount, setInstallationDiscount] = useState(0);
+  const [batteriesId, setBatteriesId] = useState(null);
+  const [batteriesSpecificRecord, setBatteriesSpecificRecord] = useState("");
+  const [batteriesData, setBatteriesData] = useState([]);
+  const [batteriesDiscount, setBatteriesDiscount] = useState(0);
+  const [lightningArrestorId, setLightningArrestorId] = useState(null);
+  const [lightningArrestorSpecificRecord, setLightningArrestorSpecificRecord] = useState("");
+  const [lightningArrestorData, setLightningArrestorData] = useState([]);
+  const [lightningArrestorDiscount, setLightningArrestorDiscount] = useState(0);
   const [clientData, setClientData] = useState(0);
   const initialValues = {
     name: "",
@@ -895,6 +907,95 @@ const CreateInvoicePageView = () => {
               my: 4
             }} />
 
+
+
+            <H6 fontSize={16} mb={2}>
+              Batteries Information
+            </H6>
+            <Grid container spacing={3}>
+              <Grid item md={4} sm={6} xs={12}>
+                <Box marginBottom={0}>
+                  <Select
+                    placeholder="Batteries"
+                    fullWidth name="Batteries" label="Batteries"
+                    options={netMeteringData}
+                    onChange={(value) => {
+                      setFieldValue("batteries", value.value);
+                      setBatteriesId(value.value);
+                    }}
+                    helperText={touched.batteries && errors.batteries}
+                    error={Boolean(touched.batteries && errors.batteries)}
+                  />
+                </Box>
+              </Grid>
+              <Grid item md={4} sm={6} xs={12}>
+                <Box marginBottom={0}>
+                  <TextField fullWidth name="Batteries Quantity" label="Batteries Quantity" value={values.batteries_quantity}
+                    onChange={(e) => {
+                      setFieldValue("batteries_quantity", e.target.value);
+                    }}
+                    helperText={touched.batteries_quantity && errors.batteries_quantity} error={Boolean(touched.batteries_quantity && errors.batteries_quantity)} />
+                </Box>
+              </Grid>
+              <Grid item md={4} sm={6} xs={12}>
+                <Box marginBottom={0}>
+                  <TextField fullWidth name="Batteries Price" label="Batteries Price" value={values.batteries_price}
+                    onChange={(e) => {
+                      setFieldValue("batteries_price", e.target.value);
+                      const discount = Math.max(0, (batteriesSpecificRecord?.price * values.batteries_quantity) - values.batteries_price);
+                      setBatteriesDiscount(discount);
+                    }}
+                    helperText={touched.batteries_price && errors.batteries_price} error={Boolean(touched.batteries_price && errors.batteries_price)} />
+                  <FlexBetween mt={1} mx={1}>
+                    <Paragraph fontWeight={500} fontSize={12} color="grey">
+                      <i>
+                        Per Batteries Price:
+                      </i>
+                    </Paragraph>
+                    <Paragraph fontWeight={500} fontSize={12}>
+                      <i>
+                        {batteriesSpecificRecord?.price ? batteriesSpecificRecord?.price : 0}
+                      </i>
+                    </Paragraph>
+                  </FlexBetween>
+                  <FlexBetween mx={1}>
+                    <Paragraph fontWeight={500} fontSize={12} color="grey">
+                      <i>
+                        Total Batteries Price: {batteriesSpecificRecord?.price} X {values.batteries_quantity ? values.batteries_quantity : 0} =
+                      </i>
+                    </Paragraph>
+                    <Paragraph fontWeight={500} fontSize={12}>
+                      <i>
+                        {isNaN(batteriesSpecificRecord?.price * values.batteries_quantity) ? 0 : batteriesSpecificRecord?.price * values.batteries_quantity}
+                      </i>
+                    </Paragraph>
+                  </FlexBetween>
+                  <FlexBetween mx={1}>
+                    <Paragraph fontWeight={500} fontSize={12} color="grey">
+                      <i>
+                        Discount:
+                      </i>
+                    </Paragraph>
+                    <Paragraph fontWeight={500} fontSize={12}>
+                      <i>
+                        {
+                          (() => {
+                            const total = batteriesSpecificRecord?.price * values.batteries_quantity;
+                            const discount = isNaN(total - values.batteries_price) ? 0 : Math.max(0, total - values.batteries_price);
+                            setBatteriesDiscount(discount);
+                            return discount;
+                          })()
+                        }
+                      </i>
+                    </Paragraph>
+                  </FlexBetween>
+                </Box>
+              </Grid>
+
+            </Grid>
+            <Divider sx={{
+              my: 4
+            }} />
 
             <Grid container spacing={3}>
               <Grid item md={4} sm={6} xs={12}>
