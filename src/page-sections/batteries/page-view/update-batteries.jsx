@@ -134,7 +134,7 @@ const UpdateBatteriesPageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth name="Price" label="Price" value={values.price}
+                  <TextField fullWidth type="number" name="Price" label="Price" value={values.price}
                     onChange={(e) => {
                       setFieldValue("price", e.target.value);
                     }}

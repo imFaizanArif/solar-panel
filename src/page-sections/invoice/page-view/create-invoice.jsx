@@ -11,6 +11,7 @@ import { H6, Paragraph } from "@/components/typography"; // CUSTOM DEFINED COMPO
 import { FlexBetween } from "@/components/flexbox";
 
 import 'react-toastify/dist/ReactToastify.css';
+import { set } from "nprogress";
 
 
 const StyledFlexBox = styled(FlexBetween)(({
@@ -32,39 +33,52 @@ const CreateInvoicePageView = () => {
   const navigate = useNavigate();
   const baseApiUrl = import.meta.env.VITE_API_URL + "/api/";
   const [loading, setloading] = useState(false);
+  const [clientResponse, setClientResponse] = useState(false);
+  const [invoiceResponse, setInvoiceResponse] = useState(false);
   const [solarPanelId, setsolarPanelId] = useState(null);
   const [solarPanelSpecificRecord, setsolarPanelSpecificRecord] = useState("");
   const [solarPanelData, setsolarPanelData] = useState([]);
   const [solarPanelDiscount, setSolarPanelDiscount] = useState(0);
+  const [solarPanelPrice, setSolarPanelPrice] = useState(0);
   const [inverterId, setInverterId] = useState(null);
   const [inverterSpecificRecord, setInverterSpecificRecord] = useState("");
   const [inverterData, setInverterData] = useState([]);
   const [inverterDiscount, setInverterDiscount] = useState(0);
+  const [inverterPrice, setInverterPrice] = useState(0);
   const [structureId, setStructureId] = useState(null);
   const [structureSpecificRecord, setStructureSpecificRecord] = useState("");
   const [structureData, setStructureData] = useState([]);
   const [structureDiscount, setStructureDiscount] = useState(0);
+  const [structurePrice, setStructurePrice] = useState(0);
   const [cablingId, setCablingId] = useState(null);
   const [cablingSpecificRecord, setCablingSpecificRecord] = useState("");
   const [cablingData, setCablingData] = useState([]);
   const [cablingDiscount, setCablingDiscount] = useState(0);
+  const [cablingPrice, setCablingPrice] = useState(0);
   const [netMeteringId, setNetMeteringId] = useState(null);
   const [netMeteringSpecificRecord, setNetMeteringSpecificRecord] = useState("");
   const [netMeteringData, setNetMeteringData] = useState([]);
   const [netMeteringDiscount, setNetMeteringDiscount] = useState(0);
+  const [netMeteringPrice, setNetMeteringPrice] = useState(0);
   const [installationId, setInstallationId] = useState(null);
   const [installationSpecificRecord, setInstallationSpecificRecord] = useState("");
   const [installationData, setInstallationData] = useState([]);
   const [installationDiscount, setInstallationDiscount] = useState(0);
+  const [installationPrice, setInstallationPrice] = useState(0);
   const [batteriesId, setBatteriesId] = useState(null);
   const [batteriesSpecificRecord, setBatteriesSpecificRecord] = useState("");
   const [batteriesData, setBatteriesData] = useState([]);
   const [batteriesDiscount, setBatteriesDiscount] = useState(0);
+  const [batteriesPrice, setBatteriesPrice] = useState(0);
   const [lightningArrestorId, setLightningArrestorId] = useState(null);
   const [lightningArrestorSpecificRecord, setLightningArrestorSpecificRecord] = useState("");
   const [lightningArrestorData, setLightningArrestorData] = useState([]);
   const [lightningArrestorDiscount, setLightningArrestorDiscount] = useState(0);
+  const [lightningArrestorPrice, setLightningArrestorPrice] = useState(0);
   const [clientData, setClientData] = useState(0);
+  const [discount, setDiscount] = useState(0);
+  const [shipping, setShipping] = useState(0);
+  const [amountPaid, setAmountPaid] = useState(0);
   const initialValues = {
     name: "",
     cnic: "",
@@ -88,9 +102,18 @@ const CreateInvoicePageView = () => {
     net_metering: "",
     net_metering_quantity: "",
     net_metering_price: "",
+    battery: "",
+    battery_quantity: "",
+    battery_price: "",
+    lightning_arrestor: "",
+    lightning_arrestor_quantity: "",
+    lightning_arrestor_price: "",
+    installation: "",
+    installation_quantity: 0,
+    installation_price: "",
     discount: "",
     shipping_charges: "",
-    amount_paid: "",
+    amount_paid: 0,
     status: "",
   };
   const validationSchema = Yup.object().shape({
@@ -130,6 +153,12 @@ const CreateInvoicePageView = () => {
     // net_metering: Yup.string().required("Net Metering is Required!"),
     net_metering_quantity: Yup.string().required("Net Metering Quantity is Required!"),
     net_metering_price: Yup.string().required("Net Metering Price is Required!"),
+    battery_quantity: Yup.string().required("Battery Quantity is Required!"),
+    battery_price: Yup.string().required("Battery Price is Required!"),
+    lightning_arrestor_quantity: Yup.string().required("Lightning Arrestor Quantity is Required!"),
+    lightning_arrestor_price: Yup.string().required("Lightning Arrestor Price is Required!"),
+    // installation_quantity: Yup.string().required("Installation Quantity is Required!"),
+    installation_price: Yup.string().required("Installation Price is Required!"),
     // discount: Yup.string().required("Net Metering Price is Required!"),
     amount_paid: Yup.string().when('status', {
       is: value => value && (value === 'PARTIALLY_PAID' || value === 'PAID'),
@@ -223,6 +252,48 @@ const CreateInvoicePageView = () => {
       console.log(err.response.data);
     }
   };
+  const getBatteriesList = async () => {
+    try {
+      const res = await axios.get(baseApiUrl + "Batteries/" + "?format=json");
+      const Id = parseInt(batteriesId, 10);
+      const batteries = res?.data?.results.find((panel) => {
+        return panel.id === Id;
+      });
+      setBatteriesSpecificRecord(batteries);
+      const formattedData = res?.data?.results.map((item) => ({ label: item.name, value: item.id }));
+      setBatteriesData(formattedData);
+    } catch (err) {
+      console.log(err.response.data);
+    }
+  };
+  const getLightningArrestorList = async () => {
+    try {
+      const res = await axios.get(baseApiUrl + "LightningArrestor/" + "?format=json");
+      const Id = parseInt(lightningArrestorId, 10);
+      const lightningArrestor = res?.data?.results.find((panel) => {
+        return panel.id === Id;
+      });
+      setLightningArrestorSpecificRecord(lightningArrestor);
+      const formattedData = res?.data?.results.map((item) => ({ label: item.name, value: item.id }));
+      setLightningArrestorData(formattedData);
+    } catch (err) {
+      console.log(err.response.data);
+    }
+  };
+  const getInstallationList = async () => {
+    try {
+      const res = await axios.get(baseApiUrl + "Installation/" + "?format=json");
+      const Id = parseInt(installationId, 10);
+      const installation = res?.data?.results.find((panel) => {
+        return panel.id === Id;
+      });
+      setInstallationSpecificRecord(installation);
+      const formattedData = res?.data?.results.map((item) => ({ label: item.name, value: item.id }));
+      setInstallationData(formattedData);
+    } catch (err) {
+      console.log(err.response.data);
+    }
+  };
   const postClientData = async (formData) => {
     const header = {
       headers: {
@@ -232,7 +303,9 @@ const CreateInvoicePageView = () => {
     try {
       setloading(true);
       const res = await axios.post(baseApiUrl + "Client/", formData, header);
+      // console.log(res, "sddddddd")
       if (res.status === 201) {
+        setClientResponse(true);
         setTimeout(() => {
           toast.success("Client Added Successfully");
         }, 1000);
@@ -251,6 +324,7 @@ const CreateInvoicePageView = () => {
       setloading(true);
       const res = await axios.post(baseApiUrl + "Invoice/", otherData);
       if (res.status === 201) {
+        setInvoiceResponse(true);
         setTimeout(() => {
           toast.success("Invoice Added Successfully");
         }, 1000);
@@ -269,23 +343,29 @@ const CreateInvoicePageView = () => {
     getStructureList();
     getCablingList();
     getNetMeteringList();
+    getBatteriesList();
+    getLightningArrestorList();
+    getInstallationList();
   }, []);
   useEffect(() => {
-    if (solarPanelId || inverterId || structureId || cablingId || netMeteringId) {
+    if (solarPanelId || inverterId || structureId || cablingId || netMeteringId || batteriesId || lightningArrestorId || installationId) {
       getSolarPanelList();
       getInverterList();
       getStructureList();
       getCablingList();
       getNetMeteringList();
+      getBatteriesList();
+      getLightningArrestorList();
+      getInstallationList();
     }
-  }, [solarPanelId, inverterId, structureId, cablingId, netMeteringId]);
+  }, [solarPanelId, inverterId, structureId, cablingId, netMeteringId, batteriesId || lightningArrestorId || installationId || clientResponse || invoiceResponse]);
   useEffect(() => {
     // This effect will run whenever the discounts change to ensure latest values are used.
-  }, [solarPanelDiscount, inverterDiscount, structureDiscount, cablingDiscount, netMeteringDiscount]);
+  }, [solarPanelDiscount, inverterDiscount, structureDiscount, cablingDiscount, netMeteringDiscount, batteriesId, lightningArrestorId, installationId || clientResponse || invoiceResponse]);
   useEffect(() => {
     getClientList();
   }, [clientData])
-
+  const Subtotal = parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice);
   return <Box pt={2} pb={4}>
     <ToastContainer
       position="top-right"
@@ -305,7 +385,8 @@ const CreateInvoicePageView = () => {
         Add Invoice
       </H6>
 
-      <Formik initialValues={initialValues} validationSchema={validationSchema}
+      <Formik initialValues={initialValues}
+        validationSchema={validationSchema}
         onSubmit={async (values, { setSubmitting }) => {
           try {
             const formData = {
@@ -318,7 +399,7 @@ const CreateInvoicePageView = () => {
               monthly_consumption_units: values.monthly_consumption_units,
 
             }
-            console.log(formData, "formmmmmmmmmmmmmmmmmmm")
+            // console.log(formData, "formmmmmmmmmmmmmmmmmmm")
             const otherData = {
               name: clientData,
               solar_panel: values.solar_panel,
@@ -336,26 +417,36 @@ const CreateInvoicePageView = () => {
               net_metering: values.net_metering,
               net_metering_quantity: values.net_metering_quantity,
               net_metering_price: values.net_metering_price,
+              battery: values.battery,
+              battery_quantity: values.battery_quantity,
+              battery_price: values.battery_price,
+              lightning_arrestor: values.lightning_arrestor,
+              lightning_arrestor_quantity: values.lightning_arrestor_quantity,
+              lightning_arrestor_price: values.lightning_arrestor_price,
+              installation: values.installation,
+              installation_quantity: 0,
+              installation_price: values.installation_price,
               discount: values.discount,
               shipping_charges: values.shipping_charges,
-              amount_paid: values.amount_paid,
+              amount_paid: values.amount_paid ? values.amount_paid : 0,
+              total: Subtotal,
               status: values.status
               // total:
             }
-            console.log(otherData, "otherData")
-            const header = {
-              headers: {
-                "Content-Type": "multipart/form-data"
-              }
-            };
-            // Use Promise.all to await both requests concurrently
-            const [clientResponse, invoiceResponse] = await Promise.all([
+            // console.log(otherData, "otherData")
+            // const header = {
+            //   headers: {
+            //     "Content-Type": "multipart/form-data"
+            //   }
+            // };
+            // // Use Promise.all to await both requests concurrently
+            const [clienResponse, invoicResponse] = await Promise.all([
               postClientData(formData),
               postInvoiceData(otherData),
             ]);
-            // Check if both requests were successful
-            console.log(clientResponse, "clientResponse")
-            console.log(invoiceResponse, "invoiceResponse")
+            // // Check if both requests were successful
+            // console.log(clientResponse, "clientResponse")
+            // console.log(invoiceResponse, "invoiceResponse")
             if (clientResponse && invoiceResponse) {
               setTimeout(() => {
                 toast.success("Client and Invoice added successfully");
@@ -499,6 +590,7 @@ const CreateInvoicePageView = () => {
                   <TextField fullWidth type="number" name="Solar Panel Price" label="Solar Panel Price" value={values.solar_panel_price}
                     onChange={(e) => {
                       setFieldValue("solar_panel_price", e.target.value);
+                      setSolarPanelPrice(e.target.value);
                       // Calculate discount
                       // const discount = Math.max(0, (solarPanelSpecificRecord?.price * values.solar_panel_quantity) - values.solar_panel_price);
                       // setSolarPanelDiscount(discount);
@@ -576,7 +668,7 @@ const CreateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth name="Inverter Quantity" label="Inverter Quantity" value={values.inverter_quantity}
+                  <TextField fullWidth type="number" name="Inverter Quantity" label="Inverter Quantity" value={values.inverter_quantity}
                     onChange={(e) => {
                       setFieldValue("inverter_quantity", e.target.value);
                     }}
@@ -585,9 +677,10 @@ const CreateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth name="Inverter Price" label="Inverter Price" value={values.inverter_price}
+                  <TextField fullWidth type="number" name="Inverter Price" label="Inverter Price" value={values.inverter_price}
                     onChange={(e) => {
                       setFieldValue("inverter_price", e.target.value);
+                      setInverterPrice(e.target.value);
                       const discount = Math.max(0, (inverterSpecificRecord?.price * values.inverter_quantity) - values.inverter_price);
                       setInverterDiscount(discount);
                     }}
@@ -664,7 +757,7 @@ const CreateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth name="Structure Quantity" label="Structure Quantity" value={values.structure_quantity}
+                  <TextField fullWidth type="number" name="Structure Quantity" label="Structure Quantity" value={values.structure_quantity}
                     onChange={(e) => {
                       setFieldValue("structure_quantity", e.target.value);
                     }}
@@ -673,9 +766,10 @@ const CreateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth name="Structure Price" label="Structure Price" value={values.structure_price}
+                  <TextField fullWidth type="number" name="Structure Price" label="Structure Price" value={values.structure_price}
                     onChange={(e) => {
                       setFieldValue("structure_price", e.target.value);
+                      setStructurePrice(e.target.value);
                       const discount = Math.max(0, (structureSpecificRecord?.price * values.structure_quantity) - values.structure_price);
                       setStructureDiscount(discount);
                     }}
@@ -752,7 +846,7 @@ const CreateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth name="Cabling Quantity" label="Cabling Quantity" value={values.cabling_quantity}
+                  <TextField fullWidth type="number" name="Cabling Quantity" label="Cabling Quantity" value={values.cabling_quantity}
                     onChange={(e) => {
                       setFieldValue("cabling_quantity", e.target.value);
                     }}
@@ -761,9 +855,10 @@ const CreateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth name="Cabling Price" label="Cabling Price" value={values.cabling_price}
+                  <TextField fullWidth type="number" name="Cabling Price" label="Cabling Price" value={values.cabling_price}
                     onChange={(e) => {
                       setFieldValue("cabling_price", e.target.value);
+                      setCablingPrice(e.target.value);
                       const discount = Math.max(0, (cablingSpecificRecord?.price * values.cabling_quantity) - values.cabling_price);
                       setCablingDiscount(discount);
                     }}
@@ -840,7 +935,7 @@ const CreateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth name="Net Metering Quantity" label="Net Metering Quantity" value={values.net_metering_quantity}
+                  <TextField fullWidth type="number" name="Net Metering Quantity" label="Net Metering Quantity" value={values.net_metering_quantity}
                     onChange={(e) => {
                       setFieldValue("net_metering_quantity", e.target.value);
                     }}
@@ -849,9 +944,10 @@ const CreateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth name="Net Metering Price" label="Net Metering Price" value={values.net_metering_price}
+                  <TextField fullWidth type="number" name="Net Metering Price" label="Net Metering Price" value={values.net_metering_price}
                     onChange={(e) => {
                       setFieldValue("net_metering_price", e.target.value);
+                      setNetMeteringPrice(e.target.value);
                       const discount = Math.max(0, (netMeteringSpecificRecord?.price * values.net_metering_quantity) - values.net_metering_price);
                       setNetMeteringDiscount(discount);
                     }}
@@ -908,48 +1004,48 @@ const CreateInvoicePageView = () => {
             }} />
 
 
-
             <H6 fontSize={16} mb={2}>
-              Batteries Information
+              Battery Information
             </H6>
             <Grid container spacing={3}>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
                   <Select
-                    placeholder="Batteries"
-                    fullWidth name="Batteries" label="Batteries"
-                    options={netMeteringData}
+                    placeholder="Battery"
+                    fullWidth name="Battery" label="Battery"
+                    options={batteriesData}
                     onChange={(value) => {
-                      setFieldValue("batteries", value.value);
+                      setFieldValue("battery", value.value);
                       setBatteriesId(value.value);
                     }}
-                    helperText={touched.batteries && errors.batteries}
-                    error={Boolean(touched.batteries && errors.batteries)}
+                    helperText={touched.battery && errors.battery}
+                    error={Boolean(touched.battery && errors.battery)}
                   />
                 </Box>
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth name="Batteries Quantity" label="Batteries Quantity" value={values.batteries_quantity}
+                  <TextField fullWidth type="number" name="Battery Quantity" label="Battery Quantity" value={values.battery_quantity}
                     onChange={(e) => {
-                      setFieldValue("batteries_quantity", e.target.value);
+                      setFieldValue("battery_quantity", e.target.value);
                     }}
-                    helperText={touched.batteries_quantity && errors.batteries_quantity} error={Boolean(touched.batteries_quantity && errors.batteries_quantity)} />
+                    helperText={touched.battery_quantity && errors.battery_quantity} error={Boolean(touched.battery_quantity && errors.battery_quantity)} />
                 </Box>
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth name="Batteries Price" label="Batteries Price" value={values.batteries_price}
+                  <TextField fullWidth type="number" name="Battery Price" label="Battery Price" value={values.battery_price}
                     onChange={(e) => {
-                      setFieldValue("batteries_price", e.target.value);
-                      const discount = Math.max(0, (batteriesSpecificRecord?.price * values.batteries_quantity) - values.batteries_price);
+                      setFieldValue("battery_price", e.target.value);
+                      setBatteriesPrice(e.target.value);
+                      const discount = Math.max(0, (batteriesSpecificRecord?.price * values.battery_quantity) - values.battery_price);
                       setBatteriesDiscount(discount);
                     }}
-                    helperText={touched.batteries_price && errors.batteries_price} error={Boolean(touched.batteries_price && errors.batteries_price)} />
+                    helperText={touched.battery_price && errors.battery_price} error={Boolean(touched.battery_price && errors.battery_price)} />
                   <FlexBetween mt={1} mx={1}>
                     <Paragraph fontWeight={500} fontSize={12} color="grey">
                       <i>
-                        Per Batteries Price:
+                        Per Battery Price:
                       </i>
                     </Paragraph>
                     <Paragraph fontWeight={500} fontSize={12}>
@@ -961,12 +1057,12 @@ const CreateInvoicePageView = () => {
                   <FlexBetween mx={1}>
                     <Paragraph fontWeight={500} fontSize={12} color="grey">
                       <i>
-                        Total Batteries Price: {batteriesSpecificRecord?.price} X {values.batteries_quantity ? values.batteries_quantity : 0} =
+                        Total Batteries Price: {batteriesSpecificRecord?.price} X {values.battery_quantity ? values.battery_quantity : 0} =
                       </i>
                     </Paragraph>
                     <Paragraph fontWeight={500} fontSize={12}>
                       <i>
-                        {isNaN(batteriesSpecificRecord?.price * values.batteries_quantity) ? 0 : batteriesSpecificRecord?.price * values.batteries_quantity}
+                        {isNaN(batteriesSpecificRecord?.price * values.battery_quantity) ? 0 : batteriesSpecificRecord?.price * values.battery_quantity}
                       </i>
                     </Paragraph>
                   </FlexBetween>
@@ -980,9 +1076,188 @@ const CreateInvoicePageView = () => {
                       <i>
                         {
                           (() => {
-                            const total = batteriesSpecificRecord?.price * values.batteries_quantity;
-                            const discount = isNaN(total - values.batteries_price) ? 0 : Math.max(0, total - values.batteries_price);
+                            const total = batteriesSpecificRecord?.price * values.battery_quantity;
+                            const discount = isNaN(total - values.battery_price) ? 0 : Math.max(0, total - values.battery_price);
                             setBatteriesDiscount(discount);
+                            return discount;
+                          })()
+                        }
+                      </i>
+                    </Paragraph>
+                  </FlexBetween>
+                </Box>
+              </Grid>
+
+            </Grid>
+            <Divider sx={{
+              my: 4
+            }} />
+
+
+            <H6 fontSize={16} mb={2}>
+              Lightning Arrestor Information
+            </H6>
+            <Grid container spacing={3}>
+              <Grid item md={4} sm={6} xs={12}>
+                <Box marginBottom={0}>
+                  <Select
+                    placeholder="Lightning Arrestor"
+                    fullWidth name="Lightning Arrestor" label="Lightning Arrestor"
+                    options={lightningArrestorData}
+                    onChange={(value) => {
+                      setFieldValue("lightning_arrestor", value.value);
+                      setLightningArrestorId(value.value);
+                    }}
+                    helperText={touched.lightning_arrestor && errors.lightning_arrestor}
+                    error={Boolean(touched.lightning_arrestor && errors.lightning_arrestor)}
+                  />
+                </Box>
+              </Grid>
+              <Grid item md={4} sm={6} xs={12}>
+                <Box marginBottom={0}>
+                  <TextField fullWidth type="number" name="Lightning Arrestor Quantity" label="Lightning Arrestor Quantity" value={values.lightning_arrestor_quantity}
+                    onChange={(e) => {
+                      setFieldValue("lightning_arrestor_quantity", e.target.value);
+                    }}
+                    helperText={touched.lightning_arrestor_quantity && errors.lightning_arrestor_quantity} error={Boolean(touched.lightning_arrestor_quantity && errors.lightning_arrestor_quantity)} />
+                </Box>
+              </Grid>
+              <Grid item md={4} sm={6} xs={12}>
+                <Box marginBottom={0}>
+                  <TextField fullWidth type="number" name="Lightning Arrestor Price" label="Lightning Arrestor Price" value={values.lightning_arrestor_price}
+                    onChange={(e) => {
+                      setFieldValue("lightning_arrestor_price", e.target.value);
+                      setLightningArrestorPrice(e.target.value);
+                      const discount = Math.max(0, (lightningArrestorSpecificRecord?.price * values.lightning_arrestor_quantity) - values.lightning_arrestor_price);
+                      setLightningArrestorDiscount(discount);
+                    }}
+                    helperText={touched.lightning_arrestor_price && errors.lightning_arrestor_price} error={Boolean(touched.lightning_arrestor_price && errors.lightning_arrestor_price)} />
+                  <FlexBetween mt={1} mx={1}>
+                    <Paragraph fontWeight={500} fontSize={12} color="grey">
+                      <i>
+                        Per Lightning Arrestor Price:
+                      </i>
+                    </Paragraph>
+                    <Paragraph fontWeight={500} fontSize={12}>
+                      <i>
+                        {lightningArrestorSpecificRecord?.price ? lightningArrestorSpecificRecord?.price : 0}
+                      </i>
+                    </Paragraph>
+                  </FlexBetween>
+                  <FlexBetween mx={1}>
+                    <Paragraph fontWeight={500} fontSize={12} color="grey">
+                      <i>
+                        Total Lightning Arrestor Price: {lightningArrestorSpecificRecord?.price} X {values.lightning_arrestor_quantity ? values.lightning_arrestor_quantity : 0} =
+                      </i>
+                    </Paragraph>
+                    <Paragraph fontWeight={500} fontSize={12}>
+                      <i>
+                        {isNaN(lightningArrestorSpecificRecord?.price * values.lightning_arrestor_quantity) ? 0 : lightningArrestorSpecificRecord?.price * values.lightning_arrestor_quantity}
+                      </i>
+                    </Paragraph>
+                  </FlexBetween>
+                  <FlexBetween mx={1}>
+                    <Paragraph fontWeight={500} fontSize={12} color="grey">
+                      <i>
+                        Discount:
+                      </i>
+                    </Paragraph>
+                    <Paragraph fontWeight={500} fontSize={12}>
+                      <i>
+                        {
+                          (() => {
+                            const total = lightningArrestorSpecificRecord?.price * values.lightning_arrestor_quantity;
+                            const discount = isNaN(total - values.lightning_arrestor_price) ? 0 : Math.max(0, total - values.lightning_arrestor_price);
+                            setLightningArrestorDiscount(discount);
+                            return discount;
+                          })()
+                        }
+                      </i>
+                    </Paragraph>
+                  </FlexBetween>
+                </Box>
+              </Grid>
+
+            </Grid>
+            <Divider sx={{
+              my: 4
+            }} />
+
+            <H6 fontSize={16} mb={2}>
+              Installation Information
+            </H6>
+            <Grid container spacing={3}>
+              <Grid item md={4} sm={6} xs={12}>
+                <Box marginBottom={0}>
+                  <Select
+                    placeholder="Installation"
+                    fullWidth name="Installation" label="Installation"
+                    options={installationData}
+                    onChange={(value) => {
+                      setFieldValue("installation", value.value);
+                      setInstallationId(value.value);
+                    }}
+                    helperText={touched.installation && errors.installation}
+                    error={Boolean(touched.installation && errors.installation)}
+                  />
+                </Box>
+              </Grid>
+              {/* <Grid item md={4} sm={6} xs={12}>
+                <Box marginBottom={0}>
+                  <TextField fullWidth name="Installation Quantity" label="Installation Quantity" value={values.installation_quantity}
+                    onChange={(e) => {
+                      setFieldValue("installation_quantity", e.target.value);
+                    }}
+                    helperText={touched.installation_quantity && errors.installation_quantity} error={Boolean(touched.installation_quantity && errors.installation_quantity)} />
+                </Box>
+              </Grid> */}
+              <Grid item md={4} sm={6} xs={12}>
+                <Box marginBottom={0}>
+                  <TextField fullWidth type="number" name="Installation Price" label="Installation Price" value={values.installation_price}
+                    onChange={(e) => {
+                      setFieldValue("installation_price", e.target.value);
+                      setInstallationPrice(e.target.value);
+                      const discount = Math.max(0, (installationSpecificRecord?.price * values.installation_quantity) - values.installation_price);
+                      setInstallationDiscount(discount);
+                    }}
+                    helperText={touched.installation_price && errors.installation_price} error={Boolean(touched.installation_price && errors.installation_price)} />
+                  {/* <FlexBetween mt={1} mx={1}>
+                    <Paragraph fontWeight={500} fontSize={12} color="grey">
+                      <i>
+                        Per installation Price:
+                      </i>
+                    </Paragraph>
+                    <Paragraph fontWeight={500} fontSize={12}>
+                      <i>
+                        {installationSpecificRecord?.price ? installationSpecificRecord?.price : 0}
+                      </i>
+                    </Paragraph>
+                  </FlexBetween> */}
+                  {/* <FlexBetween mx={1}>
+                    <Paragraph fontWeight={500} fontSize={12} color="grey">
+                      <i>
+                        Total Installation Price: {installationSpecificRecord?.price} X {values.installation_quantity ? values.installation_quantity : 0} =
+                      </i>
+                    </Paragraph>
+                    <Paragraph fontWeight={500} fontSize={12}>
+                      <i>
+                        {isNaN(installationSpecificRecord?.price * values.installation_quantity) ? 0 : installationSpecificRecord?.price * values.installation_quantity}
+                      </i>
+                    </Paragraph>
+                  </FlexBetween> */}
+                  <FlexBetween mx={1}>
+                    <Paragraph fontWeight={500} fontSize={12} color="grey">
+                      <i>
+                        Discount:
+                      </i>
+                    </Paragraph>
+                    <Paragraph fontWeight={500} fontSize={12}>
+                      <i>
+                        {
+                          (() => {
+                            const total = installationSpecificRecord?.price ? installationSpecificRecord?.price : 0;
+                            const discount = isNaN(total - values.installation_price) ? 0 : Math.max(0, total - values.installation_price);
+                            setInstallationDiscount(discount);
                             return discount;
                           })()
                         }
@@ -1000,9 +1275,10 @@ const CreateInvoicePageView = () => {
             <Grid container spacing={3}>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth name="Discount" label="Discount" value={values.discount}
+                  <TextField fullWidth type="number" name="Discount" label="Discount" value={values.discount}
                     onChange={(e) => {
                       setFieldValue("discount", e.target.value);
+                      setDiscount(e.target.value);
                     }}
                     helperText={touched.discount && errors.discount} error={Boolean(touched.discount && errors.discount)} />
                   <FlexBetween mt={1} mx={1}>
@@ -1014,6 +1290,9 @@ const CreateInvoicePageView = () => {
                         <br /> Structure:
                         <br /> Cabling:
                         <br /> Net Metering:
+                        <br /> Battery:
+                        <br /> Lightning Arrestor:
+                        <br /> Installation:
                         <hr style={{ marginTop: '2px', marginBottom: '2px' }} /> Total
 
                       </i>
@@ -1026,8 +1305,11 @@ const CreateInvoicePageView = () => {
                         <br /> {structureDiscount}
                         <br /> {cablingDiscount}
                         <br /> {netMeteringDiscount}
+                        <br /> {batteriesDiscount}
+                        <br /> {lightningArrestorDiscount}
+                        <br /> {installationDiscount}
                         <hr style={{ marginTop: '2px', marginBottom: '2px' }} />
-                        {solarPanelDiscount + inverterDiscount + structureDiscount + cablingDiscount + netMeteringDiscount}
+                        {solarPanelDiscount + inverterDiscount + structureDiscount + cablingDiscount + netMeteringDiscount + batteriesDiscount + lightningArrestorDiscount + installationDiscount}
                       </i>
                     </Paragraph>
                   </FlexBetween>
@@ -1035,18 +1317,20 @@ const CreateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth name="Shipping Charges" label="Shipping Charges" value={values.shipping_charges}
+                  <TextField fullWidth type="number" name="Shipping Charges" label="Shipping Charges" value={values.shipping_charges}
                     onChange={(e) => {
                       setFieldValue("shipping_charges", e.target.value);
+                      setShipping(e.target.value);
                     }}
                     helperText={touched.shipping_charges && errors.shipping_charges} error={Boolean(touched.shipping_charges && errors.shipping_charges)} />
                 </Box>
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth name="Amount Paid" label="Amount Paid" value={values.amount_paid}
+                  <TextField fullWidth type="number" name="Amount Paid" label="Amount Paid" value={values.amount_paid}
                     onChange={(e) => {
                       setFieldValue("amount_paid", e.target.value);
+                      setAmountPaid(e.target.value);
                     }}
                     helperText={touched.amount_paid && errors.amount_paid} error={Boolean(touched.amount_paid && errors.amount_paid)} />
 
@@ -1082,17 +1366,24 @@ const CreateInvoicePageView = () => {
 
               <FlexBetween my={1}>
                 <Paragraph fontWeight={500}>Subtotal</Paragraph>
-                <Paragraph fontWeight={500}>$428.00</Paragraph>
+                <Paragraph fontWeight={500}>{Subtotal}</Paragraph>
+              </FlexBetween>
+              <Divider sx={{
+                my: 2
+              }} />
+              <FlexBetween my={1}>
+                <Paragraph fontWeight={500}>After Discount</Paragraph>
+                <Paragraph fontWeight={500}>{Subtotal - parseInt(discount)}</Paragraph>
               </FlexBetween>
 
               <FlexBetween my={1}>
-                <Paragraph fontWeight={500}>Discount (BLACKFRIDAY)</Paragraph>
-                <Paragraph fontWeight={500}>-$8.00</Paragraph>
+                <Paragraph fontWeight={500}>Shipping Amount</Paragraph>
+                <Paragraph fontWeight={500}>+&nbsp;&nbsp;&nbsp; {parseInt(shipping)}</Paragraph>
               </FlexBetween>
 
               <FlexBetween my={1}>
-                <Paragraph fontWeight={500}>VAT</Paragraph>
-                <Paragraph fontWeight={500}>$20.00</Paragraph>
+                <Paragraph fontWeight={500}>Paid Amount</Paragraph>
+                <Paragraph fontWeight={500}>-&nbsp;&nbsp;&nbsp; {parseInt(amountPaid)}</Paragraph>
               </FlexBetween>
 
               <Divider sx={{
@@ -1100,8 +1391,8 @@ const CreateInvoicePageView = () => {
               }} />
 
               <FlexBetween my={1}>
-                <H6 fontSize={16}>Total</H6>
-                <H6 fontSize={16}>$20.00</H6>
+                <H6 fontSize={16}>Due Amount</H6>
+                <H6 fontSize={16}>{(Subtotal - parseInt(discount) + parseInt(shipping)) - parseInt(amountPaid)}</H6>
               </FlexBetween>
             </Box>
 

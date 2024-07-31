@@ -6,14 +6,14 @@ import { AvatarLoading } from "@/components/avatar-loading";
 
 const UserAccount = () => {
   return <FlexRowAlign flexDirection="column" py={5}>
-      <Badge badgeContent="Free" color="primary">
+    {/* <Badge badgeContent="Free" color="primary">
         <AvatarLoading alt="user" percentage={60} src="/static/user/user-11.png" sx={{
         width: 50,
         height: 50
       }} />
-      </Badge>
+      </Badge> */}
 
-      <Box textAlign="center" pt={1.5} pb={3}>
+    {/* <Box textAlign="center" pt={1.5} pb={3}>
         <Chip variant="outlined" label="60% Complete" size="small" />
         <Paragraph fontSize={16} fontWeight={600} mt={2}>
           Aaron Cooper
@@ -23,8 +23,8 @@ const UserAccount = () => {
         </Paragraph>
       </Box>
 
-      <Button>Upgrade to Pro</Button>
-    </FlexRowAlign>;
+      <Button>Upgrade to Pro</Button> */}
+  </FlexRowAlign>;
 };
 
 export default UserAccount;

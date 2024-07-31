@@ -137,7 +137,7 @@ const UpdateNetMeteringPageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth name="Phase Type" label="Phase Type" value={values.phase_type}
+                  <TextField fullWidth type="number" name="Phase Type" label="Phase Type" value={values.phase_type}
                     onChange={(e) => {
                       setFieldValue("phase_type", e.target.value);
                     }}
@@ -146,7 +146,7 @@ const UpdateNetMeteringPageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth name="Price" label="Price" value={values.price}
+                  <TextField fullWidth type="number" name="Price" label="Price" value={values.price}
                     onChange={(e) => {
                       setFieldValue("price", e.target.value);
                     }}

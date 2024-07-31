@@ -278,6 +278,11 @@ const InvoiceListPageView = () => {
       dataIndex: 'total',
       key: '2',
       width: 150,
+      render: (text, record) => {
+        return (
+          <span>{parseInt(record.total)}</span>
+        )
+      },
       sorter: {
         compare: (a, b) => a.name.localeCompare(b.name),
         multiple: 4,
@@ -303,6 +308,11 @@ const InvoiceListPageView = () => {
       dataIndex: 'amount_paid',
       key: '3',
       width: 150,
+      render: (text, record) => {
+        return (
+          <span>{parseInt(record.amount_paid)}</span>
+        )
+      },
       sorter: {
         compare: (a, b) => a.id - b.id,
         multiple: 5,
@@ -417,7 +427,7 @@ const InvoiceListPageView = () => {
   const getInvoiceList = () => {
     axios.get(baseApiUrl + "/invoice")
       .then((res) => {
-        console.log(res.data)
+        // console.log(res.data)
         setInvoiceData(res?.data);
         setFilteredData(res?.data);
       })
