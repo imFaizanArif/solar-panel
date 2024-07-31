@@ -428,7 +428,7 @@ const CreateInvoicePageView = () => {
               installation_price: values.installation_price,
               discount: values.discount,
               shipping_charges: values.shipping_charges,
-              amount_paid: values.amount_paid ? values.amount_paid : 0,
+              amount_paid: parseInt(values.amount_paid) ? parseInt(values.amount_paid) : 0,
               total: Subtotal,
               status: values.status
               // total:
