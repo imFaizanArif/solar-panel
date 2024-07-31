@@ -248,7 +248,7 @@ export const DashboardRoutes = [{
     element: <InvoiceCreate />
   },
   {
-    path: "update-invoice",
+    path: "update-invoice/:id",
     element: <InvoiceUpdate />
   },
   // {

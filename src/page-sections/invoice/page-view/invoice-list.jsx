@@ -10,7 +10,7 @@ import useNavigate from "@/hooks/useNavigate"; // CUSTOM DEFINED HOOK
 
 import Add from "@/icons/Add"; // CUSTOM ICON COMPONENTS
 import Pages from "@/icons/sidebar/Pages";
-import { DeleteOutline, Edit } from "@mui/icons-material";
+import { DeleteOutline, Download, Edit } from "@mui/icons-material";
 import { IconWrapper } from "@/components/icon-wrapper";
 import { ToastContainer, toast } from "react-toastify";
 
@@ -70,18 +70,25 @@ const InvoiceListPageView = () => {
   // Search
   const [filteredData, setFilteredData] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const handleSearch = (event) => {
-    const value = event.target.value;
-    setSearchTerm(value);
-    if (value === '') {
-      setFilteredData(InvoiceData);
-    } else {
-      const filteredData = InvoiceData.filter((item) =>
-        item.name.toLowerCase().includes(value.toLowerCase())
-      );
-      setFilteredData(filteredData);
-    }
-  };
+  const [dateRange, setDateRange] = useState([null, null]);
+  // Search and Date Range Filter
+
+  // const handleSearch = (event) => {
+  //   setSearchTerm(event.target.value);
+  // };
+
+  // const handleSearc = (event) => {
+  //   const value = event.target.value;
+  //   setSearchTerm(value);
+  //   if (value === '') {
+  //     setFilteredData(InvoiceData);
+  //   } else {
+  //     const filteredData = InvoiceData.filter((item) =>
+  //       item.name.toLowerCase().includes(value.toLowerCase())
+  //     );
+  //     setFilteredData(filteredData);
+  //   }
+  // };
   // Search
   // const expandedRowRender = () => {
   //   const columns = [
@@ -406,6 +413,14 @@ const InvoiceListPageView = () => {
               <MenuItem
                 onClick={() => {
                   handleCloseOpenMenu();
+                  downloadInvoice(record.id);
+                }}
+              >
+                <Download fontSize="16" />&nbsp; Download
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  handleCloseOpenMenu();
                   handleOpen();
                   setQuery(record.id); // Correctly set the query with the record ID
                 }}
@@ -446,12 +461,79 @@ const InvoiceListPageView = () => {
         toast.error("Record Not Deleted");
       });
   }
+  const downloadInvoice = async (recordId) => {
+    try {
+      const response = await axios.get(`${baseApiUrl}/invoice/${recordId}/download`, {
+        responseType: 'blob', // Ensure you get the file as binary data
+      });
+
+      if (response.status === 200) {
+        // Create a URL for the blob data
+        const blob = new Blob([response.data], { type: response.headers['content-type'] });
+        const url = window.URL.createObjectURL(blob);
+
+        // Create a link element
+        const link = document.createElement('a');
+        link.href = url;
+
+        // Determine the file extension and name
+        const contentDisposition = response.headers['content-disposition'];
+        let fileName = 'Invoice'; // Default file name
+
+        if (contentDisposition) {
+          const fileNameMatch = contentDisposition.match(/filename="?(.+)"?/);
+          if (fileNameMatch && fileNameMatch[1]) {
+            fileName = fileNameMatch[1];
+          }
+        }
+
+        link.setAttribute('download', fileName);
+
+        // Append the link to the body
+        document.body.appendChild(link);
+
+        // Trigger the download
+        link.click();
+
+        // Cleanup
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+
+        toast.success("File Downloaded Successfully");
+      } else {
+        toast.error("File Downloading Failed");
+      }
+    } catch (error) {
+      console.error("Error downloading the file:", error);
+      toast.error("File Downloading Failed");
+    }
+  };
+  const handleDateRangeChange = (value) => {
+    setDateRange(value);
+    console.log(value, "kkkkkkkkkkkkkkk");
+  };
+
+  const filterData = () => {
+    let filtered = InvoiceData;
+
+    if (dateRange[0] && dateRange[1]) {
+      const [startDate, endDate] = dateRange;
+      filtered = filtered.filter((item) => {
+        const itemDate = new Date(item.created_at);
+        return itemDate >= startDate && itemDate <= endDate;
+      });
+    }
+
+    setFilteredData(filtered);
+  };
 
 
   useEffect(() => {
     getInvoiceList();
   }, []);
-
+  useEffect(() => {
+    filterData();
+  }, [searchTerm, dateRange, InvoiceData]);
 
   return <Card>
     <ToastContainer
@@ -480,19 +562,19 @@ const InvoiceListPageView = () => {
     </FlexBetween>
 
     <Wrapper gap={2} px={2} pb={3}>
-      <DateRangePicker placeholder="Select Date Range" />
-      <TextField
+      <DateRangePicker placeholder="Select Date Range" onChange={handleDateRangeChange} />
+      {/* <TextField
         fullWidth
         label="Search Invoice by name..."
         value={searchTerm}
         onChange={handleSearch}
-      />
+      /> */}
     </Wrapper>
 
     <Table
       columns={columns}
-      // dataSource={filteredData?.map(item => ({ ...item, key: item?.id }))}
-      dataSource={InvoiceData}
+      dataSource={filteredData?.map(item => ({ ...item, key: item?.id }))}
+      // dataSource={InvoiceData}
       locale={locale}
       // expandable={{
       //   expandedRowRender,
