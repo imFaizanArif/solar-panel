@@ -443,7 +443,7 @@ const InvoiceListPageView = () => {
     axios.get(baseApiUrl + "/invoice")
       .then((res) => {
         // console.log(res.data)
-        setInvoiceData(res?.data);
+        setInvoiceData(res?.data.reverse());
         setFilteredData(res?.data);
       })
       .catch((err) => console.log(err.response.data));
