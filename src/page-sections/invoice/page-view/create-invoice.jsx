@@ -195,7 +195,7 @@ const CreateInvoicePageView = () => {
             </Grid>
             <Grid item md={4} sm={6} xs={12}>
               <Box marginBottom={0}>
-                {item.cnic}
+                {item.area}, {item.city}
               </Box>
             </Grid>
             <Grid item md={4} sm={6} xs={12}>
@@ -204,7 +204,7 @@ const CreateInvoicePageView = () => {
               </Box>
             </Grid>
           </Grid>, value: item.id
-      }));
+      })).reverse();;
       setClientData(formattedData);
     } catch (err) {
       console.log(err.response.data);
