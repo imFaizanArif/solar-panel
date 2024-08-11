@@ -204,7 +204,7 @@ const CreateInvoicePageView = () => {
               </Box>
             </Grid>
           </Grid>, value: item.id
-      })).reverse();;
+      })).reverse();
       setClientData(formattedData);
     } catch (err) {
       console.log(err.response.data);
@@ -352,7 +352,7 @@ const CreateInvoicePageView = () => {
     // This effect will run whenever the discounts change to ensure latest values are used.
   }, [solarPanelDiscount, inverterDiscount, structureDiscount, cablingDiscount, netMeteringDiscount, batteriesId, lightningArrestorId, installationId || clientResponse || invoiceResponse]);
 
-  const Subtotal = parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice);
+  const Subtotal = parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice) + parseInt(shipping) - parseInt(amountPaid) - parseInt(discount);
 
 
   return <Box pt={2} pb={4}>
