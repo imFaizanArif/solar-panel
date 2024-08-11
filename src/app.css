@@ -1,3 +1,7 @@
 .css-13s8j3m-MuiButtonBase-root-MuiButton-root:hover {
     background-color: #F18539;
 }
+.react-select__menu {
+  z-index: 1000; /* Adjust this value as needed */
+  background-color:white ;
+}

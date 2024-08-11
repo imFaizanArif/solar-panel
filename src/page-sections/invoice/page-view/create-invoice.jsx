@@ -75,11 +75,15 @@ const CreateInvoicePageView = () => {
   const [lightningArrestorData, setLightningArrestorData] = useState([]);
   const [lightningArrestorDiscount, setLightningArrestorDiscount] = useState(0);
   const [lightningArrestorPrice, setLightningArrestorPrice] = useState(0);
-  const [clientData, setClientData] = useState(0);
+  const [clientData, setClientData] = useState([]);
+  const [nextPageUrl, setNextPageUrl] = useState(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+
   const [discount, setDiscount] = useState(0);
   const [shipping, setShipping] = useState(0);
   const [amountPaid, setAmountPaid] = useState(0);
-  const initialValues = {
+  const clientInitialValues = {
     name: "",
     cnic: "",
     city: "",
@@ -87,6 +91,9 @@ const CreateInvoicePageView = () => {
     area: "",
     contact_number: "",
     monthly_consumption_units: "",
+  }
+  const initialValues = {
+    name: "",
     solar_panel: "",
     solar_panel_quantity: "",
     solar_panel_price: "",
@@ -116,7 +123,7 @@ const CreateInvoicePageView = () => {
     amount_paid: 0,
     status: "",
   };
-  const validationSchema = Yup.object().shape({
+  const clientValidationSchema = Yup.object().shape({
     name: Yup.string().required("Name To is Required!"),
     cnic: Yup.string()
       .required("CNIC is Required!")
@@ -126,7 +133,7 @@ const CreateInvoicePageView = () => {
 
         try {
           const res = await axios.get(`${baseApiUrl}Client/?format=json`);
-          const existingCNICs = res?.data?.results.map(client => client.cnic);
+          const existingCNICs = res?.data?.map(client => client.cnic);
 
           // Check if the CNIC already exists in the database
           return !existingCNICs.includes(value);
@@ -138,27 +145,29 @@ const CreateInvoicePageView = () => {
     city: Yup.string().required("City is Required!"),
     area: Yup.string().required("Area is Required!"),
     contact_number: Yup.string().required("Contact Number is Required!"),
-    // solar_panel: Yup.string().required("Solar Panel is Required!"),
-    solar_panel_quantity: Yup.string().required("Solar Panel Quantity is Required!"),
-    solar_panel_price: Yup.string().required("Solar Panel Price is Required!"),
+  });
+  const validationSchema = Yup.object().shape({
+    name: Yup.string().required("Name To is Required!"),
+    // solar_panel_quantity: Yup.string().required("Solar Panel Quantity is Required!"),
+    // solar_panel_price: Yup.string().required("Solar Panel Price is Required!"),
     // inverter: Yup.string().required("Inverter is Required!"),
-    inverter_quantity: Yup.string().required("Inverter Quantity is Required!"),
-    inverter_price: Yup.string().required("Inverter Price is Required!"),
+    // inverter_quantity: Yup.string().required("Inverter Quantity is Required!"),
+    // inverter_price: Yup.string().required("Inverter Price is Required!"),
     // structure: Yup.string().required("Structure is Required!"),
-    structure_quantity: Yup.string().required("Structure Quantity is Required!"),
-    structure_price: Yup.string().required("Structure Price is Required!"),
+    // structure_quantity: Yup.string().required("Structure Quantity is Required!"),
+    // structure_price: Yup.string().required("Structure Price is Required!"),
     // cabling: Yup.string().required("Cabling is Required!"),
-    cabling_quantity: Yup.string().required("Cabling Quantity is Required!"),
-    cabling_price: Yup.string().required("Cabling Price is Required!"),
+    // cabling_quantity: Yup.string().required("Cabling Quantity is Required!"),
+    // cabling_price: Yup.string().required("Cabling Price is Required!"),
     // net_metering: Yup.string().required("Net Metering is Required!"),
-    net_metering_quantity: Yup.string().required("Net Metering Quantity is Required!"),
-    net_metering_price: Yup.string().required("Net Metering Price is Required!"),
-    battery_quantity: Yup.string().required("Battery Quantity is Required!"),
-    battery_price: Yup.string().required("Battery Price is Required!"),
-    lightning_arrestor_quantity: Yup.string().required("Lightning Arrestor Quantity is Required!"),
-    lightning_arrestor_price: Yup.string().required("Lightning Arrestor Price is Required!"),
+    // net_metering_quantity: Yup.string().required("Net Metering Quantity is Required!"),
+    // net_metering_price: Yup.string().required("Net Metering Price is Required!"),
+    // battery_quantity: Yup.string().required("Battery Quantity is Required!"),
+    // battery_price: Yup.string().required("Battery Price is Required!"),
+    // lightning_arrestor_quantity: Yup.string().required("Lightning Arrestor Quantity is Required!"),
+    // lightning_arrestor_price: Yup.string().required("Lightning Arrestor Price is Required!"),
     // installation_quantity: Yup.string().required("Installation Quantity is Required!"),
-    installation_price: Yup.string().required("Installation Price is Required!"),
+    // installation_price: Yup.string().required("Installation Price is Required!"),
     // discount: Yup.string().required("Net Metering Price is Required!"),
     amount_paid: Yup.string().when('status', {
       is: value => value && (value === 'PARTIALLY_PAID' || value === 'PAID'),
@@ -171,13 +180,32 @@ const CreateInvoicePageView = () => {
     ),
   });
   const handleCancel = () => navigate("/dashboard/invoice-list");
+
+
   const getClientList = async () => {
     try {
       const res = await axios.get(baseApiUrl + "Client/" + "?format=json");
-      const sortedData = res?.data?.results.sort((a, b) => a.id - b.id); // Sort by ID ascending
-      const lastEnteredId = sortedData.length > 0 ? sortedData[sortedData.length - 1].id : null;
-
-      setClientData(lastEnteredId);
+      const formattedData = res?.data?.map((item) => ({
+        label:
+          <Grid container spacing={3}>
+            <Grid item md={4} sm={6} xs={12}>
+              <Box marginBottom={0}>
+                {item.name}
+              </Box>
+            </Grid>
+            <Grid item md={4} sm={6} xs={12}>
+              <Box marginBottom={0}>
+                {item.cnic}
+              </Box>
+            </Grid>
+            <Grid item md={4} sm={6} xs={12}>
+              <Box marginBottom={0}>
+                {item.contact_number}
+              </Box>
+            </Grid>
+          </Grid>, value: item.id
+      }));
+      setClientData(formattedData);
     } catch (err) {
       console.log(err.response.data);
     }
@@ -186,11 +214,11 @@ const CreateInvoicePageView = () => {
     try {
       const res = await axios.get(baseApiUrl + "SolarPanel/" + "?format=json");
       const Id = parseInt(solarPanelId, 10);
-      const solarPanel = res?.data?.results.find((panel) => {
+      const solarPanel = res?.data?.find((panel) => {
         return panel.id === Id;
       });
       setsolarPanelSpecificRecord(solarPanel);
-      const formattedData = res?.data?.results.map((item) => ({ label: item.name, value: item.id }));
+      const formattedData = res?.data?.map((item) => ({ label: item.name, value: item.id }));
       setsolarPanelData(formattedData);
     } catch (err) {
       console.log(err.response.data);
@@ -200,11 +228,11 @@ const CreateInvoicePageView = () => {
     try {
       const res = await axios.get(baseApiUrl + "Inverter/" + "?format=json");
       const Id = parseInt(inverterId, 10);
-      const inverter = res?.data?.results.find((panel) => {
+      const inverter = res?.data?.find((panel) => {
         return panel.id === Id;
       });
       setInverterSpecificRecord(inverter);
-      const formattedData = res?.data?.results.map((item) => ({ label: item.name, value: item.id }));
+      const formattedData = res?.data?.map((item) => ({ label: item.name, value: item.id }));
       setInverterData(formattedData);
     } catch (err) {
       console.log(err.response.data);
@@ -214,11 +242,11 @@ const CreateInvoicePageView = () => {
     try {
       const res = await axios.get(baseApiUrl + "Structure/" + "?format=json");
       const Id = parseInt(structureId, 10);
-      const structure = res?.data?.results.find((panel) => {
+      const structure = res?.data?.find((panel) => {
         return panel.id === Id;
       });
       setStructureSpecificRecord(structure);
-      const formattedData = res?.data?.results.map((item) => ({ label: item.name, value: item.id }));
+      const formattedData = res?.data?.map((item) => ({ label: item.name, value: item.id }));
       setStructureData(formattedData);
     } catch (err) {
       console.log(err.response.data);
@@ -228,11 +256,11 @@ const CreateInvoicePageView = () => {
     try {
       const res = await axios.get(baseApiUrl + "Cabling/" + "?format=json");
       const Id = parseInt(cablingId, 10);
-      const cabling = res?.data?.results.find((panel) => {
+      const cabling = res?.data?.find((panel) => {
         return panel.id === Id;
       });
       setCablingSpecificRecord(cabling);
-      const formattedData = res?.data?.results.map((item) => ({ label: item.name, value: item.id }));
+      const formattedData = res?.data?.map((item) => ({ label: item.name, value: item.id }));
       setCablingData(formattedData);
     } catch (err) {
       console.log(err.response.data);
@@ -242,11 +270,11 @@ const CreateInvoicePageView = () => {
     try {
       const res = await axios.get(baseApiUrl + "NetMetering/" + "?format=json");
       const Id = parseInt(netMeteringId, 10);
-      const netMetering = res?.data?.results.find((panel) => {
+      const netMetering = res?.data?.find((panel) => {
         return panel.id === Id;
       });
       setNetMeteringSpecificRecord(netMetering);
-      const formattedData = res?.data?.results.map((item) => ({ label: item.name, value: item.id }));
+      const formattedData = res?.data?.map((item) => ({ label: item.name, value: item.id }));
       setNetMeteringData(formattedData);
     } catch (err) {
       console.log(err.response.data);
@@ -256,11 +284,11 @@ const CreateInvoicePageView = () => {
     try {
       const res = await axios.get(baseApiUrl + "Batteries/" + "?format=json");
       const Id = parseInt(batteriesId, 10);
-      const batteries = res?.data?.results.find((panel) => {
+      const batteries = res?.data?.find((panel) => {
         return panel.id === Id;
       });
       setBatteriesSpecificRecord(batteries);
-      const formattedData = res?.data?.results.map((item) => ({ label: item.name, value: item.id }));
+      const formattedData = res?.data?.map((item) => ({ label: item.name, value: item.id }));
       setBatteriesData(formattedData);
     } catch (err) {
       console.log(err.response.data);
@@ -270,11 +298,11 @@ const CreateInvoicePageView = () => {
     try {
       const res = await axios.get(baseApiUrl + "LightningArrestor/" + "?format=json");
       const Id = parseInt(lightningArrestorId, 10);
-      const lightningArrestor = res?.data?.results.find((panel) => {
+      const lightningArrestor = res?.data?.find((panel) => {
         return panel.id === Id;
       });
       setLightningArrestorSpecificRecord(lightningArrestor);
-      const formattedData = res?.data?.results.map((item) => ({ label: item.name, value: item.id }));
+      const formattedData = res?.data?.map((item) => ({ label: item.name, value: item.id }));
       setLightningArrestorData(formattedData);
     } catch (err) {
       console.log(err.response.data);
@@ -284,60 +312,19 @@ const CreateInvoicePageView = () => {
     try {
       const res = await axios.get(baseApiUrl + "Installation/" + "?format=json");
       const Id = parseInt(installationId, 10);
-      const installation = res?.data?.results.find((panel) => {
+      const installation = res?.data?.find((panel) => {
         return panel.id === Id;
       });
       setInstallationSpecificRecord(installation);
-      const formattedData = res?.data?.results.map((item) => ({ label: item.name, value: item.id }));
+      const formattedData = res?.data?.map((item) => ({ label: item.name, value: item.id }));
       setInstallationData(formattedData);
     } catch (err) {
       console.log(err.response.data);
     }
   };
-  const postClientData = async (formData) => {
-    const header = {
-      headers: {
-        "Content-Type": "multipart/form-data"
-      }
-    };
-    try {
-      setloading(true);
-      const res = await axios.post(baseApiUrl + "Client/", formData, header);
-      // console.log(res, "sddddddd")
-      if (res.status === 201) {
-        setClientResponse(true);
-        setTimeout(() => {
-          toast.success("Client Added Successfully");
-        }, 1000);
-        return res?.data?.results; // Return the response data
-      }
-    } catch (err) {
-      toast.error("Client Not Added");
-      throw err; // Throw error to stop the execution of the second request
-    } finally {
-      setloading(false);
-    }
-  };
-
-  const postInvoiceData = async (otherData) => {
-    try {
-      setloading(true);
-      const res = await axios.post(baseApiUrl + "Invoice/", otherData);
-      if (res.status === 201) {
-        setInvoiceResponse(true);
-        setTimeout(() => {
-          toast.success("Invoice Added Successfully");
-        }, 1000);
-        setloading(false);
-        return res?.data?.results;
-      }
-    } catch (err) {
-      toast.error("Invoice Not Added");
-      setloading(false);
-    }
-  };
 
   useEffect(() => {
+    getClientList();
     getSolarPanelList();
     getInverterList();
     getStructureList();
@@ -347,6 +334,7 @@ const CreateInvoicePageView = () => {
     getLightningArrestorList();
     getInstallationList();
   }, []);
+
   useEffect(() => {
     if (solarPanelId || inverterId || structureId || cablingId || netMeteringId || batteriesId || lightningArrestorId || installationId) {
       getSolarPanelList();
@@ -359,13 +347,14 @@ const CreateInvoicePageView = () => {
       getInstallationList();
     }
   }, [solarPanelId, inverterId, structureId, cablingId, netMeteringId, batteriesId || lightningArrestorId || installationId || clientResponse || invoiceResponse]);
+
   useEffect(() => {
     // This effect will run whenever the discounts change to ensure latest values are used.
   }, [solarPanelDiscount, inverterDiscount, structureDiscount, cablingDiscount, netMeteringDiscount, batteriesId, lightningArrestorId, installationId || clientResponse || invoiceResponse]);
-  useEffect(() => {
-    getClientList();
-  }, [clientData])
+
   const Subtotal = parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice);
+
+
   return <Box pt={2} pb={4}>
     <ToastContainer
       position="top-right"
@@ -381,87 +370,43 @@ const CreateInvoicePageView = () => {
     <Card sx={{
       padding: 3
     }}>
-      <H6 fontSize={20} mb={4}>
+      <H6 fontSize={22} mb={4}>
         Add Invoice
       </H6>
-
-      <Formik initialValues={initialValues}
-        validationSchema={validationSchema}
+      {/* Client Info */}
+      <Formik initialValues={clientInitialValues}
+        validationSchema={clientValidationSchema}
         onSubmit={async (values, { setSubmitting }) => {
+          const formData = {
+            name: values.name,
+            cnic: values.cnic,
+            city: values.city,
+            company: values.company,
+            area: values.area,
+            contact_number: values.contact_number,
+            monthly_consumption_units: values.monthly_consumption_units,
+          }
+          const header = {
+            headers: {
+              "Content-Type": "multipart/form-data"
+            }
+          };
           try {
-            const formData = {
-              name: values.name,
-              cnic: values.cnic,
-              city: values.city,
-              company: values.company,
-              area: values.area,
-              contact_number: values.contact_number,
-              monthly_consumption_units: values.monthly_consumption_units,
-
+            setloading(true);
+            const res = await axios.post(
+              baseApiUrl + `Client/`, formData, header
+            );
+            if (res.status == 201) {
+              toast.success("Client Added Successfully");
+              getClientList();
+              setloading(false);
             }
-            // console.log(formData, "formmmmmmmmmmmmmmmmmmm")
-            const otherData = {
-              name: clientData,
-              solar_panel: values.solar_panel,
-              solar_panel_quantity: values.solar_panel_quantity,
-              solar_panel_price: values.solar_panel_price,
-              inverter: values.inverter,
-              inverter_quantity: values.inverter_quantity,
-              inverter_price: values.inverter_price,
-              structure: values.structure,
-              structure_quantity: values.structure_quantity,
-              structure_price: values.structure_price,
-              cabling: values.cabling,
-              cabling_quantity: values.cabling_quantity,
-              cabling_price: values.cabling_price,
-              net_metering: values.net_metering,
-              net_metering_quantity: values.net_metering_quantity,
-              net_metering_price: values.net_metering_price,
-              battery: values.battery,
-              battery_quantity: values.battery_quantity,
-              battery_price: values.battery_price,
-              lightning_arrestor: values.lightning_arrestor,
-              lightning_arrestor_quantity: values.lightning_arrestor_quantity,
-              lightning_arrestor_price: values.lightning_arrestor_price,
-              installation: values.installation,
-              installation_quantity: 0,
-              installation_price: values.installation_price,
-              discount: values.discount,
-              shipping_charges: values.shipping_charges,
-              amount_paid: parseInt(values.amount_paid) ? parseInt(values.amount_paid) : 0,
-              total: Subtotal,
-              status: values.status
-              // total:
-            }
-            // console.log(otherData, "otherData")
-            // const header = {
-            //   headers: {
-            //     "Content-Type": "multipart/form-data"
-            //   }
-            // };
-            // // Use Promise.all to await both requests concurrently
-            const [clienResponse, invoicResponse] = await Promise.all([
-              postClientData(formData),
-              postInvoiceData(otherData),
-            ]);
-            // // Check if both requests were successful
-            // console.log(clientResponse, "clientResponse")
-            // console.log(invoiceResponse, "invoiceResponse")
-            if (clientResponse && invoiceResponse) {
-              setTimeout(() => {
-                toast.success("Client and Invoice added successfully");
-              }, 1000);
-              navigate("/dashboard/invoice-list");
-            } else {
-              toast.error("Failed to add one or more records");
-            }
-          } catch (error) {
-            console.error("Error submitting forms:", error);
-            toast.error("Error occurred while submitting forms");
-          } finally {
-            setSubmitting(false);
+          } catch (err) {
+            setloading(false);
+            toast.error("Client Not Added");
           }
         }}
+
         children={({
           values,
           errors,
@@ -473,6 +418,12 @@ const CreateInvoicePageView = () => {
         }) => {
           return <form onSubmit={handleSubmit}>
 
+            <H6 fontSize={18} mb={2}>
+              Create Client
+            </H6>
+            <Divider sx={{
+              my: 4
+            }} />
             <H6 fontSize={16} mb={2}>
               Client Information
             </H6>
@@ -553,6 +504,137 @@ const CreateInvoicePageView = () => {
                 </Box>
               </Grid>
             </Grid>
+
+
+            <StyledFlexBox flexWrap="wrap" justifyContent="end">
+              <Box marginTop={3} className="buttonWrapper">
+                <Button color="secondary" variant="outlined" onClick={handleCancel} sx={{
+                  mr: 1
+                }}>
+                  Cancel
+                </Button>
+
+
+                {loading ? (
+                  <Button type="submit" variant="contained" disabled={true}>
+                    <div className="spinner-border text-warning" role="status">
+                      <span className="sr-only">Saving...</span>
+                    </div>
+                  </Button>
+                ) : (
+                  <Button type="submit" variant="contained" color="success">
+                    Save
+                  </Button>
+                )}
+
+              </Box>
+            </StyledFlexBox>
+            <Divider sx={{
+              my: 4
+            }} />
+          </form>
+        }} >
+      </Formik>
+      {/* Invoice Info */}
+      <Formik initialValues={initialValues}
+        validationSchema={validationSchema}
+        onSubmit={async (values, { setSubmitting }) => {
+          const formData = {
+            name: values.name,
+            solar_panel: values.solar_panel,
+            solar_panel_quantity: values.solar_panel_quantity,
+            solar_panel_price: values.solar_panel_price,
+            inverter: values.inverter,
+            inverter_quantity: values.inverter_quantity,
+            inverter_price: values.inverter_price,
+            structure: values.structure,
+            structure_quantity: values.structure_quantity,
+            structure_price: values.structure_price,
+            cabling: values.cabling,
+            cabling_quantity: values.cabling_quantity,
+            cabling_price: values.cabling_price,
+            net_metering: values.net_metering,
+            net_metering_quantity: values.net_metering_quantity,
+            net_metering_price: values.net_metering_price,
+            battery: values.battery,
+            battery_quantity: values.battery_quantity,
+            battery_price: values.battery_price,
+            lightning_arrestor: values.lightning_arrestor,
+            lightning_arrestor_quantity: values.lightning_arrestor_quantity,
+            lightning_arrestor_price: values.lightning_arrestor_price,
+            installation: values.installation,
+            installation_quantity: 0,
+            installation_price: values.installation_price,
+            discount: values.discount,
+            shipping_charges: values.shipping_charges,
+            amount_paid: parseInt(values.amount_paid) ? parseInt(values.amount_paid) : 0,
+            total: Subtotal,
+            status: values.status
+          }
+          const header = {
+            headers: {
+              "Content-Type": "multipart/form-data"
+            }
+          };
+          try {
+            setloading(true);
+            const res = await axios.post(
+              baseApiUrl + "Invoice/", formData, header
+            );
+            if (res.status == 201) {
+              toast.success("Invoice Added Successfully");
+              setloading(false);
+              setTimeout(() => {
+                navigate("/dashboard/invoice-list");
+              }, 1000);
+            }
+          } catch (err) {
+            setloading(false);
+            toast.error("Invoice Not Added");
+          }
+        }}
+        children={({
+          values,
+          errors,
+          touched,
+          handleChange,
+          handleBlur,
+          handleSubmit,
+          setFieldValue
+        }) => {
+          return <form onSubmit={handleSubmit}>
+
+            <H6 fontSize={18} mb={2}>
+              Create Invoice
+            </H6>
+            <Divider sx={{
+              my: 4
+            }} />
+            <H6 fontSize={16} mb={2}>
+              Select Client
+            </H6>
+            <Grid container spacing={3}>
+              <Grid item md={12} sm={6} xs={12}>
+                <Box marginBottom={0}>
+                  <Select
+                    placeholder="Name"
+                    fullWidth name="Name" label="Name"
+                    options={clientData}
+                    onChange={(value) => {
+                      setFieldValue("name", value ? value.value : '');
+                    }}
+                    menuPortalTarget={document.body}
+                    styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
+                    isClearable={true}
+                    helperText={touched.name && errors.name}
+                    error={Boolean(touched.name && errors.name)}
+                  />
+                  {errors.name && touched.name && (
+                    <div className="error-message" style={{ marginLeft: "6px", marginTop: "4px", fontSize: "12px", color: "red" }}>{errors.name}</div>
+                  )}
+                </Box>
+              </Grid>
+            </Grid>
             <Divider sx={{
               my: 4
             }} />
@@ -567,9 +649,10 @@ const CreateInvoicePageView = () => {
                     placeholder="Solar Panel"
                     fullWidth name="Solar Panel" label="Solar Panel"
                     options={solarPanelData}
+                    isClearable={true}
                     onChange={(value) => {
-                      setFieldValue("solar_panel", value.value);
-                      setsolarPanelId(value.value);
+                      setFieldValue("solar_panel", value ? value.value : '');
+                      setsolarPanelId(value ? value.value : null);
                     }}
                     helperText={touched.solar_panel && errors.solar_panel}
                     error={Boolean(touched.solar_panel && errors.solar_panel)}
@@ -1327,10 +1410,23 @@ const CreateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Amount Paid" label="Amount Paid" value={values.amount_paid}
+                  <TextField fullWidth type="number" name="Amount Paid" label="Amount Paid"
+                    // value={values.amount_paid}
+                    // onChange={(e) => {
+                    //   setFieldValue("amount_paid", e.target.value);
+                    //   setAmountPaid(e.target.value);
+                    // }}
                     onChange={(e) => {
-                      setFieldValue("amount_paid", e.target.value);
-                      setAmountPaid(e.target.value);
+                      const value = e.target.value;
+
+                      // If the input is empty, set the value to NaN
+                      if (value === '') {
+                        setFieldValue("amount_paid", 0);
+                        setAmountPaid(0);
+                      } else {
+                        setFieldValue("amount_paid", value);
+                        setAmountPaid(value);
+                      }
                     }}
                     helperText={touched.amount_paid && errors.amount_paid} error={Boolean(touched.amount_paid && errors.amount_paid)} />
 
@@ -1361,40 +1457,72 @@ const CreateInvoicePageView = () => {
             <Divider sx={{
               my: 4
             }} />
-            <Box maxWidth={320}>
-              <H6 fontSize={16}>Amount</H6>
 
-              <FlexBetween my={1}>
-                <Paragraph fontWeight={500}>Subtotal</Paragraph>
-                <Paragraph fontWeight={500}>{Subtotal}</Paragraph>
-              </FlexBetween>
-              <Divider sx={{
-                my: 2
-              }} />
-              <FlexBetween my={1}>
-                <Paragraph fontWeight={500}>After Discount</Paragraph>
-                <Paragraph fontWeight={500}>{Subtotal - parseInt(discount)}</Paragraph>
-              </FlexBetween>
+            <H6 fontSize={20}>Payment Information</H6>
+            <Grid container spacing={3}>
+              <Grid item md={4} sm={6} xs={12}>
+                <Box maxWidth={320}>
+                  <H6 fontSize={16} my={3}>Net Amount</H6>
+                  <FlexBetween my={1}>
+                    <Paragraph fontWeight={500}>Subtotal</Paragraph>
+                    <Paragraph fontWeight={500}>{Subtotal}</Paragraph>
+                  </FlexBetween>
+                  <FlexBetween my={1}>
+                    <Paragraph fontWeight={500}>Discount</Paragraph>
+                    <Paragraph fontWeight={500}>-&nbsp;&nbsp;&nbsp; {discount}</Paragraph>
+                  </FlexBetween>
+                  <Divider sx={{
+                    mt: 7
+                  }} />
+                  <FlexBetween my={2}>
+                    <H6 fontSize={16}>After Discount</H6>
+                    <H6 fontSize={16}>{Subtotal - parseInt(discount)}</H6>
+                  </FlexBetween>
+                </Box>
+              </Grid>
+              <Divider orientation="vertical"
+                flexItem
+                sx={{
+                  mt: 5,
+                  ml: 6,
+                  mr: 3,
+                  height: '225px',  // Adjust the height as needed
+                }} />
+              {/* <Grid item md={4} sm={6} xs={12}>
+                <Box maxWidth={320}>
+                 
+                </Box>
+              </Grid> */}
+              <Grid item md={4} sm={6} xs={12}>
+                <Box maxWidth={320}>
+                  <H6 fontSize={16} my={3}>Payable Amount</H6>
+                  <FlexBetween my={1}>
+                    <Paragraph fontWeight={500}>After Discount</Paragraph>
+                    <Paragraph fontWeight={500}>{Subtotal - parseInt(discount)}</Paragraph>
+                  </FlexBetween>
 
-              <FlexBetween my={1}>
-                <Paragraph fontWeight={500}>Shipping Amount</Paragraph>
-                <Paragraph fontWeight={500}>+&nbsp;&nbsp;&nbsp; {parseInt(shipping)}</Paragraph>
-              </FlexBetween>
+                  <FlexBetween my={1}>
+                    <Paragraph fontWeight={500}>Shipping Amount</Paragraph>
+                    <Paragraph fontWeight={500}>+&nbsp;&nbsp;&nbsp; {parseInt(shipping)}</Paragraph>
+                  </FlexBetween>
 
-              <FlexBetween my={1}>
-                <Paragraph fontWeight={500}>Paid Amount</Paragraph>
-                <Paragraph fontWeight={500}>-&nbsp;&nbsp;&nbsp; {parseInt(amountPaid)}</Paragraph>
-              </FlexBetween>
+                  <FlexBetween my={1}>
+                    <Paragraph fontWeight={500}>Paid Amount</Paragraph>
+                    <Paragraph fontWeight={500}>-&nbsp;&nbsp;&nbsp; {parseInt(amountPaid)}</Paragraph>
+                  </FlexBetween>
 
-              <Divider sx={{
-                my: 2
-              }} />
+                  <Divider sx={{
+                    my: 2
+                  }} />
 
-              <FlexBetween my={1}>
-                <H6 fontSize={16}>Due Amount</H6>
-                <H6 fontSize={16}>{(Subtotal - parseInt(discount) + parseInt(shipping)) - parseInt(amountPaid)}</H6>
-              </FlexBetween>
-            </Box>
+                  <FlexBetween my={1}>
+                    <H6 fontSize={16}>Due Amount</H6>
+                    <H6 fontSize={16}>{(Subtotal - parseInt(discount) + parseInt(shipping)) - parseInt(amountPaid)}</H6>
+                  </FlexBetween>
+                </Box>
+              </Grid>
+            </Grid>
+
 
             <StyledFlexBox flexWrap="wrap">
 
@@ -1421,7 +1549,8 @@ const CreateInvoicePageView = () => {
               </Box>
             </StyledFlexBox>
           </form>;
-        }} />
+        }} >
+      </Formik>
     </Card>
   </Box>;
 };

@@ -131,7 +131,7 @@ const UpdateInvoicePageView = () => {
 
         try {
           const res = await axios.get(`${baseApiUrl}Client/?format=json`);
-          const existingCNICs = res?.data?.results.map(client => client.cnic);
+          const existingCNICs = res?.data?.map(client => client.cnic);
 
           // Check if the CNIC already exists in the database
           return !existingCNICs.includes(value);
@@ -255,7 +255,7 @@ const UpdateInvoicePageView = () => {
   const getClientList = async () => {
     try {
       const res = await axios.get(baseApiUrl + "Client/" + "?format=json");
-      const sortedData = res?.data?.results.sort((a, b) => a.id - b.id); // Sort by ID ascending
+      const sortedData = res?.data?.sort((a, b) => a.id - b.id); // Sort by ID ascending
       const lastEnteredId = sortedData.length > 0 ? sortedData[sortedData.length - 1].id : null;
 
       setClientData(lastEnteredId);
@@ -267,11 +267,11 @@ const UpdateInvoicePageView = () => {
     try {
       const res = await axios.get(baseApiUrl + "SolarPanel/" + "?format=json");
       const Id = parseInt(solarPanelId, 10);
-      const solarPanel = res?.data?.results.find((panel) => {
+      const solarPanel = res?.data?.find((panel) => {
         return panel.id === Id;
       });
       setsolarPanelSpecificRecord(solarPanel);
-      const formattedData = res?.data?.results.map((item) => ({ label: item.name, value: item.id }));
+      const formattedData = res?.data?.map((item) => ({ label: item.name, value: item.id }));
       setsolarPanelData(formattedData);
 
       console.log(solarPanelQuery, "solarPanelQuery")
@@ -287,11 +287,11 @@ const UpdateInvoicePageView = () => {
     try {
       const res = await axios.get(baseApiUrl + "Inverter/" + "?format=json");
       const Id = parseInt(inverterId, 10);
-      const inverter = res?.data?.results.find((panel) => {
+      const inverter = res?.data?.find((panel) => {
         return panel.id === Id;
       });
       setInverterSpecificRecord(inverter);
-      const formattedData = res?.data?.results.map((item) => ({ label: item.name, value: item.id }));
+      const formattedData = res?.data?.map((item) => ({ label: item.name, value: item.id }));
       setInverterData(formattedData);
     } catch (err) {
       console.log(err.response.data);
@@ -301,11 +301,11 @@ const UpdateInvoicePageView = () => {
     try {
       const res = await axios.get(baseApiUrl + "Structure/" + "?format=json");
       const Id = parseInt(structureId, 10);
-      const structure = res?.data?.results.find((panel) => {
+      const structure = res?.data?.find((panel) => {
         return panel.id === Id;
       });
       setStructureSpecificRecord(structure);
-      const formattedData = res?.data?.results.map((item) => ({ label: item.name, value: item.id }));
+      const formattedData = res?.data?.map((item) => ({ label: item.name, value: item.id }));
       setStructureData(formattedData);
     } catch (err) {
       console.log(err.response.data);
@@ -315,11 +315,11 @@ const UpdateInvoicePageView = () => {
     try {
       const res = await axios.get(baseApiUrl + "Cabling/" + "?format=json");
       const Id = parseInt(cablingId, 10);
-      const cabling = res?.data?.results.find((panel) => {
+      const cabling = res?.data?.find((panel) => {
         return panel.id === Id;
       });
       setCablingSpecificRecord(cabling);
-      const formattedData = res?.data?.results.map((item) => ({ label: item.name, value: item.id }));
+      const formattedData = res?.data?.map((item) => ({ label: item.name, value: item.id }));
       setCablingData(formattedData);
     } catch (err) {
       console.log(err.response.data);
@@ -329,11 +329,11 @@ const UpdateInvoicePageView = () => {
     try {
       const res = await axios.get(baseApiUrl + "NetMetering/" + "?format=json");
       const Id = parseInt(netMeteringId, 10);
-      const netMetering = res?.data?.results.find((panel) => {
+      const netMetering = res?.data?.find((panel) => {
         return panel.id === Id;
       });
       setNetMeteringSpecificRecord(netMetering);
-      const formattedData = res?.data?.results.map((item) => ({ label: item.name, value: item.id }));
+      const formattedData = res?.data?.map((item) => ({ label: item.name, value: item.id }));
       setNetMeteringData(formattedData);
     } catch (err) {
       console.log(err.response.data);
@@ -343,11 +343,11 @@ const UpdateInvoicePageView = () => {
     try {
       const res = await axios.get(baseApiUrl + "Batteries/" + "?format=json");
       const Id = parseInt(batteriesId, 10);
-      const batteries = res?.data?.results.find((panel) => {
+      const batteries = res?.data?.find((panel) => {
         return panel.id === Id;
       });
       setBatteriesSpecificRecord(batteries);
-      const formattedData = res?.data?.results.map((item) => ({ label: item.name, value: item.id }));
+      const formattedData = res?.data?.map((item) => ({ label: item.name, value: item.id }));
       setBatteriesData(formattedData);
     } catch (err) {
       console.log(err.response.data);
@@ -357,11 +357,11 @@ const UpdateInvoicePageView = () => {
     try {
       const res = await axios.get(baseApiUrl + "LightningArrestor/" + "?format=json");
       const Id = parseInt(lightningArrestorId, 10);
-      const lightningArrestor = res?.data?.results.find((panel) => {
+      const lightningArrestor = res?.data?.find((panel) => {
         return panel.id === Id;
       });
       setLightningArrestorSpecificRecord(lightningArrestor);
-      const formattedData = res?.data?.results.map((item) => ({ label: item.name, value: item.id }));
+      const formattedData = res?.data?.map((item) => ({ label: item.name, value: item.id }));
       setLightningArrestorData(formattedData);
     } catch (err) {
       console.log(err.response.data);
@@ -371,11 +371,11 @@ const UpdateInvoicePageView = () => {
     try {
       const res = await axios.get(baseApiUrl + "Installation/" + "?format=json");
       const Id = parseInt(installationId, 10);
-      const installation = res?.data?.results.find((panel) => {
+      const installation = res?.data?.find((panel) => {
         return panel.id === Id;
       });
       setInstallationSpecificRecord(installation);
-      const formattedData = res?.data?.results.map((item) => ({ label: item.name, value: item.id }));
+      const formattedData = res?.data?.map((item) => ({ label: item.name, value: item.id }));
       setInstallationData(formattedData);
     } catch (err) {
       console.log(err.response.data);
