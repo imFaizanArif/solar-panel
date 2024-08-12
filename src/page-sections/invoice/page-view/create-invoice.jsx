@@ -545,6 +545,7 @@ const CreateInvoicePageView = () => {
             solar_panel: values.solar_panel,
             solar_panel_quantity: values.solar_panel_quantity,
             solar_panel_price: values.solar_panel_price,
+            system_capacity: values.system_capacity,
             inverter: values.inverter,
             inverter_quantity: values.inverter_quantity,
             inverter_price: values.inverter_price,
@@ -650,6 +651,8 @@ const CreateInvoicePageView = () => {
                     placeholder="Solar Panel"
                     fullWidth name="Solar Panel" label="Solar Panel"
                     options={solarPanelData}
+                    menuPortalTarget={document.body}
+                    styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
                     isClearable={true}
                     onChange={(value) => {
                       setFieldValue("solar_panel", value ? value.value : '');
@@ -671,16 +674,48 @@ const CreateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Solar Panel Price" label="Solar Panel Price" value={values.solar_panel_price}
+                  <TextField fullWidth type="number" name="Solar Panel Price" label="Solar Panel Price"
+                    // value={values.solar_panel_price}
                     onChange={(e) => {
-                      setFieldValue("solar_panel_price", e.target.value);
-                      setSolarPanelPrice(e.target.value);
-                      // Calculate discount
-                      // const discount = Math.max(0, (solarPanelSpecificRecord?.price * values.solar_panel_quantity) - values.solar_panel_price);
-                      // setSolarPanelDiscount(discount);
+                      const value = e.target.value;
+                      if (value === '') {
+                        setFieldValue("solar_panel_price", 0);
+                        setSolarPanelPrice(0);
+                      } else {
+                        setFieldValue("solar_panel_price", value);
+                        setSolarPanelPrice(value);
+                        const discount = Math.max(0, (solarPanelSpecificRecord?.price * values.solar_panel_quantity) - values.solar_panel_price);
+                        setSolarPanelDiscount(discount);
+                      }
                     }}
+
                     helperText={touched.solar_panel_price && errors.solar_panel_price} error={Boolean(touched.solar_panel_price && errors.solar_panel_price)} />
-                  <FlexBetween mt={1} mx={1}>
+
+                </Box>
+              </Grid>
+              <Grid item md={4} sm={6} xs={12}>
+                <Box marginBottom={0}>
+                  <TextField fullWidth type="number" name="System Capacity" label="System Capacity"
+                    // value={values.system_capacity}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === '') {
+                        setFieldValue("system_capacity", 0);
+                      } else {
+                        setFieldValue("system_capacity", value);
+                      }
+                    }}
+                    helperText={touched.system_capacity && errors.system_capacity} error={Boolean(touched.system_capacity && errors.system_capacity)} />
+
+                </Box>
+              </Grid>
+              <Grid item md={4} sm={6} xs={12}>
+                <Box marginBottom={0}>
+                </Box>
+              </Grid>
+              <Grid item md={4} sm={6} xs={12}>
+                <Box marginBottom={0}>
+                  <FlexBetween mt={0} mx={0}>
                     <Paragraph fontWeight={500} fontSize={12} color="grey">
                       <i>
                         Per Solar Panel Price:
@@ -692,7 +727,7 @@ const CreateInvoicePageView = () => {
                       </i>
                     </Paragraph>
                   </FlexBetween>
-                  <FlexBetween mx={1}>
+                  <FlexBetween mx={0}>
                     <Paragraph fontWeight={500} fontSize={12} color="grey">
                       <i>
                         Total Solar Panel Price: {solarPanelSpecificRecord?.price} X {values.solar_panel_quantity ? values.solar_panel_quantity : 0} =
@@ -704,7 +739,7 @@ const CreateInvoicePageView = () => {
                       </i>
                     </Paragraph>
                   </FlexBetween>
-                  <FlexBetween mx={1}>
+                  <FlexBetween mx={0}>
                     <Paragraph fontWeight={500} fontSize={12} color="grey">
                       <i>
                         Discount:
@@ -725,7 +760,6 @@ const CreateInvoicePageView = () => {
                   </FlexBetween>
                 </Box>
               </Grid>
-
             </Grid>
             <Divider sx={{
               my: 4
@@ -741,9 +775,10 @@ const CreateInvoicePageView = () => {
                     placeholder="Inverter"
                     fullWidth name="Inverter" label="Inverter"
                     options={inverterData}
+                    isClearable={true}
                     onChange={(value) => {
-                      setFieldValue("inverter", value.value);
-                      setInverterId(value.value);
+                      setFieldValue("inverter", value ? value.value : '');
+                      setInverterId(value ? value.value : null);
                     }}
                     helperText={touched.inverter && errors.inverter}
                     error={Boolean(touched.inverter && errors.inverter)}
@@ -761,12 +796,19 @@ const CreateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Inverter Price" label="Inverter Price" value={values.inverter_price}
+                  <TextField fullWidth type="number" name="Inverter Price" label="Inverter Price"
+                    // value={values.inverter_price}
                     onChange={(e) => {
-                      setFieldValue("inverter_price", e.target.value);
-                      setInverterPrice(e.target.value);
-                      const discount = Math.max(0, (inverterSpecificRecord?.price * values.inverter_quantity) - values.inverter_price);
-                      setInverterDiscount(discount);
+                      const value = e.target.value;
+                      if (value === '') {
+                        setFieldValue("inverter_price", 0);
+                        setInverterPrice(0);
+                      } else {
+                        setFieldValue("inverter_price", value);
+                        setInverterPrice(value);
+                        const discount = Math.max(0, (inverterSpecificRecord?.price * values.inverter_quantity) - values.inverter_price);
+                        setInverterDiscount(discount);
+                      }
                     }}
                     helperText={touched.inverter_price && errors.inverter_price} error={Boolean(touched.inverter_price && errors.inverter_price)} />
                   <FlexBetween mt={1} mx={1}>
@@ -830,9 +872,10 @@ const CreateInvoicePageView = () => {
                     placeholder="Structure"
                     fullWidth name="Structure" label="Structure"
                     options={structureData}
+                    isClearable={true}
                     onChange={(value) => {
-                      setFieldValue("structure", value.value);
-                      setStructureId(value.value);
+                      setFieldValue("structure", value ? value.value : '');
+                      setStructureId(value ? value.value : null);
                     }}
                     helperText={touched.structure && errors.structure}
                     error={Boolean(touched.structure && errors.structure)}
@@ -850,12 +893,19 @@ const CreateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Structure Price" label="Structure Price" value={values.structure_price}
+                  <TextField fullWidth type="number" name="Structure Price" label="Structure Price"
+                    // value={values.structure_price}
                     onChange={(e) => {
-                      setFieldValue("structure_price", e.target.value);
-                      setStructurePrice(e.target.value);
-                      const discount = Math.max(0, (structureSpecificRecord?.price * values.structure_quantity) - values.structure_price);
-                      setStructureDiscount(discount);
+                      const value = e.target.value;
+                      if (value === '') {
+                        setFieldValue("structure_price", 0);
+                        setStructurePrice(0);
+                      } else {
+                        setFieldValue("structure_price", value);
+                        setStructurePrice(value);
+                        const discount = Math.max(0, (structureSpecificRecord?.price * values.structure_quantity) - values.structure_price);
+                        setStructureDiscount(discount);
+                      }
                     }}
                     helperText={touched.structure_price && errors.structure_price} error={Boolean(touched.structure_price && errors.structure_price)} />
                   <FlexBetween mt={1} mx={1}>
@@ -919,9 +969,10 @@ const CreateInvoicePageView = () => {
                     placeholder="Cabling"
                     fullWidth name="Cabling" label="Cabling"
                     options={cablingData}
+                    isClearable={true}
                     onChange={(value) => {
-                      setFieldValue("cabling", value.value);
-                      setCablingId(value.value);
+                      setFieldValue("cabling", value ? value.value : '');
+                      setCablingId(value ? value.value : null);
                     }}
                     helperText={touched.cabling && errors.cabling}
                     error={Boolean(touched.cabling && errors.cabling)}
@@ -939,12 +990,19 @@ const CreateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Cabling Price" label="Cabling Price" value={values.cabling_price}
+                  <TextField fullWidth type="number" name="Cabling Price" label="Cabling Price"
+                    // value={values.cabling_price}
                     onChange={(e) => {
-                      setFieldValue("cabling_price", e.target.value);
-                      setCablingPrice(e.target.value);
-                      const discount = Math.max(0, (cablingSpecificRecord?.price * values.cabling_quantity) - values.cabling_price);
-                      setCablingDiscount(discount);
+                      const value = e.target.value;
+                      if (value === '') {
+                        setFieldValue("cabling_price", 0);
+                        setCablingPrice(0);
+                      } else {
+                        setFieldValue("cabling_price", value);
+                        setCablingPrice(value);
+                        const discount = Math.max(0, (cablingSpecificRecord?.price * values.cabling_quantity) - values.cabling_price);
+                        setCablingDiscount(discount);
+                      }
                     }}
                     helperText={touched.cabling_price && errors.cabling_price} error={Boolean(touched.cabling_price && errors.cabling_price)} />
                   <FlexBetween mt={1} mx={1}>
@@ -1008,9 +1066,10 @@ const CreateInvoicePageView = () => {
                     placeholder="Net Metering"
                     fullWidth name="Net Metering" label="Net Metering"
                     options={netMeteringData}
+                    isClearable={true}
                     onChange={(value) => {
-                      setFieldValue("net_metering", value.value);
-                      setNetMeteringId(value.value);
+                      setFieldValue("net_metering", value ? value.value : '');
+                      setNetMeteringId(value ? value.value : null);
                     }}
                     helperText={touched.net_metering && errors.net_metering}
                     error={Boolean(touched.net_metering && errors.net_metering)}
@@ -1028,12 +1087,19 @@ const CreateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Net Metering Price" label="Net Metering Price" value={values.net_metering_price}
+                  <TextField fullWidth type="number" name="Net Metering Price" label="Net Metering Price"
+                    // value={values.net_metering_price}
                     onChange={(e) => {
-                      setFieldValue("net_metering_price", e.target.value);
-                      setNetMeteringPrice(e.target.value);
-                      const discount = Math.max(0, (netMeteringSpecificRecord?.price * values.net_metering_quantity) - values.net_metering_price);
-                      setNetMeteringDiscount(discount);
+                      const value = e.target.value;
+                      if (value === '') {
+                        setFieldValue("net_metering_price", 0);
+                        setNetMeteringPrice(0);
+                      } else {
+                        setFieldValue("net_metering_price", value);
+                        setNetMeteringPrice(value);
+                        const discount = Math.max(0, (netMeteringSpecificRecord?.price * values.net_metering_quantity) - values.net_metering_price);
+                        setNetMeteringDiscount(discount);
+                      }
                     }}
                     helperText={touched.net_metering_price && errors.net_metering_price} error={Boolean(touched.net_metering_price && errors.net_metering_price)} />
                   <FlexBetween mt={1} mx={1}>
@@ -1098,9 +1164,10 @@ const CreateInvoicePageView = () => {
                     placeholder="Battery"
                     fullWidth name="Battery" label="Battery"
                     options={batteriesData}
+                    isClearable={true}
                     onChange={(value) => {
-                      setFieldValue("battery", value.value);
-                      setBatteriesId(value.value);
+                      setFieldValue("battery", value ? value.value : '');
+                      setBatteriesId(value ? value.value : null);
                     }}
                     helperText={touched.battery && errors.battery}
                     error={Boolean(touched.battery && errors.battery)}
@@ -1118,12 +1185,19 @@ const CreateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Battery Price" label="Battery Price" value={values.battery_price}
+                  <TextField fullWidth type="number" name="Battery Price" label="Battery Price"
+                    // value={values.battery_price}
                     onChange={(e) => {
-                      setFieldValue("battery_price", e.target.value);
-                      setBatteriesPrice(e.target.value);
-                      const discount = Math.max(0, (batteriesSpecificRecord?.price * values.battery_quantity) - values.battery_price);
-                      setBatteriesDiscount(discount);
+                      const value = e.target.value;
+                      if (value === '') {
+                        setFieldValue("battery_price", 0);
+                        setBatteriesPrice(0);
+                      } else {
+                        setFieldValue("battery_price", value);
+                        setBatteriesPrice(value);
+                        const discount = Math.max(0, (batteriesSpecificRecord?.price * values.battery_quantity) - values.battery_price);
+                        setBatteriesDiscount(discount);
+                      }
                     }}
                     helperText={touched.battery_price && errors.battery_price} error={Boolean(touched.battery_price && errors.battery_price)} />
                   <FlexBetween mt={1} mx={1}>
@@ -1188,9 +1262,10 @@ const CreateInvoicePageView = () => {
                     placeholder="Lightning Arrestor"
                     fullWidth name="Lightning Arrestor" label="Lightning Arrestor"
                     options={lightningArrestorData}
+                    isClearable={true}
                     onChange={(value) => {
-                      setFieldValue("lightning_arrestor", value.value);
-                      setLightningArrestorId(value.value);
+                      setFieldValue("lightning_arrestor", value ? value.value : '');
+                      setLightningArrestorId(value ? value.value : null);
                     }}
                     helperText={touched.lightning_arrestor && errors.lightning_arrestor}
                     error={Boolean(touched.lightning_arrestor && errors.lightning_arrestor)}
@@ -1208,12 +1283,19 @@ const CreateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Lightning Arrestor Price" label="Lightning Arrestor Price" value={values.lightning_arrestor_price}
+                  <TextField fullWidth type="number" name="Lightning Arrestor Price" label="Lightning Arrestor Price"
+                    // value={values.lightning_arrestor_price}
                     onChange={(e) => {
-                      setFieldValue("lightning_arrestor_price", e.target.value);
-                      setLightningArrestorPrice(e.target.value);
-                      const discount = Math.max(0, (lightningArrestorSpecificRecord?.price * values.lightning_arrestor_quantity) - values.lightning_arrestor_price);
-                      setLightningArrestorDiscount(discount);
+                      const value = e.target.value;
+                      if (value === '') {
+                        setFieldValue("lightning_arrestor_price", 0);
+                        setLightningArrestorPrice(0);
+                      } else {
+                        setFieldValue("lightning_arrestor_price", value);
+                        setLightningArrestorPrice(value);
+                        const discount = Math.max(0, (lightningArrestorSpecificRecord?.price * values.lightning_arrestor_quantity) - values.lightning_arrestor_price);
+                        setLightningArrestorDiscount(discount);
+                      }
                     }}
                     helperText={touched.lightning_arrestor_price && errors.lightning_arrestor_price} error={Boolean(touched.lightning_arrestor_price && errors.lightning_arrestor_price)} />
                   <FlexBetween mt={1} mx={1}>
@@ -1277,58 +1359,33 @@ const CreateInvoicePageView = () => {
                     placeholder="Installation"
                     fullWidth name="Installation" label="Installation"
                     options={installationData}
+                    isClearable={true}
                     onChange={(value) => {
-                      setFieldValue("installation", value.value);
-                      setInstallationId(value.value);
+                      setFieldValue("installation", value ? value.value : '');
+                      setInstallationId(value ? value.value : null);
                     }}
                     helperText={touched.installation && errors.installation}
                     error={Boolean(touched.installation && errors.installation)}
                   />
                 </Box>
               </Grid>
-              {/* <Grid item md={4} sm={6} xs={12}>
-                <Box marginBottom={0}>
-                  <TextField fullWidth name="Installation Quantity" label="Installation Quantity" value={values.installation_quantity}
-                    onChange={(e) => {
-                      setFieldValue("installation_quantity", e.target.value);
-                    }}
-                    helperText={touched.installation_quantity && errors.installation_quantity} error={Boolean(touched.installation_quantity && errors.installation_quantity)} />
-                </Box>
-              </Grid> */}
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Installation Price" label="Installation Price" value={values.installation_price}
+                  <TextField fullWidth type="number" name="Installation Price" label="Installation Price"
+                    // value={values.installation_price}
                     onChange={(e) => {
-                      setFieldValue("installation_price", e.target.value);
-                      setInstallationPrice(e.target.value);
-                      const discount = Math.max(0, (installationSpecificRecord?.price * values.installation_quantity) - values.installation_price);
-                      setInstallationDiscount(discount);
+                      const value = e.target.value;
+                      if (value === '') {
+                        setFieldValue("installation_price", 0);
+                        setInstallationPrice(0);
+                      } else {
+                        setFieldValue("installation_price", value);
+                        setInstallationPrice(value);
+                        const discount = Math.max(0, (installationSpecificRecord?.price * values.installation_quantity) - values.installation_price);
+                        setInstallationDiscount(discount);
+                      }
                     }}
                     helperText={touched.installation_price && errors.installation_price} error={Boolean(touched.installation_price && errors.installation_price)} />
-                  {/* <FlexBetween mt={1} mx={1}>
-                    <Paragraph fontWeight={500} fontSize={12} color="grey">
-                      <i>
-                        Per installation Price:
-                      </i>
-                    </Paragraph>
-                    <Paragraph fontWeight={500} fontSize={12}>
-                      <i>
-                        {installationSpecificRecord?.price ? installationSpecificRecord?.price : 0}
-                      </i>
-                    </Paragraph>
-                  </FlexBetween> */}
-                  {/* <FlexBetween mx={1}>
-                    <Paragraph fontWeight={500} fontSize={12} color="grey">
-                      <i>
-                        Total Installation Price: {installationSpecificRecord?.price} X {values.installation_quantity ? values.installation_quantity : 0} =
-                      </i>
-                    </Paragraph>
-                    <Paragraph fontWeight={500} fontSize={12}>
-                      <i>
-                        {isNaN(installationSpecificRecord?.price * values.installation_quantity) ? 0 : installationSpecificRecord?.price * values.installation_quantity}
-                      </i>
-                    </Paragraph>
-                  </FlexBetween> */}
                   <FlexBetween mx={1}>
                     <Paragraph fontWeight={500} fontSize={12} color="grey">
                       <i>
@@ -1359,10 +1416,17 @@ const CreateInvoicePageView = () => {
             <Grid container spacing={3}>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Discount" label="Discount" value={values.discount}
+                  <TextField fullWidth type="number" name="Discount" label="Discount"
+                    // value={values.discount}
                     onChange={(e) => {
-                      setFieldValue("discount", e.target.value);
-                      setDiscount(e.target.value);
+                      const value = e.target.value;
+                      if (value === '') {
+                        setFieldValue("discount", 0);
+                        setDiscount(0);
+                      } else {
+                        setFieldValue("discount", value);
+                        setDiscount(value);
+                      }
                     }}
                     helperText={touched.discount && errors.discount} error={Boolean(touched.discount && errors.discount)} />
                   <FlexBetween mt={1} mx={1}>
@@ -1401,10 +1465,17 @@ const CreateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Shipping Charges" label="Shipping Charges" value={values.shipping_charges}
+                  <TextField fullWidth type="number" name="Shipping Charges" label="Shipping Charges"
+                    // value={values.shipping_charges}
                     onChange={(e) => {
-                      setFieldValue("shipping_charges", e.target.value);
-                      setShipping(e.target.value);
+                      const value = e.target.value;
+                      if (value === '') {
+                        setFieldValue("shipping_charges", 0);
+                        setShipping(0);
+                      } else {
+                        setFieldValue("shipping_charges", value);
+                        setShipping(value);
+                      }
                     }}
                     helperText={touched.shipping_charges && errors.shipping_charges} error={Boolean(touched.shipping_charges && errors.shipping_charges)} />
                 </Box>
@@ -1412,15 +1483,8 @@ const CreateInvoicePageView = () => {
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
                   <TextField fullWidth type="number" name="Amount Paid" label="Amount Paid"
-                    // value={values.amount_paid}
-                    // onChange={(e) => {
-                    //   setFieldValue("amount_paid", e.target.value);
-                    //   setAmountPaid(e.target.value);
-                    // }}
                     onChange={(e) => {
                       const value = e.target.value;
-
-                      // If the input is empty, set the value to NaN
                       if (value === '') {
                         setFieldValue("amount_paid", 0);
                         setAmountPaid(0);
@@ -1446,7 +1510,6 @@ const CreateInvoicePageView = () => {
                       setFieldValue("status", option.value);
                     }}
                     onBlur={handleBlur}
-                    // Error handling
                     className={errors.status && touched.status ? "select-error" : ""}
                   />
                   {errors.status && touched.status && (
@@ -1489,11 +1552,6 @@ const CreateInvoicePageView = () => {
                   mr: 3,
                   height: '225px',  // Adjust the height as needed
                 }} />
-              {/* <Grid item md={4} sm={6} xs={12}>
-                <Box maxWidth={320}>
-                 
-                </Box>
-              </Grid> */}
               <Grid item md={4} sm={6} xs={12}>
                 <Box maxWidth={320}>
                   <H6 fontSize={16} my={3}>Payable Amount</H6>
@@ -1509,7 +1567,10 @@ const CreateInvoicePageView = () => {
 
                   <FlexBetween my={1}>
                     <Paragraph fontWeight={500}>Paid Amount</Paragraph>
-                    <Paragraph fontWeight={500}>-&nbsp;&nbsp;&nbsp; {parseInt(amountPaid)}</Paragraph>
+                    <Paragraph fontWeight={500}>
+                      -&nbsp;&nbsp;&nbsp;
+                      <span style={{ color: "green", fontWeight: 600 }}> {parseInt(amountPaid)}</span>
+                    </Paragraph>
                   </FlexBetween>
 
                   <Divider sx={{
@@ -1518,15 +1579,13 @@ const CreateInvoicePageView = () => {
 
                   <FlexBetween my={1}>
                     <H6 fontSize={16}>Due Amount</H6>
-                    <H6 fontSize={16}>{(Subtotal - parseInt(discount) + parseInt(shipping)) - parseInt(amountPaid)}</H6>
+                    <H6 fontSize={16} style={{ color: "red" }}>{(Subtotal - parseInt(discount) + parseInt(shipping)) - parseInt(amountPaid)}</H6>
                   </FlexBetween>
                 </Box>
               </Grid>
             </Grid>
 
-
             <StyledFlexBox flexWrap="wrap">
-
               <Box marginTop={3} className="buttonWrapper">
                 <Button color="secondary" variant="outlined" onClick={handleCancel} sx={{
                   mr: 1

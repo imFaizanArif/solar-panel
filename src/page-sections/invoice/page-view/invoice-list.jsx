@@ -45,7 +45,7 @@ const InvoiceListPageView = () => {
   let navigate = useNavigate();
   const baseApiUrl = import.meta.env.VITE_API_URL;
   const locale = {
-    emptyText: 'Loading',
+    emptyText: 'Loading...',
   };
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -287,7 +287,7 @@ const InvoiceListPageView = () => {
       width: 150,
       render: (text, record) => {
         return (
-          <span>{parseInt(record.total)}</span>
+          <span style={{ fontWeight: 600 }}>{parseInt(record.total)}</span>
         )
       },
       sorter: {
@@ -306,7 +306,7 @@ const InvoiceListPageView = () => {
       },
       render: (text, record) => {
         return (
-          <span>{parseInt(record.total) - parseInt(record.amount_paid)}</span>
+          <span style={{ color: "red", fontWeight: 600 }}>{parseInt(record.total) - parseInt(record.amount_paid)}</span>
         )
       },
     },
@@ -317,12 +317,27 @@ const InvoiceListPageView = () => {
       width: 150,
       render: (text, record) => {
         return (
-          <span>{parseInt(record.amount_paid)}</span>
+          <span style={{ color: "green", fontWeight: 600 }}>{parseInt(record.amount_paid)}</span>
         )
       },
       sorter: {
         compare: (a, b) => a.id - b.id,
         multiple: 5,
+      },
+    },
+    {
+      title: 'System Capacity',
+      dataIndex: 'system_capacity',
+      key: '3',
+      width: 150,
+      // render: (text, record) => {
+      //   return (
+      //     <span>{parseInt(record.amount_paid)}</span>
+      //   )
+      // },
+      sorter: {
+        compare: (a, b) => a.id - b.id,
+        multiple: 6,
       },
     },
     {
@@ -332,7 +347,7 @@ const InvoiceListPageView = () => {
       width: 200,
       sorter: {
         compare: (a, b) => a.id - b.id,
-        multiple: 5,
+        multiple: 7,
       },
       render: (record) => {
         // console.log(record, "record")
@@ -355,7 +370,7 @@ const InvoiceListPageView = () => {
       width: 150,
       sorter: {
         compare: (a, b) => new Date(a.created_at) - new Date(b.created_at),
-        multiple: 5,
+        multiple: 8,
       },
       render: (text) => format(new Date(text), 'dd-MM-yyyy'),
     },
@@ -366,14 +381,14 @@ const InvoiceListPageView = () => {
       width: 150,
       sorter: {
         compare: (a, b) => new Date(a.created_at) - new Date(b.created_at),
-        multiple: 6,
+        multiple: 9,
       },
       render: (text) => format(new Date(text), 'dd-MM-yyyy'),
     },
     {
       title: "Option",
       width: 100,
-      // fixed: 'right',
+      fixed: 'right',
       render: (text, record) => {
         // console.log(text.id);
         return (
@@ -510,7 +525,7 @@ const InvoiceListPageView = () => {
   };
   const handleDateRangeChange = (value) => {
     setDateRange(value);
-    console.log(value, "kkkkkkkkkkkkkkk");
+    // console.log(value, "kkkkkkkkkkkkkkk");
   };
 
   const filterData = () => {
@@ -594,6 +609,7 @@ const InvoiceListPageView = () => {
       rowKey={(record) => record?.id}
       onChange={handleTableChange}
       scroll={{ x: 600 }}
+      size="large"
     />
 
     {/* Delete Modal */}
