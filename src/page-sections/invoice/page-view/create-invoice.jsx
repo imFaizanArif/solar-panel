@@ -352,7 +352,8 @@ const CreateInvoicePageView = () => {
     // This effect will run whenever the discounts change to ensure latest values are used.
   }, [solarPanelDiscount, inverterDiscount, structureDiscount, cablingDiscount, netMeteringDiscount, batteriesId, lightningArrestorId, installationId || clientResponse || invoiceResponse]);
 
-  const Subtotal = parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice) + parseInt(shipping) - parseInt(amountPaid) - parseInt(discount);
+  const Subtotal = parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice);
+  const Subtotal2 = parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice) + parseInt(shipping) - parseInt(discount);
 
 
   return <Box pt={2} pb={4}>
@@ -568,7 +569,7 @@ const CreateInvoicePageView = () => {
             discount: values.discount,
             shipping_charges: values.shipping_charges,
             amount_paid: parseInt(values.amount_paid) ? parseInt(values.amount_paid) : 0,
-            total: Subtotal,
+            total: Subtotal2,
             status: values.status
           }
           const header = {

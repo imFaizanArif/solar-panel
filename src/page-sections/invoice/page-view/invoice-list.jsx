@@ -45,7 +45,7 @@ const InvoiceListPageView = () => {
   let navigate = useNavigate();
   const baseApiUrl = import.meta.env.VITE_API_URL;
   const locale = {
-    emptyText: 'No data available',
+    emptyText: 'Loading',
   };
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
