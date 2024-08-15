@@ -187,8 +187,8 @@ const StructureListPageView = () => {
   const getStructureList = () => {
     axios.get(baseApiUrl + "?format=json")
       .then((res) => {
-        setStructureData(res?.data?.results);
-        setFilteredData(res?.data?.results);
+        setStructureData(res?.data);
+        setFilteredData(res?.data);
       })
       .catch((err) => console.log(err.response.data));
   };

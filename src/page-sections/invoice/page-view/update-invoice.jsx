@@ -13,6 +13,7 @@ import { FlexBetween } from "@/components/flexbox";
 import 'react-toastify/dist/ReactToastify.css';
 import { set } from "nprogress";
 import { useParams } from "react-router-dom";
+import { format } from "date-fns";
 
 
 const StyledFlexBox = styled(FlexBetween)(({
@@ -30,20 +31,19 @@ const options = [
   { value: 'PARTIALLY_PAID', label: 'Partically Paid' },
   { value: 'PAID', label: 'Paid' }
 ];
-
 const UpdateInvoicePageView = () => {
-  const { id } = useParams();
   const navigate = useNavigate();
-  const baseApiUrl = import.meta.env.VITE_API_URL + "/api/";
+  const { id } = useParams();
+  const baseApiUrl = import.meta.env.VITE_API_URL;
   const [loading, setloading] = useState(false);
   const [clientResponse, setClientResponse] = useState(false);
   const [invoiceResponse, setInvoiceResponse] = useState(false);
-  const [solarPanelId, setsolarPanelId] = useState(null);
+  const [invoiceData, setInvoiceData] = useState([]);
+  const [installmentData, setInstallmentData] = useState([]);
+  const [solarPanelId, setsolarPanelId] = useState(0);
   const [solarPanelSpecificRecord, setsolarPanelSpecificRecord] = useState("");
   const [solarPanelData, setsolarPanelData] = useState([]);
   const [solarPanelDiscount, setSolarPanelDiscount] = useState(0);
-  const [selectedSolarPanel, setSelectedSolarPanel] = useState(null);
-  const [solarPanelQuery, setSolarPanelQuery] = useState(null);
   const [solarPanelPrice, setSolarPanelPrice] = useState(0);
   const [inverterId, setInverterId] = useState(null);
   const [inverterSpecificRecord, setInverterSpecificRecord] = useState("");
@@ -80,11 +80,15 @@ const UpdateInvoicePageView = () => {
   const [lightningArrestorData, setLightningArrestorData] = useState([]);
   const [lightningArrestorDiscount, setLightningArrestorDiscount] = useState(0);
   const [lightningArrestorPrice, setLightningArrestorPrice] = useState(0);
-  const [clientData, setClientData] = useState(0);
+  const [clientData, setClientData] = useState([]);
+  const [nextPageUrl, setNextPageUrl] = useState(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+
   const [discount, setDiscount] = useState(0);
   const [shipping, setShipping] = useState(0);
   const [amountPaid, setAmountPaid] = useState(0);
-  const [initialValues, setInitialValues] = useState({
+  const [clientInitialValues, setClientInitialValues] = useState({
     name: "",
     cnic: "",
     city: "",
@@ -92,6 +96,9 @@ const UpdateInvoicePageView = () => {
     area: "",
     contact_number: "",
     monthly_consumption_units: "",
+  });
+  const [initialValues, setInitialValues] = useState({
+    name: "",
     solar_panel: "",
     solar_panel_quantity: "",
     solar_panel_price: "",
@@ -121,50 +128,31 @@ const UpdateInvoicePageView = () => {
     amount_paid: 0,
     status: "",
   });
+  const clientValidationSchema = Yup.object().shape({
+    // name: Yup.string().required("Name To is Required!"),
+    // cnic: Yup.string()
+    //   .required("CNIC is Required!")
+    //   .matches(/^\d{5}-\d{7}-\d$/, 'CNIC must be in the format XXXXX-XXXXXXX-X')
+    //   .test('unique', 'CNIC already exists', async function (value) {
+    //     if (!value) return true; // Skip validation if value is not provided
+
+    //     try {
+    //       const res = await axios.get(`${baseApiUrl}Client/?format=json`);
+    //       const existingCNICs = res?.data?.map(client => client.cnic);
+
+    //       // Check if the CNIC already exists in the database
+    //       return !existingCNICs.includes(value);
+    //     } catch (err) {
+    //       console.error(err);
+    //       return false; // Return false if there's an error
+    //     }
+    //   }),
+    // city: Yup.string().required("City is Required!"),
+    // area: Yup.string().required("Area is Required!"),
+    contact_number: Yup.string().required("Contact Number is Required!"),
+  });
   const validationSchema = Yup.object().shape({
     name: Yup.string().required("Name To is Required!"),
-    cnic: Yup.string()
-      .required("CNIC is Required!")
-      .matches(/^\d{5}-\d{7}-\d$/, 'CNIC must be in the format XXXXX-XXXXXXX-X')
-      .test('unique', 'CNIC already exists', async function (value) {
-        if (!value) return true; // Skip validation if value is not provided
-
-        try {
-          const res = await axios.get(`${baseApiUrl}Client/?format=json`);
-          const existingCNICs = res?.data?.map(client => client.cnic);
-
-          // Check if the CNIC already exists in the database
-          return !existingCNICs.includes(value);
-        } catch (err) {
-          console.error(err);
-          return false; // Return false if there's an error
-        }
-      }),
-    city: Yup.string().required("City is Required!"),
-    area: Yup.string().required("Area is Required!"),
-    contact_number: Yup.string().required("Contact Number is Required!"),
-    // solar_panel: Yup.string().required("Solar Panel is Required!"),
-    solar_panel_quantity: Yup.string().required("Solar Panel Quantity is Required!"),
-    solar_panel_price: Yup.string().required("Solar Panel Price is Required!"),
-    // inverter: Yup.string().required("Inverter is Required!"),
-    inverter_quantity: Yup.string().required("Inverter Quantity is Required!"),
-    inverter_price: Yup.string().required("Inverter Price is Required!"),
-    // structure: Yup.string().required("Structure is Required!"),
-    structure_quantity: Yup.string().required("Structure Quantity is Required!"),
-    structure_price: Yup.string().required("Structure Price is Required!"),
-    // cabling: Yup.string().required("Cabling is Required!"),
-    cabling_quantity: Yup.string().required("Cabling Quantity is Required!"),
-    cabling_price: Yup.string().required("Cabling Price is Required!"),
-    // net_metering: Yup.string().required("Net Metering is Required!"),
-    net_metering_quantity: Yup.string().required("Net Metering Quantity is Required!"),
-    net_metering_price: Yup.string().required("Net Metering Price is Required!"),
-    battery_quantity: Yup.string().required("Battery Quantity is Required!"),
-    battery_price: Yup.string().required("Battery Price is Required!"),
-    lightning_arrestor_quantity: Yup.string().required("Lightning Arrestor Quantity is Required!"),
-    lightning_arrestor_price: Yup.string().required("Lightning Arrestor Price is Required!"),
-    // installation_quantity: Yup.string().required("Installation Quantity is Required!"),
-    installation_price: Yup.string().required("Installation Price is Required!"),
-    // discount: Yup.string().required("Net Metering Price is Required!"),
     amount_paid: Yup.string().when('status', {
       is: value => value && (value === 'PARTIALLY_PAID' || value === 'PAID'),
       then: Yup.string().required('Paid Amount is Required!'),
@@ -176,116 +164,141 @@ const UpdateInvoicePageView = () => {
     ),
   });
   const handleCancel = () => navigate("/dashboard/invoice-list");
-  const setInitialValue = async () => {
+
+
+  const getClientList = async () => {
     try {
-      const invoiceRes = await axios.get(import.meta.env.VITE_API_URL + "/invoice");
-      const invoiceData = invoiceRes?.data;
-      const invoiceId = parseInt(id, 10);
-      const invoice = invoiceData.find((panel) => {
-        // console.log(panel.id, "panel")
-        // console.log(clientId, "cpanel")
-        return panel.id === invoiceId;
+      const res = await axios.get(baseApiUrl + "/api/Client/" + "?format=json");
+      const resInvoice = await axios.get(baseApiUrl + "/api/Invoice/" + "?format=json");
+      const InvoiceData = resInvoice?.data;
+      const ClientData = res?.data;
+      const InvoiceId = parseInt(id, 10);
+      // const ClientId = parseInt(id, 10);
+
+      const Invoice = InvoiceData.find((panel) => {
+        return panel.id === InvoiceId;
       });
-      console.log(invoice, "invoice");
-
-      // const clientRes = await axios.get(baseApiUrl + "Client/" + "?format=json");
-      // const clientData = clientRes?.data?.results;
-      // const clientId = parseInt(id, 10);
-      // console.log(clientId, "clientId");
-
-      // console.log(clientData, "clientData"); // Check the structure of clientData
-      // console.log(clientData.map(item => item.id), "clientData IDs"); // Check the IDs in clientData
-
-      // const client = clientData.find(item => Number(item.id) == clientId);
-      // const client = clientData.find((panel) => {
-      //   // console.log(panel.id, "panel")
-      //   // console.log(clientId, "cpanel")
-      //   return panel.id === clientId;
-      // });
-      // console.log(client, "client"); // Check the result
-
-      if (invoice) {
-        const client = invoice?.name;
-        // console.log(client, "client")
-        setInitialValues({
-          ...client,
-          name: client.name,
-          cnic: client.cnic,
-          city: client.city,
-          company: client.company,
-          area: client.area,
-          contact_number: client.contact_number,
-          monthly_consumption_units: client.monthly_consumption_units,
-          solar_panel: invoice.solarPanel,
-          solar_panel_quantity: invoice.solar_panel_quantity,
-          solar_panel_price: invoice.solar_panel_quantity,
-          inverter: invoice.inverter,
-          inverter_quantity: invoice.inverter_quantity,
-          inverter_price: invoice.inverter_price,
-          structure: invoice.structure,
-          structure_quantity: invoice.structure_quantity,
-          structure_price: invoice.structure_price,
-          cabling: invoice.cabling,
-          cabling_quantity: invoice.cabling_quantity,
-          cabling_price: invoice.cabling_price,
-          net_metering: invoice.net_metering,
-          net_metering_quantity: invoice.net_metering_quantity,
-          net_metering_price: invoice.net_metering_price,
-          battery: invoice.battery,
-          battery_quantity: invoice.battery_quantity,
-          battery_price: invoice.battery_price,
-          lightning_arrestor: invoice.lightning_arrestor,
-          lightning_arrestor_quantity: invoice.lightning_arrestor_quantity,
-          lightning_arrestor_price: invoice.lightning_arrestor_price,
-          installation: invoice.installation,
-          installation_quantity: 0,
-          installation_price: invoice.installation_price,
-          discount: invoice.discount,
-          shipping_charges: invoice.shipping_charges,
-          amount_paid: invoice.amount_paid,
-          status: invoice.status,
+      const Client = ClientData.find((panel) => {
+        return panel.id === Invoice.name;
+      });
+      if (Client) {
+        // console.log(Client, "djjjjjjjjjjjj")
+        setClientInitialValues({
+          name: Client.name,
+          cnic: Client.cnic,
+          city: Client.city,
+          company: Client.company,
+          area: Client.area,
+          contact_number: Client.contact_number,
+          monthly_consumption_units: Client.monthly_consumption_units,
         });
-        setSolarPanelQuery(invoice.solar_panel.id);
-        console.log(invoice.solar_panel.id, "invoice.solar_panel.id")
       }
+      const formattedData = res?.data?.map((item) => ({
+        label:
+          <Grid container spacing={3}>
+            <Grid item md={4} sm={6} xs={12}>
+              <Box marginBottom={0}>
+                {item.name}
+              </Box>
+            </Grid>
+            <Grid item md={4} sm={6} xs={12}>
+              <Box marginBottom={0}>
+                {item.area}, {item.city}
+              </Box>
+            </Grid>
+            <Grid item md={4} sm={6} xs={12}>
+              <Box marginBottom={0}>
+                {item.contact_number}
+              </Box>
+            </Grid>
+          </Grid>, value: item.id
+      })).reverse();
+      setClientData(formattedData);
     } catch (err) {
       console.log(err.response.data);
     }
   };
-  const getClientList = async () => {
+  const getInvoiceList = async () => {
     try {
-      const res = await axios.get(baseApiUrl + "Client/" + "?format=json");
-      const sortedData = res?.data?.sort((a, b) => a.id - b.id); // Sort by ID ascending
-      const lastEnteredId = sortedData.length > 0 ? sortedData[sortedData.length - 1].id : null;
+      const res = await axios.get(baseApiUrl + "/api/Invoice/" + "?format=json");
+      const InvoiceData = res?.data;
+      const InvoiceId = parseInt(id, 10);
+      const Invoice = InvoiceData.find((panel) => {
+        return panel.id === InvoiceId;
+      });
+      if (Invoice) {
+        setInitialValues({
+          name: Invoice.name,
+          solar_panel: Invoice.solar_panel,
+          solar_panel_quantity: Invoice.solar_panel_quantity,
+          solar_panel_price: Invoice.solar_panel_price,
+          inverter: Invoice.inverter,
+          inverter_quantity: Invoice.inverter_quantity,
+          inverter_price: Invoice.inverter_price,
+          structure: Invoice.structure,
+          structure_quantity: Invoice.structure_quantity,
+          structure_price: Invoice.structure_price,
+          cabling: Invoice.cabling,
+          cabling_quantity: Invoice.cabling_quantity,
+          cabling_price: Invoice.cabling_price,
+          net_metering: Invoice.net_metering,
+          net_metering_quantity: Invoice.net_metering_quantity,
+          net_metering_price: Invoice.net_metering_price,
+          battery: Invoice.battery,
+          battery_quantity: Invoice.battery_quantity,
+          battery_price: Invoice.battery_price,
+          lightning_arrestor: Invoice.lightning_arrestor,
+          lightning_arrestor_quantity: Invoice.lightning_arrestor_quantity,
+          lightning_arrestor_price: Invoice.lightning_arrestor_price,
+          installation: Invoice.installation,
+          installation_quantity: Invoice.installation_quantity,
+          installation_price: Invoice.installation_price,
+          discount: Invoice.discount,
+          shipping_charges: Invoice.shipping_charges,
+          amount_paid: Invoice.amount_paid,
+          status: Invoice.status,
+        })
+      }
+      // console.log(Invoice, "zxcvbnmmnbv")
+      setInvoiceData(Invoice)
 
-      setClientData(lastEnteredId);
+    } catch (err) {
+      console.log(err.response.data);
+    }
+  };
+  const getInstallmentList = async () => {
+    try {
+      const res = await axios.get(baseApiUrl + "/invoice/" + "?format=json");
+      const InstallmentData = res?.data;
+      const InstallmentId = parseInt(id, 10);
+      const Installment = InstallmentData.find((panel) => {
+        return panel.id === InstallmentId;
+      });
+      // console.log(Installment.partial_payments, "zxcvbnmmnbv")
+      setInstallmentData(Installment.partial_payments)
+
     } catch (err) {
       console.log(err.response.data);
     }
   };
   const getSolarPanelList = async () => {
     try {
-      const res = await axios.get(baseApiUrl + "SolarPanel/" + "?format=json");
+      const res = await axios.get(baseApiUrl + "/api/SolarPanel/" + "?format=json");
       const Id = parseInt(solarPanelId, 10);
       const solarPanel = res?.data?.find((panel) => {
         return panel.id === Id;
       });
+      // console.log(Id, "solarPanel")
       setsolarPanelSpecificRecord(solarPanel);
       const formattedData = res?.data?.map((item) => ({ label: item.name, value: item.id }));
       setsolarPanelData(formattedData);
-
-      console.log(solarPanelQuery, "solarPanelQuery")
-      if (solarPanelQuery) {
-        const initialPanel = formattedData.find((panel) => panel.value === solarPanelQuery);
-        setSelectedSolarPanel(initialPanel);
-      }
     } catch (err) {
       console.log(err.response.data);
     }
   };
   const getInverterList = async () => {
     try {
-      const res = await axios.get(baseApiUrl + "Inverter/" + "?format=json");
+      const res = await axios.get(baseApiUrl + "/api/Inverter/" + "?format=json");
       const Id = parseInt(inverterId, 10);
       const inverter = res?.data?.find((panel) => {
         return panel.id === Id;
@@ -299,7 +312,7 @@ const UpdateInvoicePageView = () => {
   };
   const getStructureList = async () => {
     try {
-      const res = await axios.get(baseApiUrl + "Structure/" + "?format=json");
+      const res = await axios.get(baseApiUrl + "/api/Structure/" + "?format=json");
       const Id = parseInt(structureId, 10);
       const structure = res?.data?.find((panel) => {
         return panel.id === Id;
@@ -313,7 +326,7 @@ const UpdateInvoicePageView = () => {
   };
   const getCablingList = async () => {
     try {
-      const res = await axios.get(baseApiUrl + "Cabling/" + "?format=json");
+      const res = await axios.get(baseApiUrl + "/api/Cabling/" + "?format=json");
       const Id = parseInt(cablingId, 10);
       const cabling = res?.data?.find((panel) => {
         return panel.id === Id;
@@ -327,7 +340,7 @@ const UpdateInvoicePageView = () => {
   };
   const getNetMeteringList = async () => {
     try {
-      const res = await axios.get(baseApiUrl + "NetMetering/" + "?format=json");
+      const res = await axios.get(baseApiUrl + "/api/NetMetering/" + "?format=json");
       const Id = parseInt(netMeteringId, 10);
       const netMetering = res?.data?.find((panel) => {
         return panel.id === Id;
@@ -341,7 +354,7 @@ const UpdateInvoicePageView = () => {
   };
   const getBatteriesList = async () => {
     try {
-      const res = await axios.get(baseApiUrl + "Batteries/" + "?format=json");
+      const res = await axios.get(baseApiUrl + "/api/Batteries/" + "?format=json");
       const Id = parseInt(batteriesId, 10);
       const batteries = res?.data?.find((panel) => {
         return panel.id === Id;
@@ -355,7 +368,7 @@ const UpdateInvoicePageView = () => {
   };
   const getLightningArrestorList = async () => {
     try {
-      const res = await axios.get(baseApiUrl + "LightningArrestor/" + "?format=json");
+      const res = await axios.get(baseApiUrl + "/api/LightningArrestor/" + "?format=json");
       const Id = parseInt(lightningArrestorId, 10);
       const lightningArrestor = res?.data?.find((panel) => {
         return panel.id === Id;
@@ -369,7 +382,7 @@ const UpdateInvoicePageView = () => {
   };
   const getInstallationList = async () => {
     try {
-      const res = await axios.get(baseApiUrl + "Installation/" + "?format=json");
+      const res = await axios.get(baseApiUrl + "/api/Installation/" + "?format=json");
       const Id = parseInt(installationId, 10);
       const installation = res?.data?.find((panel) => {
         return panel.id === Id;
@@ -381,51 +394,12 @@ const UpdateInvoicePageView = () => {
       console.log(err.response.data);
     }
   };
-  const postClientData = async (formData) => {
-    const header = {
-      headers: {
-        "Content-Type": "multipart/form-data"
-      }
-    };
-    try {
-      setloading(true);
-      const res = await axios.put(baseApiUrl + "Client/", formData, header);
-      // console.log(res, "sddddddd")
-      if (res.status === 201) {
-        setClientResponse(true);
-        setTimeout(() => {
-          toast.success("Client Added Successfully");
-        }, 1000);
-        return res?.data?.results; // Return the response data
-      }
-    } catch (err) {
-      toast.error("Client Not Added");
-      throw err; // Throw error to stop the execution of the second request
-    } finally {
-      setloading(false);
-    }
-  };
-
-  const postInvoiceData = async (otherData) => {
-    try {
-      setloading(true);
-      const res = await axios.put(baseApiUrl + "Invoice/", otherData);
-      if (res.status === 201) {
-        setInvoiceResponse(true);
-        setTimeout(() => {
-          toast.success("Invoice Added Successfully");
-        }, 1000);
-        setloading(false);
-        return res?.data?.results;
-      }
-    } catch (err) {
-      toast.error("Invoice Not Added");
-      setloading(false);
-    }
-  };
+  const totalSum = installmentData.reduce((sum, installment) => sum + installment.amount, 0);
 
   useEffect(() => {
-    setInitialValue();
+    getClientList();
+    getInvoiceList();
+    getInstallmentList();
     getSolarPanelList();
     getInverterList();
     getStructureList();
@@ -435,10 +409,34 @@ const UpdateInvoicePageView = () => {
     getLightningArrestorList();
     getInstallationList();
   }, []);
+
+  useEffect(() => {
+    console.log(invoiceData.solar_panel, "qweruiopoi"); // Log the state after it's set
+    setSolarPanelPrice(invoiceData.solar_panel_price)
+    setsolarPanelId(invoiceData.solar_panel)
+    // setsolarPanelSpecificRecord(invoiceData.solar_panel_price)
+    setInverterPrice(invoiceData.inverter_price)
+    setInverterId(invoiceData.inverter)
+    setStructurePrice(invoiceData.structure_price)
+    setStructureId(invoiceData.structure)
+    setCablingPrice(invoiceData.cabling_price)
+    setCablingId(invoiceData.cabling)
+    setNetMeteringPrice(invoiceData.net_metering_price)
+    setNetMeteringId(invoiceData.net_metering)
+    setBatteriesPrice(invoiceData.battery_price)
+    setBatteriesId(invoiceData.battery)
+    setLightningArrestorPrice(invoiceData.lightning_arrestor_price)
+    setLightningArrestorId(invoiceData.lightning_arrestor)
+    setInstallationPrice(invoiceData.installation_price)
+    setInstallationId(invoiceData.installation)
+    setDiscount(invoiceData.discount)
+    setShipping(invoiceData.shipping_charges)
+    setAmountPaid(invoiceData.amount_paid)
+  }, [invoiceData]);
+
   useEffect(() => {
     if (solarPanelId || inverterId || structureId || cablingId || netMeteringId || batteriesId || lightningArrestorId || installationId) {
       getSolarPanelList();
-      setInitialValue();
       getInverterList();
       getStructureList();
       getCablingList();
@@ -448,14 +446,16 @@ const UpdateInvoicePageView = () => {
       getInstallationList();
     }
   }, [solarPanelId, inverterId, structureId, cablingId, netMeteringId, batteriesId || lightningArrestorId || installationId || clientResponse || invoiceResponse]);
+
+  // console.log(invoiceData, "qweruiopoi")
   useEffect(() => {
     // This effect will run whenever the discounts change to ensure latest values are used.
   }, [solarPanelDiscount, inverterDiscount, structureDiscount, cablingDiscount, netMeteringDiscount, batteriesId, lightningArrestorId, installationId || clientResponse || invoiceResponse]);
-  useEffect(() => {
-    setInitialValue();
-    getClientList();
-  }, [clientData])
+
   const Subtotal = parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice);
+  const Subtotal2 = parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice) + parseInt(shipping) - parseInt(discount);
+
+
   return <Box pt={2} pb={4}>
     <ToastContainer
       position="top-right"
@@ -471,88 +471,44 @@ const UpdateInvoicePageView = () => {
     <Card sx={{
       padding: 3
     }}>
-      <H6 fontSize={20} mb={4}>
-        Update Invoice
+      <H6 fontSize={22} mb={4}>
+        Add Invoice
       </H6>
-
-      <Formik initialValues={initialValues}
-        validationSchema={validationSchema}
+      {/* Client Info */}
+      <Formik initialValues={clientInitialValues}
+        validationSchema={clientValidationSchema}
         enableReinitialize
         onSubmit={async (values, { setSubmitting }) => {
+          const formData = {
+            name: values.name,
+            cnic: values.cnic,
+            city: values.city,
+            company: values.company,
+            area: values.area,
+            contact_number: values.contact_number,
+            monthly_consumption_units: values.monthly_consumption_units,
+          }
+          const header = {
+            headers: {
+              "Content-Type": "multipart/form-data"
+            }
+          };
           try {
-            const formData = {
-              name: values.name,
-              cnic: values.cnic,
-              city: values.city,
-              company: values.company,
-              area: values.area,
-              contact_number: values.contact_number,
-              monthly_consumption_units: values.monthly_consumption_units,
-
+            setloading(true);
+            const res = await axios.put(
+              baseApiUrl + `/api/Client/${id}`, formData, header
+            );
+            if (res.status == 201) {
+              toast.success("Client Added Successfully");
+              getClientList();
+              setloading(false);
             }
-            // console.log(formData, "formmmmmmmmmmmmmmmmmmm")
-            const otherData = {
-              name: clientData,
-              solar_panel: values.solar_panel,
-              solar_panel_quantity: values.solar_panel_quantity,
-              solar_panel_price: values.solar_panel_price,
-              inverter: values.inverter,
-              inverter_quantity: values.inverter_quantity,
-              inverter_price: values.inverter_price,
-              structure: values.structure,
-              structure_quantity: values.structure_quantity,
-              structure_price: values.structure_price,
-              cabling: values.cabling,
-              cabling_quantity: values.cabling_quantity,
-              cabling_price: values.cabling_price,
-              net_metering: values.net_metering,
-              net_metering_quantity: values.net_metering_quantity,
-              net_metering_price: values.net_metering_price,
-              battery: values.battery,
-              battery_quantity: values.battery_quantity,
-              battery_price: values.battery_price,
-              lightning_arrestor: values.lightning_arrestor,
-              lightning_arrestor_quantity: values.lightning_arrestor_quantity,
-              lightning_arrestor_price: values.lightning_arrestor_price,
-              installation: values.installation,
-              installation_quantity: 0,
-              installation_price: values.installation_price,
-              discount: values.discount,
-              shipping_charges: values.shipping_charges,
-              amount_paid: values.amount_paid ? values.amount_paid : 0,
-              total: Subtotal,
-              status: values.status
-              // total:
-            }
-            // console.log(otherData, "otherData")
-            // const header = {
-            //   headers: {
-            //     "Content-Type": "multipart/form-data"
-            //   }
-            // };
-            // // Use Promise.all to await both requests concurrently
-            const [clienResponse, invoicResponse] = await Promise.all([
-              postClientData(formData),
-              postInvoiceData(otherData),
-            ]);
-            // // Check if both requests were successful
-            // console.log(clientResponse, "clientResponse")
-            // console.log(invoiceResponse, "invoiceResponse")
-            if (clientResponse && invoiceResponse) {
-              setTimeout(() => {
-                toast.success("Client and Invoice added successfully");
-              }, 1000);
-              navigate("/dashboard/invoice-list");
-            } else {
-              toast.error("Failed to add one or more records");
-            }
-          } catch (error) {
-            console.error("Error submitting forms:", error);
-            toast.error("Error occurred while submitting forms");
-          } finally {
-            setSubmitting(false);
+          } catch (err) {
+            setloading(false);
+            toast.error("Client Not Added");
           }
         }}
+
         children={({
           values,
           errors,
@@ -564,6 +520,12 @@ const UpdateInvoicePageView = () => {
         }) => {
           return <form onSubmit={handleSubmit}>
 
+            <H6 fontSize={18} mb={2}>
+              Create Client
+            </H6>
+            <Divider sx={{
+              my: 4
+            }} />
             <H6 fontSize={16} mb={2}>
               Client Information
             </H6>
@@ -644,6 +606,140 @@ const UpdateInvoicePageView = () => {
                 </Box>
               </Grid>
             </Grid>
+
+
+            <StyledFlexBox flexWrap="wrap" justifyContent="end">
+              <Box marginTop={3} className="buttonWrapper">
+                <Button color="secondary" variant="outlined" onClick={handleCancel} sx={{
+                  mr: 1
+                }}>
+                  Cancel
+                </Button>
+
+
+                {loading ? (
+                  <Button type="submit" variant="contained" disabled={true}>
+                    <div className="spinner-border text-warning" role="status">
+                      <span className="sr-only">Saving...</span>
+                    </div>
+                  </Button>
+                ) : (
+                  <Button type="submit" variant="contained" color="success">
+                    Save
+                  </Button>
+                )}
+
+              </Box>
+            </StyledFlexBox>
+            <Divider sx={{
+              my: 4
+            }} />
+          </form>
+        }} >
+      </Formik>
+      {/* Invoice Info */}
+      <Formik initialValues={initialValues}
+        validationSchema={validationSchema}
+        enableReinitialize
+        onSubmit={async (values, { setSubmitting }) => {
+          const formData = {
+            name: values.name,
+            solar_panel: values.solar_panel,
+            solar_panel_quantity: values.solar_panel_quantity,
+            solar_panel_price: values.solar_panel_price,
+            system_capacity: values.system_capacity,
+            inverter: values.inverter,
+            inverter_quantity: values.inverter_quantity,
+            inverter_price: values.inverter_price,
+            structure: values.structure,
+            structure_quantity: values.structure_quantity,
+            structure_price: values.structure_price,
+            cabling: values.cabling,
+            cabling_quantity: values.cabling_quantity,
+            cabling_price: values.cabling_price,
+            net_metering: values.net_metering,
+            net_metering_quantity: values.net_metering_quantity,
+            net_metering_price: values.net_metering_price,
+            battery: values.battery,
+            battery_quantity: values.battery_quantity,
+            battery_price: values.battery_price,
+            lightning_arrestor: values.lightning_arrestor,
+            lightning_arrestor_quantity: values.lightning_arrestor_quantity,
+            lightning_arrestor_price: values.lightning_arrestor_price,
+            installation: values.installation,
+            installation_quantity: 0,
+            installation_price: values.installation_price,
+            discount: values.discount,
+            shipping_charges: values.shipping_charges,
+            amount_paid: parseInt(values.amount_paid) ? parseInt(values.amount_paid) : 0,
+            total: Subtotal2,
+            status: values.status
+          }
+          const header = {
+            headers: {
+              "Content-Type": "multipart/form-data"
+            }
+          };
+          try {
+            setloading(true);
+            const res = await axios.put(
+              baseApiUrl + `/api/Invoice/${id}`, formData, header
+            );
+            if (res.status == 201) {
+              toast.success("Invoice Added Successfully");
+              setloading(false);
+              setTimeout(() => {
+                navigate("/dashboard/invoice-list");
+              }, 1000);
+            }
+          } catch (err) {
+            setloading(false);
+            toast.error("Invoice Not Added");
+          }
+        }}
+        children={({
+          values,
+          errors,
+          touched,
+          handleChange,
+          handleBlur,
+          handleSubmit,
+          setFieldValue
+        }) => {
+          return <form onSubmit={handleSubmit}>
+
+            <H6 fontSize={18} mb={2}>
+              Create Invoice
+            </H6>
+            <Divider sx={{
+              my: 4
+            }} />
+            <H6 fontSize={16} mb={2}>
+              Select Client
+            </H6>
+            <Grid container spacing={3}>
+              <Grid item md={12} sm={6} xs={12}>
+                <Box marginBottom={0}>
+                  <Select
+                    placeholder="Name"
+                    fullWidth name="Name" label="Name"
+                    value={clientData.find(client => client.value === values.name)}
+                    options={clientData}
+                    onChange={(value) => {
+                      setFieldValue("name", value ? value.value : '');
+                    }}
+                    menuPortalTarget={document.body}
+                    styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
+                    isClearable={true}
+                    helperText={touched.name && errors.name}
+                    error={Boolean(touched.name && errors.name)}
+                  />
+                  {errors.name && touched.name && (
+                    <div className="error-message" style={{ marginLeft: "6px", marginTop: "4px", fontSize: "12px", color: "red" }}>{errors.name}</div>
+                  )}
+                </Box>
+              </Grid>
+            </Grid>
             <Divider sx={{
               my: 4
             }} />
@@ -657,11 +753,14 @@ const UpdateInvoicePageView = () => {
                   <Select
                     placeholder="Solar Panel"
                     fullWidth name="Solar Panel" label="Solar Panel"
+                    value={solarPanelData.find(solarPanel => solarPanel.value === values.solar_panel)}
                     options={solarPanelData}
-                    value={selectedSolarPanel}
+                    menuPortalTarget={document.body}
+                    styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
+                    isClearable={true}
                     onChange={(value) => {
-                      setFieldValue("solar_panel", value.value);
-                      setsolarPanelId(value.value);
+                      setFieldValue("solar_panel", value ? value.value : '');
+                      setsolarPanelId(value ? value.value : null);
                     }}
                     helperText={touched.solar_panel && errors.solar_panel}
                     error={Boolean(touched.solar_panel && errors.solar_panel)}
@@ -679,16 +778,48 @@ const UpdateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Solar Panel Price" label="Solar Panel Price" value={values.solar_panel_price}
+                  <TextField fullWidth type="number" name="Solar Panel Price" label="Solar Panel Price"
+                    value={values.solar_panel_price}
                     onChange={(e) => {
-                      setFieldValue("solar_panel_price", e.target.value);
-                      setSolarPanelPrice(e.target.value);
-                      // Calculate discount
-                      // const discount = Math.max(0, (solarPanelSpecificRecord?.price * values.solar_panel_quantity) - values.solar_panel_price);
-                      // setSolarPanelDiscount(discount);
+                      const value = e.target.value;
+                      if (value === '') {
+                        setFieldValue("solar_panel_price", 0);
+                        setSolarPanelPrice(0);
+                      } else {
+                        setFieldValue("solar_panel_price", value);
+                        setSolarPanelPrice(value);
+                        const discount = Math.max(0, (solarPanelSpecificRecord?.price * values.solar_panel_quantity) - values.solar_panel_price);
+                        setSolarPanelDiscount(discount);
+                      }
                     }}
+
                     helperText={touched.solar_panel_price && errors.solar_panel_price} error={Boolean(touched.solar_panel_price && errors.solar_panel_price)} />
-                  <FlexBetween mt={1} mx={1}>
+
+                </Box>
+              </Grid>
+              <Grid item md={4} sm={6} xs={12}>
+                <Box marginBottom={0}>
+                  <TextField fullWidth type="number" name="System Capacity" label="System Capacity"
+                    value={values.system_capacity}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === '') {
+                        setFieldValue("system_capacity", 0);
+                      } else {
+                        setFieldValue("system_capacity", value);
+                      }
+                    }}
+                    helperText={touched.system_capacity && errors.system_capacity} error={Boolean(touched.system_capacity && errors.system_capacity)} />
+
+                </Box>
+              </Grid>
+              <Grid item md={4} sm={6} xs={12}>
+                <Box marginBottom={0}>
+                </Box>
+              </Grid>
+              <Grid item md={4} sm={6} xs={12}>
+                <Box marginBottom={0}>
+                  <FlexBetween mt={0} mx={0}>
                     <Paragraph fontWeight={500} fontSize={12} color="grey">
                       <i>
                         Per Solar Panel Price:
@@ -700,7 +831,7 @@ const UpdateInvoicePageView = () => {
                       </i>
                     </Paragraph>
                   </FlexBetween>
-                  <FlexBetween mx={1}>
+                  <FlexBetween mx={0}>
                     <Paragraph fontWeight={500} fontSize={12} color="grey">
                       <i>
                         Total Solar Panel Price: {solarPanelSpecificRecord?.price} X {values.solar_panel_quantity ? values.solar_panel_quantity : 0} =
@@ -712,7 +843,7 @@ const UpdateInvoicePageView = () => {
                       </i>
                     </Paragraph>
                   </FlexBetween>
-                  <FlexBetween mx={1}>
+                  <FlexBetween mx={0}>
                     <Paragraph fontWeight={500} fontSize={12} color="grey">
                       <i>
                         Discount:
@@ -733,7 +864,6 @@ const UpdateInvoicePageView = () => {
                   </FlexBetween>
                 </Box>
               </Grid>
-
             </Grid>
             <Divider sx={{
               my: 4
@@ -748,10 +878,12 @@ const UpdateInvoicePageView = () => {
                   <Select
                     placeholder="Inverter"
                     fullWidth name="Inverter" label="Inverter"
+                    value={inverterData.find(inverter => inverter.value === values.inverter)}
                     options={inverterData}
+                    isClearable={true}
                     onChange={(value) => {
-                      setFieldValue("inverter", value.value);
-                      setInverterId(value.value);
+                      setFieldValue("inverter", value ? value.value : '');
+                      setInverterId(value ? value.value : null);
                     }}
                     helperText={touched.inverter && errors.inverter}
                     error={Boolean(touched.inverter && errors.inverter)}
@@ -769,12 +901,19 @@ const UpdateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Inverter Price" label="Inverter Price" value={values.inverter_price}
+                  <TextField fullWidth type="number" name="Inverter Price" label="Inverter Price"
+                    value={values.inverter_price}
                     onChange={(e) => {
-                      setFieldValue("inverter_price", e.target.value);
-                      setInverterPrice(e.target.value);
-                      const discount = Math.max(0, (inverterSpecificRecord?.price * values.inverter_quantity) - values.inverter_price);
-                      setInverterDiscount(discount);
+                      const value = e.target.value;
+                      if (value === '') {
+                        setFieldValue("inverter_price", 0);
+                        setInverterPrice(0);
+                      } else {
+                        setFieldValue("inverter_price", value);
+                        setInverterPrice(value);
+                        const discount = Math.max(0, (inverterSpecificRecord?.price * values.inverter_quantity) - values.inverter_price);
+                        setInverterDiscount(discount);
+                      }
                     }}
                     helperText={touched.inverter_price && errors.inverter_price} error={Boolean(touched.inverter_price && errors.inverter_price)} />
                   <FlexBetween mt={1} mx={1}>
@@ -837,10 +976,12 @@ const UpdateInvoicePageView = () => {
                   <Select
                     placeholder="Structure"
                     fullWidth name="Structure" label="Structure"
+                    value={structureData.find(structure => structure.value === values.structure)}
                     options={structureData}
+                    isClearable={true}
                     onChange={(value) => {
-                      setFieldValue("structure", value.value);
-                      setStructureId(value.value);
+                      setFieldValue("structure", value ? value.value : '');
+                      setStructureId(value ? value.value : null);
                     }}
                     helperText={touched.structure && errors.structure}
                     error={Boolean(touched.structure && errors.structure)}
@@ -858,12 +999,19 @@ const UpdateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Structure Price" label="Structure Price" value={values.structure_price}
+                  <TextField fullWidth type="number" name="Structure Price" label="Structure Price"
+                    value={values.structure_price}
                     onChange={(e) => {
-                      setFieldValue("structure_price", e.target.value);
-                      setStructurePrice(e.target.value);
-                      const discount = Math.max(0, (structureSpecificRecord?.price * values.structure_quantity) - values.structure_price);
-                      setStructureDiscount(discount);
+                      const value = e.target.value;
+                      if (value === '') {
+                        setFieldValue("structure_price", 0);
+                        setStructurePrice(0);
+                      } else {
+                        setFieldValue("structure_price", value);
+                        setStructurePrice(value);
+                        const discount = Math.max(0, (structureSpecificRecord?.price * values.structure_quantity) - values.structure_price);
+                        setStructureDiscount(discount);
+                      }
                     }}
                     helperText={touched.structure_price && errors.structure_price} error={Boolean(touched.structure_price && errors.structure_price)} />
                   <FlexBetween mt={1} mx={1}>
@@ -926,10 +1074,12 @@ const UpdateInvoicePageView = () => {
                   <Select
                     placeholder="Cabling"
                     fullWidth name="Cabling" label="Cabling"
+                    value={cablingData.find(cabling => cabling.value === values.cabling)}
                     options={cablingData}
+                    isClearable={true}
                     onChange={(value) => {
-                      setFieldValue("cabling", value.value);
-                      setCablingId(value.value);
+                      setFieldValue("cabling", value ? value.value : '');
+                      setCablingId(value ? value.value : null);
                     }}
                     helperText={touched.cabling && errors.cabling}
                     error={Boolean(touched.cabling && errors.cabling)}
@@ -947,12 +1097,19 @@ const UpdateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Cabling Price" label="Cabling Price" value={values.cabling_price}
+                  <TextField fullWidth type="number" name="Cabling Price" label="Cabling Price"
+                    value={values.cabling_price}
                     onChange={(e) => {
-                      setFieldValue("cabling_price", e.target.value);
-                      setCablingPrice(e.target.value);
-                      const discount = Math.max(0, (cablingSpecificRecord?.price * values.cabling_quantity) - values.cabling_price);
-                      setCablingDiscount(discount);
+                      const value = e.target.value;
+                      if (value === '') {
+                        setFieldValue("cabling_price", 0);
+                        setCablingPrice(0);
+                      } else {
+                        setFieldValue("cabling_price", value);
+                        setCablingPrice(value);
+                        const discount = Math.max(0, (cablingSpecificRecord?.price * values.cabling_quantity) - values.cabling_price);
+                        setCablingDiscount(discount);
+                      }
                     }}
                     helperText={touched.cabling_price && errors.cabling_price} error={Boolean(touched.cabling_price && errors.cabling_price)} />
                   <FlexBetween mt={1} mx={1}>
@@ -1015,10 +1172,12 @@ const UpdateInvoicePageView = () => {
                   <Select
                     placeholder="Net Metering"
                     fullWidth name="Net Metering" label="Net Metering"
+                    value={netMeteringData.find(netMetering => netMetering.value === values.net_metering)}
                     options={netMeteringData}
+                    isClearable={true}
                     onChange={(value) => {
-                      setFieldValue("net_metering", value.value);
-                      setNetMeteringId(value.value);
+                      setFieldValue("net_metering", value ? value.value : '');
+                      setNetMeteringId(value ? value.value : null);
                     }}
                     helperText={touched.net_metering && errors.net_metering}
                     error={Boolean(touched.net_metering && errors.net_metering)}
@@ -1036,12 +1195,19 @@ const UpdateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Net Metering Price" label="Net Metering Price" value={values.net_metering_price}
+                  <TextField fullWidth type="number" name="Net Metering Price" label="Net Metering Price"
+                    value={values.net_metering_price}
                     onChange={(e) => {
-                      setFieldValue("net_metering_price", e.target.value);
-                      setNetMeteringPrice(e.target.value);
-                      const discount = Math.max(0, (netMeteringSpecificRecord?.price * values.net_metering_quantity) - values.net_metering_price);
-                      setNetMeteringDiscount(discount);
+                      const value = e.target.value;
+                      if (value === '') {
+                        setFieldValue("net_metering_price", 0);
+                        setNetMeteringPrice(0);
+                      } else {
+                        setFieldValue("net_metering_price", value);
+                        setNetMeteringPrice(value);
+                        const discount = Math.max(0, (netMeteringSpecificRecord?.price * values.net_metering_quantity) - values.net_metering_price);
+                        setNetMeteringDiscount(discount);
+                      }
                     }}
                     helperText={touched.net_metering_price && errors.net_metering_price} error={Boolean(touched.net_metering_price && errors.net_metering_price)} />
                   <FlexBetween mt={1} mx={1}>
@@ -1105,10 +1271,12 @@ const UpdateInvoicePageView = () => {
                   <Select
                     placeholder="Battery"
                     fullWidth name="Battery" label="Battery"
+                    value={batteriesData.find(battery => battery.value === values.battery)}
                     options={batteriesData}
+                    isClearable={true}
                     onChange={(value) => {
-                      setFieldValue("battery", value.value);
-                      setBatteriesId(value.value);
+                      setFieldValue("battery", value ? value.value : '');
+                      setBatteriesId(value ? value.value : null);
                     }}
                     helperText={touched.battery && errors.battery}
                     error={Boolean(touched.battery && errors.battery)}
@@ -1126,12 +1294,19 @@ const UpdateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Battery Price" label="Battery Price" value={values.battery_price}
+                  <TextField fullWidth type="number" name="Battery Price" label="Battery Price"
+                    value={values.battery_price}
                     onChange={(e) => {
-                      setFieldValue("battery_price", e.target.value);
-                      setBatteriesPrice(e.target.value);
-                      const discount = Math.max(0, (batteriesSpecificRecord?.price * values.battery_quantity) - values.battery_price);
-                      setBatteriesDiscount(discount);
+                      const value = e.target.value;
+                      if (value === '') {
+                        setFieldValue("battery_price", 0);
+                        setBatteriesPrice(0);
+                      } else {
+                        setFieldValue("battery_price", value);
+                        setBatteriesPrice(value);
+                        const discount = Math.max(0, (batteriesSpecificRecord?.price * values.battery_quantity) - values.battery_price);
+                        setBatteriesDiscount(discount);
+                      }
                     }}
                     helperText={touched.battery_price && errors.battery_price} error={Boolean(touched.battery_price && errors.battery_price)} />
                   <FlexBetween mt={1} mx={1}>
@@ -1195,10 +1370,12 @@ const UpdateInvoicePageView = () => {
                   <Select
                     placeholder="Lightning Arrestor"
                     fullWidth name="Lightning Arrestor" label="Lightning Arrestor"
+                    value={lightningArrestorData.find(lightningArrestor => lightningArrestor.value === values.lightning_arrestor)}
                     options={lightningArrestorData}
+                    isClearable={true}
                     onChange={(value) => {
-                      setFieldValue("lightning_arrestor", value.value);
-                      setLightningArrestorId(value.value);
+                      setFieldValue("lightning_arrestor", value ? value.value : '');
+                      setLightningArrestorId(value ? value.value : null);
                     }}
                     helperText={touched.lightning_arrestor && errors.lightning_arrestor}
                     error={Boolean(touched.lightning_arrestor && errors.lightning_arrestor)}
@@ -1216,12 +1393,19 @@ const UpdateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Lightning Arrestor Price" label="Lightning Arrestor Price" value={values.lightning_arrestor_price}
+                  <TextField fullWidth type="number" name="Lightning Arrestor Price" label="Lightning Arrestor Price"
+                    value={values.lightning_arrestor_price}
                     onChange={(e) => {
-                      setFieldValue("lightning_arrestor_price", e.target.value);
-                      setLightningArrestorPrice(e.target.value);
-                      const discount = Math.max(0, (lightningArrestorSpecificRecord?.price * values.lightning_arrestor_quantity) - values.lightning_arrestor_price);
-                      setLightningArrestorDiscount(discount);
+                      const value = e.target.value;
+                      if (value === '') {
+                        setFieldValue("lightning_arrestor_price", 0);
+                        setLightningArrestorPrice(0);
+                      } else {
+                        setFieldValue("lightning_arrestor_price", value);
+                        setLightningArrestorPrice(value);
+                        const discount = Math.max(0, (lightningArrestorSpecificRecord?.price * values.lightning_arrestor_quantity) - values.lightning_arrestor_price);
+                        setLightningArrestorDiscount(discount);
+                      }
                     }}
                     helperText={touched.lightning_arrestor_price && errors.lightning_arrestor_price} error={Boolean(touched.lightning_arrestor_price && errors.lightning_arrestor_price)} />
                   <FlexBetween mt={1} mx={1}>
@@ -1284,59 +1468,35 @@ const UpdateInvoicePageView = () => {
                   <Select
                     placeholder="Installation"
                     fullWidth name="Installation" label="Installation"
+                    value={installationData.find(installation => installation.value === values.installation)}
                     options={installationData}
+                    isClearable={true}
                     onChange={(value) => {
-                      setFieldValue("installation", value.value);
-                      setInstallationId(value.value);
+                      setFieldValue("installation", value ? value.value : '');
+                      setInstallationId(value ? value.value : null);
                     }}
                     helperText={touched.installation && errors.installation}
                     error={Boolean(touched.installation && errors.installation)}
                   />
                 </Box>
               </Grid>
-              {/* <Grid item md={4} sm={6} xs={12}>
-                <Box marginBottom={0}>
-                  <TextField fullWidth name="Installation Quantity" label="Installation Quantity" value={values.installation_quantity}
-                    onChange={(e) => {
-                      setFieldValue("installation_quantity", e.target.value);
-                    }}
-                    helperText={touched.installation_quantity && errors.installation_quantity} error={Boolean(touched.installation_quantity && errors.installation_quantity)} />
-                </Box>
-              </Grid> */}
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Installation Price" label="Installation Price" value={values.installation_price}
+                  <TextField fullWidth type="number" name="Installation Price" label="Installation Price"
+                    value={values.installation_price}
                     onChange={(e) => {
-                      setFieldValue("installation_price", e.target.value);
-                      setInstallationPrice(e.target.value);
-                      const discount = Math.max(0, (installationSpecificRecord?.price * values.installation_quantity) - values.installation_price);
-                      setInstallationDiscount(discount);
+                      const value = e.target.value;
+                      if (value === '') {
+                        setFieldValue("installation_price", 0);
+                        setInstallationPrice(0);
+                      } else {
+                        setFieldValue("installation_price", value);
+                        setInstallationPrice(value);
+                        const discount = Math.max(0, (installationSpecificRecord?.price * values.installation_quantity) - values.installation_price);
+                        setInstallationDiscount(discount);
+                      }
                     }}
                     helperText={touched.installation_price && errors.installation_price} error={Boolean(touched.installation_price && errors.installation_price)} />
-                  {/* <FlexBetween mt={1} mx={1}>
-                    <Paragraph fontWeight={500} fontSize={12} color="grey">
-                      <i>
-                        Per installation Price:
-                      </i>
-                    </Paragraph>
-                    <Paragraph fontWeight={500} fontSize={12}>
-                      <i>
-                        {installationSpecificRecord?.price ? installationSpecificRecord?.price : 0}
-                      </i>
-                    </Paragraph>
-                  </FlexBetween> */}
-                  {/* <FlexBetween mx={1}>
-                    <Paragraph fontWeight={500} fontSize={12} color="grey">
-                      <i>
-                        Total Installation Price: {installationSpecificRecord?.price} X {values.installation_quantity ? values.installation_quantity : 0} =
-                      </i>
-                    </Paragraph>
-                    <Paragraph fontWeight={500} fontSize={12}>
-                      <i>
-                        {isNaN(installationSpecificRecord?.price * values.installation_quantity) ? 0 : installationSpecificRecord?.price * values.installation_quantity}
-                      </i>
-                    </Paragraph>
-                  </FlexBetween> */}
                   <FlexBetween mx={1}>
                     <Paragraph fontWeight={500} fontSize={12} color="grey">
                       <i>
@@ -1367,16 +1527,23 @@ const UpdateInvoicePageView = () => {
             <Grid container spacing={3}>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Discount" label="Discount" value={values.discount}
+                  <TextField fullWidth type="number" name="Discount" label="Discount"
+                    value={values.discount}
                     onChange={(e) => {
-                      setFieldValue("discount", e.target.value);
-                      setDiscount(e.target.value);
+                      const value = e.target.value;
+                      if (value === '') {
+                        setFieldValue("discount", 0);
+                        setDiscount(0);
+                      } else {
+                        setFieldValue("discount", value);
+                        setDiscount(value);
+                      }
                     }}
                     helperText={touched.discount && errors.discount} error={Boolean(touched.discount && errors.discount)} />
                   <FlexBetween mt={1} mx={1}>
                     <Paragraph fontWeight={500} fontSize={12} color="grey">
                       <i>
-                        <span style={{ fontWeight: 500, fontSize: 13, color: 'black' }}>Calculated Discount:</span>
+                        <span style={{ fontWeight: 600, fontSize: 14, color: 'black' }}>Calculated Discount:</span>
                         <br /> Solar Panel:
                         <br /> Inverter:
                         <br /> Structure:
@@ -1409,23 +1576,78 @@ const UpdateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Shipping Charges" label="Shipping Charges" value={values.shipping_charges}
+                  <TextField fullWidth type="number" name="Shipping Charges" label="Shipping Charges"
+                    value={values.shipping_charges}
                     onChange={(e) => {
-                      setFieldValue("shipping_charges", e.target.value);
-                      setShipping(e.target.value);
+                      const value = e.target.value;
+                      if (value === '') {
+                        setFieldValue("shipping_charges", 0);
+                        setShipping(0);
+                      } else {
+                        setFieldValue("shipping_charges", value);
+                        setShipping(value);
+                      }
                     }}
                     helperText={touched.shipping_charges && errors.shipping_charges} error={Boolean(touched.shipping_charges && errors.shipping_charges)} />
                 </Box>
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Amount Paid" label="Amount Paid" value={values.amount_paid}
+                  <TextField fullWidth type="number" name="Amount Paid" label="Amount Paid"
+                    value={values.amount_paid}
                     onChange={(e) => {
-                      setFieldValue("amount_paid", e.target.value);
-                      setAmountPaid(e.target.value);
+                      const value = e.target.value;
+                      if (value === '') {
+                        setFieldValue("amount_paid", 0);
+                        setAmountPaid(0);
+                      } else {
+                        setFieldValue("amount_paid", value);
+                        setAmountPaid(value);
+                      }
                     }}
                     helperText={touched.amount_paid && errors.amount_paid} error={Boolean(touched.amount_paid && errors.amount_paid)} />
+                  <FlexBetween mt={1} mx={1}>
+                    <Paragraph fontWeight={500} fontSize={12} color="#494949">
+                      <i>
+                        <span style={{ fontWeight: 600, fontSize: 14, color: 'black' }}>
+                          Installment History:
+                        </span>
+                        <br />
+                        <span style={{ fontWeight: 500, fontSize: 13, color: 'black' }}>
+                          Date
+                        </span>
+                        {
+                          installmentData.map((installment, index) => {
+                            return <div key={index}>
+                              {format(new Date(installment.time), "dd-MM-yyyy HH:mm:SS")}
 
+                            </div>;
+                          })
+                        }
+                        <hr style={{ marginTop: '2px', marginBottom: '2px' }} />
+                        <span style={{ fontWeight: 500, fontSize: 13, color: 'black' }}>Recived Amount</span>
+                      </i>
+                    </Paragraph>
+                    <Paragraph fontWeight={500} fontSize={12} color="#494949">
+                      <i>
+                        <br />
+                        <span style={{ fontWeight: 500, fontSize: 13, color: 'black' }}>
+                          Installment:
+                        </span>
+                        {
+                          installmentData.map((installment, index) => {
+                            return <div key={index}>
+                              {installment.amount}
+                            </div>;
+                          })
+                        }
+                        <hr style={{ marginTop: '2px', marginBottom: '2px' }} />
+                        <span style={{ fontWeight: 500, fontSize: 13, color: 'black' }}>
+                          {totalSum}
+                        </span>
+                      </i>
+                    </Paragraph>
+                  </FlexBetween>
                 </Box>
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
@@ -1441,7 +1663,6 @@ const UpdateInvoicePageView = () => {
                       setFieldValue("status", option.value);
                     }}
                     onBlur={handleBlur}
-                    // Error handling
                     className={errors.status && touched.status ? "select-error" : ""}
                   />
                   {errors.status && touched.status && (
@@ -1453,43 +1674,71 @@ const UpdateInvoicePageView = () => {
             <Divider sx={{
               my: 4
             }} />
-            <Box maxWidth={320}>
-              <H6 fontSize={16}>Amount</H6>
 
-              <FlexBetween my={1}>
-                <Paragraph fontWeight={500}>Subtotal</Paragraph>
-                <Paragraph fontWeight={500}>{Subtotal}</Paragraph>
-              </FlexBetween>
-              <Divider sx={{
-                my: 2
-              }} />
-              <FlexBetween my={1}>
-                <Paragraph fontWeight={500}>After Discount</Paragraph>
-                <Paragraph fontWeight={500}>{Subtotal - parseInt(discount)}</Paragraph>
-              </FlexBetween>
+            <H6 fontSize={20}>Payment Information</H6>
+            <Grid container spacing={3}>
+              <Grid item md={4} sm={6} xs={12}>
+                <Box maxWidth={320}>
+                  <H6 fontSize={16} my={3}>Net Amount</H6>
+                  <FlexBetween my={1}>
+                    <Paragraph fontWeight={500}>Subtotal</Paragraph>
+                    <Paragraph fontWeight={500}>{Subtotal}</Paragraph>
+                  </FlexBetween>
+                  <FlexBetween my={1}>
+                    <Paragraph fontWeight={500}>Discount</Paragraph>
+                    <Paragraph fontWeight={500}>-&nbsp;&nbsp;&nbsp; {discount}</Paragraph>
+                  </FlexBetween>
+                  <Divider sx={{
+                    mt: 7
+                  }} />
+                  <FlexBetween my={2}>
+                    <H6 fontSize={16}>After Discount</H6>
+                    <H6 fontSize={16}>{Subtotal - parseInt(discount)}</H6>
+                  </FlexBetween>
+                </Box>
+              </Grid>
+              <Divider orientation="vertical"
+                flexItem
+                sx={{
+                  mt: 5,
+                  ml: 6,
+                  mr: 3,
+                  height: '225px',  // Adjust the height as needed
+                }} />
+              <Grid item md={4} sm={6} xs={12}>
+                <Box maxWidth={320}>
+                  <H6 fontSize={16} my={3}>Payable Amount</H6>
+                  <FlexBetween my={1}>
+                    <Paragraph fontWeight={500}>After Discount</Paragraph>
+                    <Paragraph fontWeight={500}>{Subtotal - parseInt(discount)}</Paragraph>
+                  </FlexBetween>
 
-              <FlexBetween my={1}>
-                <Paragraph fontWeight={500}>Shipping Amount</Paragraph>
-                <Paragraph fontWeight={500}>+&nbsp;&nbsp;&nbsp; {parseInt(shipping)}</Paragraph>
-              </FlexBetween>
+                  <FlexBetween my={1}>
+                    <Paragraph fontWeight={500}>Shipping Amount</Paragraph>
+                    <Paragraph fontWeight={500}>+&nbsp;&nbsp;&nbsp; {parseInt(shipping)}</Paragraph>
+                  </FlexBetween>
 
-              <FlexBetween my={1}>
-                <Paragraph fontWeight={500}>Paid Amount</Paragraph>
-                <Paragraph fontWeight={500}>-&nbsp;&nbsp;&nbsp; {parseInt(amountPaid)}</Paragraph>
-              </FlexBetween>
+                  <FlexBetween my={1}>
+                    <Paragraph fontWeight={500}>Paid Amount</Paragraph>
+                    <Paragraph fontWeight={500}>
+                      -&nbsp;&nbsp;&nbsp;
+                      <span style={{ color: "green", fontWeight: 600 }}> {parseInt(amountPaid)}</span>
+                    </Paragraph>
+                  </FlexBetween>
 
-              <Divider sx={{
-                my: 2
-              }} />
+                  <Divider sx={{
+                    my: 2
+                  }} />
 
-              <FlexBetween my={1}>
-                <H6 fontSize={16}>Due Amount</H6>
-                <H6 fontSize={16}>{(Subtotal - parseInt(discount) + parseInt(shipping)) - parseInt(amountPaid)}</H6>
-              </FlexBetween>
-            </Box>
+                  <FlexBetween my={1}>
+                    <H6 fontSize={16}>Due Amount</H6>
+                    <H6 fontSize={16} style={{ color: "red" }}>{(Subtotal - parseInt(discount) + parseInt(shipping)) - parseInt(amountPaid)}</H6>
+                  </FlexBetween>
+                </Box>
+              </Grid>
+            </Grid>
 
             <StyledFlexBox flexWrap="wrap">
-
               <Box marginTop={3} className="buttonWrapper">
                 <Button color="secondary" variant="outlined" onClick={handleCancel} sx={{
                   mr: 1
@@ -1513,7 +1762,8 @@ const UpdateInvoicePageView = () => {
               </Box>
             </StyledFlexBox>
           </form>;
-        }} />
+        }} >
+      </Formik>
     </Card>
   </Box>;
 };

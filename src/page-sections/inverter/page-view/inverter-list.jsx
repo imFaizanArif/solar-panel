@@ -197,8 +197,8 @@ const InverterListPageView = () => {
   const getInverterList = () => {
     axios.get(baseApiUrl + "?format=json")
       .then((res) => {
-        setInverterData(res?.data?.results);
-        setFilteredData(res?.data?.results);
+        setInverterData(res?.data);
+        setFilteredData(res?.data);
       })
       .catch((err) => console.log(err.response.data));
   };

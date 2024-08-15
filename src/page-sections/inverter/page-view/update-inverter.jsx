@@ -45,7 +45,7 @@ const UpdateInverterPageView = () => {
   const getInverterList = async () => {
     try {
       const res = await axios.get(baseApiUrl + "?format=json");
-      const InverterData = res?.data?.results;
+      const InverterData = res?.data;
       const InverterId = parseInt(id, 10);
 
       const Inverter = InverterData.find((panel) => {

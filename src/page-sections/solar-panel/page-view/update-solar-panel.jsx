@@ -44,7 +44,7 @@ const UpdateSolarPanelPageView = () => {
   const getSolarPanelList = async () => {
     try {
       const res = await axios.get(baseApiUrl + "?format=json");
-      const solarPanelData = res?.data?.results;
+      const solarPanelData = res?.data;
       const solarPanelId = parseInt(id, 10);
 
       const solarPanel = solarPanelData.find((panel) => {

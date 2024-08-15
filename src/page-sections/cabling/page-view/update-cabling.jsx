@@ -41,7 +41,7 @@ const UpdateCablingPageView = () => {
   const getCablingList = async () => {
     try {
       const res = await axios.get(baseApiUrl + "?format=json");
-      const CablingData = res?.data?.results;
+      const CablingData = res?.data;
       const CablingId = parseInt(id, 10);
 
       const Cabling = CablingData.find((panel) => {

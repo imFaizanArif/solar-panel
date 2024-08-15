@@ -177,8 +177,8 @@ const CablingListPageView = () => {
   const getCablingList = () => {
     axios.get(baseApiUrl + "?format=json")
       .then((res) => {
-        setCablingData(res?.data?.results);
-        setFilteredData(res?.data?.results);
+        setCablingData(res?.data);
+        setFilteredData(res?.data);
       })
       .catch((err) => console.log(err.response.data));
   };

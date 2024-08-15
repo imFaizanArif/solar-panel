@@ -177,8 +177,8 @@ const BatteriesListPageView = () => {
   const getBatteriesList = () => {
     axios.get(baseApiUrl + "?format=json")
       .then((res) => {
-        setBatteriesData(res?.data?.results);
-        setFilteredData(res?.data?.results);
+        setBatteriesData(res?.data);
+        setFilteredData(res?.data);
       })
       .catch((err) => console.log(err.response.data));
   };

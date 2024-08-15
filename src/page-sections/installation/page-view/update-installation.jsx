@@ -42,7 +42,7 @@ const UpdateInstallationPageView = () => {
   const getInstallationList = async () => {
     try {
       const res = await axios.get(baseApiUrl + "?format=json");
-      const InstallationData = res?.data?.results;
+      const InstallationData = res?.data;
       const InstallationId = parseInt(id, 10);
 
       const Installation = InstallationData.find((panel) => {

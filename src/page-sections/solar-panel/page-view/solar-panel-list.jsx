@@ -197,8 +197,8 @@ const SolarPanelListPageView = () => {
   const getSolarPanelList = () => {
     axios.get(baseApiUrl + "?format=json")
       .then((res) => {
-        setsolarPanelData(res?.data?.results);
-        setFilteredData(res?.data?.results);
+        setsolarPanelData(res?.data);
+        setFilteredData(res?.data);
       })
       .catch((err) => console.log(err.response.data));
   };

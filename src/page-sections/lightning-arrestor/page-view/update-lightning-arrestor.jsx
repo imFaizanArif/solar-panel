@@ -42,7 +42,7 @@ const UpdateLightningArrestorPageView = () => {
   const getLightningArrestorList = async () => {
     try {
       const res = await axios.get(baseApiUrl + "?format=json");
-      const LightningArrestorData = res?.data?.results;
+      const LightningArrestorData = res?.data;
       const LightningArrestorId = parseInt(id, 10);
 
       const LightningArrestor = LightningArrestorData.find((panel) => {

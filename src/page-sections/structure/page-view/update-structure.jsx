@@ -43,7 +43,7 @@ const UpdateStructurePageView = () => {
   const getStructureList = async () => {
     try {
       const res = await axios.get(baseApiUrl + "?format=json");
-      const StructureData = res?.data?.results;
+      const StructureData = res?.data;
       const StructureId = parseInt(id, 10);
 
       const Structure = StructureData.find((panel) => {

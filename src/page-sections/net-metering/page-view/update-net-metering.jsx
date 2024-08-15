@@ -43,7 +43,7 @@ const UpdateNetMeteringPageView = () => {
   const getNetMeteringList = async () => {
     try {
       const res = await axios.get(baseApiUrl + "?format=json");
-      const NetMeteringData = res?.data?.results;
+      const NetMeteringData = res?.data;
       const NetMeteringId = parseInt(id, 10);
 
       const NetMetering = NetMeteringData.find((panel) => {

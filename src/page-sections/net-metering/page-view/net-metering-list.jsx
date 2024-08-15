@@ -187,8 +187,8 @@ const NetMeteringListPageView = () => {
   const getNetMeteringList = () => {
     axios.get(baseApiUrl + "?format=json")
       .then((res) => {
-        setNetMeteringData(res?.data?.results);
-        setFilteredData(res?.data?.results);
+        setNetMeteringData(res?.data);
+        setFilteredData(res?.data);
       })
       .catch((err) => console.log(err.response.data));
   };

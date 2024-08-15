@@ -177,8 +177,8 @@ const InstallationListPageView = () => {
   const getInstallationList = () => {
     axios.get(baseApiUrl + "?format=json")
       .then((res) => {
-        setInstallationData(res?.data?.results);
-        setFilteredData(res?.data?.results);
+        setInstallationData(res?.data);
+        setFilteredData(res?.data);
       })
       .catch((err) => console.log(err.response.data));
   };

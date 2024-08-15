@@ -177,8 +177,8 @@ const LightningArrestorListPageView = () => {
   const getLightningArrestorList = () => {
     axios.get(baseApiUrl + "?format=json")
       .then((res) => {
-        setLightningArrestorData(res?.data?.results);
-        setFilteredData(res?.data?.results);
+        setLightningArrestorData(res?.data);
+        setFilteredData(res?.data);
       })
       .catch((err) => console.log(err.response.data));
   };

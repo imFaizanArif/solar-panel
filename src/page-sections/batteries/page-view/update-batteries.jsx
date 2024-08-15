@@ -42,7 +42,7 @@ const UpdateBatteriesPageView = () => {
   const getBatteriesList = async () => {
     try {
       const res = await axios.get(baseApiUrl + "?format=json");
-      const BatteriesData = res?.data?.results;
+      const BatteriesData = res?.data;
       const BatteriesId = parseInt(id, 10);
 
       const Batteries = BatteriesData.find((panel) => {

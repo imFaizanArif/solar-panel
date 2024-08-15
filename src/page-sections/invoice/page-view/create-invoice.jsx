@@ -124,26 +124,26 @@ const CreateInvoicePageView = () => {
     status: "",
   };
   const clientValidationSchema = Yup.object().shape({
-    name: Yup.string().required("Name To is Required!"),
-    cnic: Yup.string()
-      .required("CNIC is Required!")
-      .matches(/^\d{5}-\d{7}-\d$/, 'CNIC must be in the format XXXXX-XXXXXXX-X')
-      .test('unique', 'CNIC already exists', async function (value) {
-        if (!value) return true; // Skip validation if value is not provided
+    // name: Yup.string().required("Name To is Required!"),
+    // cnic: Yup.string()
+    //   .required("CNIC is Required!")
+    //   .matches(/^\d{5}-\d{7}-\d$/, 'CNIC must be in the format XXXXX-XXXXXXX-X')
+    //   .test('unique', 'CNIC already exists', async function (value) {
+    //     if (!value) return true; // Skip validation if value is not provided
 
-        try {
-          const res = await axios.get(`${baseApiUrl}Client/?format=json`);
-          const existingCNICs = res?.data?.map(client => client.cnic);
+    //     try {
+    //       const res = await axios.get(`${baseApiUrl}Client/?format=json`);
+    //       const existingCNICs = res?.data?.map(client => client.cnic);
 
-          // Check if the CNIC already exists in the database
-          return !existingCNICs.includes(value);
-        } catch (err) {
-          console.error(err);
-          return false; // Return false if there's an error
-        }
-      }),
-    city: Yup.string().required("City is Required!"),
-    area: Yup.string().required("Area is Required!"),
+    //       // Check if the CNIC already exists in the database
+    //       return !existingCNICs.includes(value);
+    //     } catch (err) {
+    //       console.error(err);
+    //       return false; // Return false if there's an error
+    //     }
+    //   }),
+    // city: Yup.string().required("City is Required!"),
+    // area: Yup.string().required("Area is Required!"),
     contact_number: Yup.string().required("Contact Number is Required!"),
   });
   const validationSchema = Yup.object().shape({
