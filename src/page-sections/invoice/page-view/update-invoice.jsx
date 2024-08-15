@@ -81,6 +81,7 @@ const UpdateInvoicePageView = () => {
   const [lightningArrestorDiscount, setLightningArrestorDiscount] = useState(0);
   const [lightningArrestorPrice, setLightningArrestorPrice] = useState(0);
   const [clientData, setClientData] = useState([]);
+  const [expendituresData, setExpendituresData] = useState([]);
   const [nextPageUrl, setNextPageUrl] = useState(null);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -281,6 +282,21 @@ const UpdateInvoicePageView = () => {
       console.log(err.response.data);
     }
   };
+  const getExpendituresList = async () => {
+    try {
+      const res = await axios.get(baseApiUrl + "/api/Expenditures/" + "?format=json");
+      const ExpendituresData = res?.data;
+      const ExpendituresId = parseInt(id, 10);
+      const Expenditures = ExpendituresData.filter((panel) => {
+        return panel.inv_id === ExpendituresId;
+      });
+      // console.log(Expenditures, "Expenditures")
+      setExpendituresData(Expenditures);
+
+    } catch (err) {
+      console.log(err.response.data);
+    }
+  };
   const getSolarPanelList = async () => {
     try {
       const res = await axios.get(baseApiUrl + "/api/SolarPanel/" + "?format=json");
@@ -395,11 +411,13 @@ const UpdateInvoicePageView = () => {
     }
   };
   const totalSum = installmentData.reduce((sum, installment) => sum + installment.amount, 0);
+  const totalSumExpenditure = expendituresData.reduce((sum, expenditure) => sum + expenditure.value, 0);
 
   useEffect(() => {
     getClientList();
     getInvoiceList();
     getInstallmentList();
+    getExpendituresList();
     getSolarPanelList();
     getInverterList();
     getStructureList();
@@ -1668,6 +1686,49 @@ const UpdateInvoicePageView = () => {
                   {errors.status && touched.status && (
                     <div className="error-message" style={{ marginLeft: "6px", marginTop: "4px", fontSize: "12px", color: "red" }}>{errors.status}</div>
                   )}
+                </Box>
+              </Grid>
+            </Grid>
+            <Divider sx={{
+              my: 4
+            }} />
+
+            <H6 fontSize={20}>Expenditures Information</H6>
+            <Grid container spacing={3}>
+              <Grid item md={4} sm={6} xs={12}>
+                <Box maxWidth={320}>
+                  {/* <H6 fontSize={16} my={3}>Net Amount</H6> */}
+                  <FlexBetween mt={1}>
+                    <Paragraph fontWeight={500}>Name</Paragraph>
+                    <Paragraph fontWeight={500}>Price</Paragraph>
+                  </FlexBetween>
+                  <FlexBetween>
+                    <Paragraph fontWeight={500} color="#494949">
+                      {
+                        expendituresData.map((expenditure, index) => {
+                          return <div style={{ marginBottom: "2px", marginTop: "2px" }} key={index}>
+                            {expenditure.name}
+                          </div>;
+                        })
+                      }
+                    </Paragraph>
+                    <Paragraph fontWeight={500} color="#494949">
+                      {
+                        expendituresData.map((expenditure, index) => {
+                          return <div style={{ marginBottom: "2px", marginTop: "2px" }} key={index}>
+                            {expenditure.value}
+                          </div>;
+                        })
+                      }
+                    </Paragraph>
+                  </FlexBetween>
+                  <Divider sx={{
+                    mt: 7
+                  }} />
+                  <FlexBetween my={2}>
+                    <H6 fontSize={16}>Total</H6>
+                    <H6 fontSize={16}>{totalSumExpenditure}</H6>
+                  </FlexBetween>
                 </Box>
               </Grid>
             </Grid>

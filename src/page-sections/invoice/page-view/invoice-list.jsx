@@ -55,6 +55,7 @@ const InvoiceListPageView = () => {
   const [pageSize, setPageSize] = useState(10);
   const [openMenuEl, setOpenMenuEl] = useState(null);
   const [InvoiceData, setInvoiceData] = useState([]);
+  const [expendituresData, setExpendituresData] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null); // Added anchor element state
 
   const handleCloseOpenMenu = () => {
@@ -341,6 +342,32 @@ const InvoiceListPageView = () => {
       },
     },
     {
+      title: 'Expenditure',
+      dataIndex: 'id', // This represents the invoice ID
+      key: 'expenditure',
+      width: 150,
+      render: (invoiceId) => {
+        // Calculate total expenditures for the current invoice ID
+        const totalExpenditure = expendituresData
+          .filter(expenditure => expenditure.inv_id === invoiceId)
+          .reduce((sum, expenditure) => sum + expenditure.value, 0);
+
+        return <span>{totalExpenditure}</span>;
+      },
+      sorter: {
+        compare: (a, b) => {
+          const totalExpenditureA = expendituresData
+            .filter(expenditure => expenditure.inv_id === a.id)
+            .reduce((sum, expenditure) => sum + expenditure.value, 0);
+          const totalExpenditureB = expendituresData
+            .filter(expenditure => expenditure.inv_id === b.id)
+            .reduce((sum, expenditure) => sum + expenditure.value, 0);
+          return totalExpenditureA - totalExpenditureB;
+        },
+        multiple: 6,
+      },
+    },
+    {
       title: 'Status',
       dataIndex: 'status',
       key: '3',
@@ -463,7 +490,15 @@ const InvoiceListPageView = () => {
       })
       .catch((err) => console.log(err.response.data));
   };
-
+  const getExpendituresList = async () => {
+    try {
+      const res = await axios.get(baseApiUrl + "/api/Expenditures/" + "?format=json");
+      const ExpendituresData = res?.data;
+      setExpendituresData(ExpendituresData);
+    } catch (err) {
+      console.log(err.response.data);
+    }
+  };
   const deleteInvoice = (id) => {
     axios.delete(baseApiUrl + `/api/Invoice/${id}/`)
       .then((res) => {
@@ -545,6 +580,7 @@ const InvoiceListPageView = () => {
 
   useEffect(() => {
     getInvoiceList();
+    getExpendituresList();
   }, []);
   useEffect(() => {
     filterData();
