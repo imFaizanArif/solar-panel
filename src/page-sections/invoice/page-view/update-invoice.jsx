@@ -1689,49 +1689,7 @@ const UpdateInvoicePageView = () => {
                 </Box>
               </Grid>
             </Grid>
-            <Divider sx={{
-              my: 4
-            }} />
 
-            <H6 fontSize={20}>Expenditures Information</H6>
-            <Grid container spacing={3}>
-              <Grid item md={4} sm={6} xs={12}>
-                <Box maxWidth={320}>
-                  {/* <H6 fontSize={16} my={3}>Net Amount</H6> */}
-                  <FlexBetween mt={1}>
-                    <Paragraph fontWeight={500}>Name</Paragraph>
-                    <Paragraph fontWeight={500}>Price</Paragraph>
-                  </FlexBetween>
-                  <FlexBetween>
-                    <Paragraph fontWeight={500} color="#494949">
-                      {
-                        expendituresData.map((expenditure, index) => {
-                          return <div style={{ marginBottom: "2px", marginTop: "2px" }} key={index}>
-                            {expenditure.name}
-                          </div>;
-                        })
-                      }
-                    </Paragraph>
-                    <Paragraph fontWeight={500} color="#494949">
-                      {
-                        expendituresData.map((expenditure, index) => {
-                          return <div style={{ marginBottom: "2px", marginTop: "2px" }} key={index}>
-                            {expenditure.value}
-                          </div>;
-                        })
-                      }
-                    </Paragraph>
-                  </FlexBetween>
-                  <Divider sx={{
-                    mt: 7
-                  }} />
-                  <FlexBetween my={2}>
-                    <H6 fontSize={16}>Total</H6>
-                    <H6 fontSize={16}>{totalSumExpenditure}</H6>
-                  </FlexBetween>
-                </Box>
-              </Grid>
-            </Grid>
             <Divider sx={{
               my: 4
             }} />
@@ -1799,7 +1757,7 @@ const UpdateInvoicePageView = () => {
               </Grid>
             </Grid>
 
-            <StyledFlexBox flexWrap="wrap">
+            <StyledFlexBox flexWrap="wrap" justifyContent="end">
               <Box marginTop={3} className="buttonWrapper">
                 <Button color="secondary" variant="outlined" onClick={handleCancel} sx={{
                   mr: 1
@@ -1822,6 +1780,49 @@ const UpdateInvoicePageView = () => {
 
               </Box>
             </StyledFlexBox>
+            <Divider sx={{
+              my: 4
+            }} />
+
+            <H6 fontSize={20}>Expenditures Information</H6>
+            <Grid container spacing={3}>
+              <Grid item md={4} sm={6} xs={12}>
+                <Box maxWidth={320}>
+                  {/* <H6 fontSize={16} my={3}>Net Amount</H6> */}
+                  <FlexBetween mt={1}>
+                    <Paragraph fontWeight={500}>Name</Paragraph>
+                    <Paragraph fontWeight={500}>Price</Paragraph>
+                  </FlexBetween>
+                  <FlexBetween>
+                    <Paragraph fontWeight={500} color="#494949">
+                      {
+                        expendituresData.map((expenditure, index) => {
+                          return <div style={{ marginBottom: "2px", marginTop: "2px" }} key={index}>
+                            {expenditure.name}
+                          </div>;
+                        })
+                      }
+                    </Paragraph>
+                    <Paragraph fontWeight={500} color="#494949">
+                      {
+                        expendituresData.map((expenditure, index) => {
+                          return <div style={{ marginBottom: "2px", marginTop: "2px" }} key={index}>
+                            {expenditure.value}
+                          </div>;
+                        })
+                      }
+                    </Paragraph>
+                  </FlexBetween>
+                  <Divider sx={{
+                    mt: 7
+                  }} />
+                  <FlexBetween my={2}>
+                    <H6 fontSize={16}>Total</H6>
+                    <H6 fontSize={16}>{totalSumExpenditure}</H6>
+                  </FlexBetween>
+                </Box>
+              </Grid>
+            </Grid>
           </form>;
         }} >
       </Formik>

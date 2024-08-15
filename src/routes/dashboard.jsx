@@ -56,6 +56,10 @@ const LightningArrestorList = Loadable(lazy(() => import("@/pages/dashboard/ligh
 const LightningArrestorCreate = Loadable(lazy(() => import("@/pages/dashboard/lightning-arrestor/create")));
 const LightningArrestorUpdate = Loadable(lazy(() => import("@/pages/dashboard/lightning-arrestor/update"))); // PRODUCT RELATED PAGES
 
+const ExpenditureList = Loadable(lazy(() => import("@/pages/dashboard/expenditure/list")));
+const ExpenditureCreate = Loadable(lazy(() => import("@/pages/dashboard/expenditure/create")));
+const ExpenditureUpdate = Loadable(lazy(() => import("@/pages/dashboard/expenditure/update"))); // PRODUCT RELATED PAGES
+
 const InvoiceList = Loadable(lazy(() => import("@/pages/dashboard/invoice/list")));
 const InvoiceCreate = Loadable(lazy(() => import("@/pages/dashboard/invoice/create")));
 const InvoiceUpdate = Loadable(lazy(() => import("@/pages/dashboard/invoice/update"))); // PRODUCT RELATED PAGES
@@ -235,6 +239,18 @@ export const DashboardRoutes = [{
   {
     path: "update-lightning-arrestor/:id",
     element: <LightningArrestorUpdate />
+  },
+  {
+    path: "expenditure-list",
+    element: <ExpenditureList />
+  },
+  {
+    path: "create-expenditure/:id",
+    element: <ExpenditureCreate />
+  },
+  {
+    path: "update-expenditure/:id",
+    element: <ExpenditureUpdate />
   },
   {
     path: "account",

@@ -107,6 +107,11 @@ export const navigations = [{
   icon: duotone.Apps,
   path: "/dashboard/lightning-arrestor-list"
 },
+{
+  name: "Expenditure",
+  icon: duotone.MessagesDollar,
+  path: "/dashboard/expenditure-list"
+},
 
 // {
 //   name: "Profiles",

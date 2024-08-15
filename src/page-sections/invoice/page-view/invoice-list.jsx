@@ -10,7 +10,7 @@ import useNavigate from "@/hooks/useNavigate"; // CUSTOM DEFINED HOOK
 
 import Add from "@/icons/Add"; // CUSTOM ICON COMPONENTS
 import Pages from "@/icons/sidebar/Pages";
-import { DeleteOutline, Download, Edit } from "@mui/icons-material";
+import { DeleteOutline, Download, Edit, Payment } from "@mui/icons-material";
 import { IconWrapper } from "@/components/icon-wrapper";
 import { ToastContainer, toast } from "react-toastify";
 
@@ -459,6 +459,14 @@ const InvoiceListPageView = () => {
                 }}
               >
                 <Download fontSize="16" />&nbsp; Download
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  handleCloseOpenMenu();
+                  navigate(`/dashboard/create-expenditure/${record.id}`);
+                }}
+              >
+                <Payment fontSize="16" />&nbsp; Add Expenditure
               </MenuItem>
               <MenuItem
                 onClick={() => {
