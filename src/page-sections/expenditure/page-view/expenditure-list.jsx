@@ -221,9 +221,9 @@ const ExpenditureListPageView = () => {
         <H5 fontSize={16}>Expenditure List</H5>
       </Stack>
 
-      <Button variant="contained" startIcon={<Add />} onClick={() => navigate("/dashboard/create-expenditure")}>
+      {/* <Button variant="contained" startIcon={<Add />} onClick={() => navigate("/dashboard/create-expenditure")}>
         Add Expenditure
-      </Button>
+      </Button> */}
     </FlexBetween>
 
     <Wrapper gap={2} px={2} pb={3}>

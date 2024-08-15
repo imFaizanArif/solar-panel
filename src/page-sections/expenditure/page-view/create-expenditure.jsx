@@ -80,7 +80,7 @@ const CreateExpenditurePageView = () => {
               toast.success("Expenditure Added Successfully");
               setloading(false);
               setTimeout(() => {
-                navigate("/dashboard/expenditure-list");
+                navigate("/dashboard/invoice-list");
               }, 1000);
             }
           } catch (err) {

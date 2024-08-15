@@ -17,6 +17,7 @@ import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { format } from "date-fns";
 import { DateRangePicker } from "rsuite";
+import { Link } from "react-router-dom";
 
 
 const Wrapper = styled(FlexBox)(({ theme }) => ({
@@ -352,7 +353,7 @@ const InvoiceListPageView = () => {
           .filter(expenditure => expenditure.inv_id === invoiceId)
           .reduce((sum, expenditure) => sum + expenditure.value, 0);
 
-        return <span>{totalExpenditure}</span>;
+        return <Link to={`/dashboard/expenditure-list`} style={{ color: "black" }}>{totalExpenditure}</Link>;
       },
       sorter: {
         compare: (a, b) => {
@@ -447,10 +448,10 @@ const InvoiceListPageView = () => {
               <MenuItem
                 onClick={() => {
                   handleCloseOpenMenu();
-                  navigate(`/dashboard/update-invoice/${record.id}`);
+                  navigate(`/dashboard/create-expenditure/${record.id}`);
                 }}
               >
-                <Edit fontSize="16" />&nbsp; Edit
+                <Payment fontSize="16" color="primary" />&nbsp; Add Expenditure
               </MenuItem>
               <MenuItem
                 onClick={() => {
@@ -458,15 +459,15 @@ const InvoiceListPageView = () => {
                   downloadInvoice(record.id);
                 }}
               >
-                <Download fontSize="16" />&nbsp; Download
+                <Download fontSize="16" color="success" />&nbsp; Download
               </MenuItem>
               <MenuItem
                 onClick={() => {
                   handleCloseOpenMenu();
-                  navigate(`/dashboard/create-expenditure/${record.id}`);
+                  navigate(`/dashboard/update-invoice/${record.id}`);
                 }}
               >
-                <Payment fontSize="16" />&nbsp; Add Expenditure
+                <Edit fontSize="16" color="info" />&nbsp; Edit
               </MenuItem>
               <MenuItem
                 onClick={() => {
@@ -475,7 +476,7 @@ const InvoiceListPageView = () => {
                   setQuery(record.id); // Correctly set the query with the record ID
                 }}
               >
-                <DeleteOutline fontSize="16" />&nbsp; Delete
+                <DeleteOutline fontSize="16" color="error" />&nbsp; Delete
               </MenuItem>
             </Menu>
           </>
