@@ -39,6 +39,7 @@ const UpdateInvoicePageView = () => {
   const [clientResponse, setClientResponse] = useState(false);
   const [invoiceResponse, setInvoiceResponse] = useState(false);
   const [invoiceData, setInvoiceData] = useState([]);
+  const [invoicedClientId, setInvoicedClientId] = useState(0);
   const [installmentData, setInstallmentData] = useState([]);
   const [solarPanelId, setsolarPanelId] = useState(0);
   const [solarPanelSpecificRecord, setsolarPanelSpecificRecord] = useState("");
@@ -89,6 +90,7 @@ const UpdateInvoicePageView = () => {
   const [discount, setDiscount] = useState(0);
   const [shipping, setShipping] = useState(0);
   const [amountPaid, setAmountPaid] = useState(0);
+  const [partiallyPaid, setPartiallyPaid] = useState(0);
   const [clientInitialValues, setClientInitialValues] = useState({
     name: "",
     cnic: "",
@@ -160,8 +162,8 @@ const UpdateInvoicePageView = () => {
       otherwise: Yup.string().notRequired()
     }),
     status: Yup.string().required("Status is Required!").oneOf(
-      ['QUOTE', 'PARTIALLY_PAID', 'PAID'],
-      'Invalid Status Selection'
+      ['PARTIALLY_PAID', 'PAID'],
+      'Status Selection must be Partially Paid or Paid'
     ),
   });
   const handleCancel = () => navigate("/dashboard/invoice-list");
@@ -224,6 +226,10 @@ const UpdateInvoicePageView = () => {
       const res = await axios.get(baseApiUrl + "/api/Invoice/" + "?format=json");
       const InvoiceData = res?.data;
       const InvoiceId = parseInt(id, 10);
+      const invoicedClientId = InvoiceData.find((panel) => {
+        return panel.id === InvoiceId;
+      });
+      setInvoicedClientId(invoicedClientId?.name);
       const Invoice = InvoiceData.find((panel) => {
         return panel.id === InvoiceId;
       });
@@ -256,12 +262,42 @@ const UpdateInvoicePageView = () => {
           installation_price: Invoice.installation_price,
           discount: Invoice.discount,
           shipping_charges: Invoice.shipping_charges,
-          amount_paid: Invoice.amount_paid,
+          // amount_paid: Invoice.amount_paid,
           status: Invoice.status,
         })
       }
       // console.log(Invoice, "zxcvbnmmnbv")
       setInvoiceData(Invoice)
+
+    } catch (err) {
+      console.log(err.response.data);
+    }
+  };
+  const getPartiallyPaidList = async () => {
+    try {
+      const res = await axios.get(baseApiUrl + "/invoice/" + "?format=json");
+      const invoiceData = res?.data;
+      const invoiceId = parseInt(id, 10);
+      const invoicedClientId = invoiceData.find((panel) => {
+        return panel.id === invoiceId;
+      });
+
+      if (invoicedClientId && Array.isArray(invoicedClientId.partial_payments)) {
+        let amounts = []; // Array to store individual amounts
+        let sum = invoicedClientId.partial_payments.reduce((acc, paid) => {
+          const amount = parseFloat(paid.amount); // Ensure amount is a number
+          amounts.push(amount); // Store each amount
+          return acc + (isNaN(amount) ? 0 : amount); // Handle potential NaN values
+        }, 0);
+
+        console.log(amounts, "Individual amounts"); // Display individual amounts
+        console.log(sum, "Sum of partial payments"); // Display the sum
+        setPartiallyPaid(sum);
+      } else {
+        console.log("partial_payments is not an array or is undefined.");
+      }
+
+      // console.log(sum, "bbbbbbbbbbbb")
 
     } catch (err) {
       console.log(err.response.data);
@@ -414,6 +450,7 @@ const UpdateInvoicePageView = () => {
   const totalSumExpenditure = expendituresData.reduce((sum, expenditure) => sum + expenditure.value, 0);
 
   useEffect(() => {
+    getPartiallyPaidList();
     getClientList();
     getInvoiceList();
     getInstallmentList();
@@ -449,7 +486,7 @@ const UpdateInvoicePageView = () => {
     setInstallationId(invoiceData.installation)
     setDiscount(invoiceData.discount)
     setShipping(invoiceData.shipping_charges)
-    setAmountPaid(invoiceData.amount_paid)
+    // setAmountPaid(invoiceData.amount_paid)
   }, [invoiceData]);
 
   useEffect(() => {
@@ -514,16 +551,16 @@ const UpdateInvoicePageView = () => {
           try {
             setloading(true);
             const res = await axios.put(
-              baseApiUrl + `/api/Client/${id}`, formData, header
+              baseApiUrl + `/api/Client/${invoicedClientId}/`, formData, header
             );
-            if (res.status == 201) {
-              toast.success("Client Added Successfully");
+            if (res.status == 200) {
+              toast.success("Client Updated Successfully");
               getClientList();
               setloading(false);
             }
           } catch (err) {
             setloading(false);
-            toast.error("Client Not Added");
+            toast.error("Client Not Updated");
           }
         }}
 
@@ -700,11 +737,11 @@ const UpdateInvoicePageView = () => {
           };
           try {
             setloading(true);
-            const res = await axios.put(
-              baseApiUrl + `/api/Invoice/${id}`, formData, header
+            const res = await axios.patch(
+              baseApiUrl + `/api/Invoice/${id}/`, formData, header
             );
-            if (res.status == 201) {
-              toast.success("Invoice Added Successfully");
+            if (res.status == 200) {
+              toast.success("Invoice Updated Successfully");
               setloading(false);
               setTimeout(() => {
                 navigate("/dashboard/invoice-list");
@@ -712,7 +749,7 @@ const UpdateInvoicePageView = () => {
             }
           } catch (err) {
             setloading(false);
-            toast.error("Invoice Not Added");
+            toast.error("Invoice Not Updated");
           }
         }}
         children={({
@@ -817,7 +854,7 @@ const UpdateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="System Capacity" label="System Capacity"
+                  <TextField fullWidth type="text" name="System Capacity" label="System Capacity"
                     value={values.system_capacity}
                     onChange={(e) => {
                       const value = e.target.value;
@@ -1615,13 +1652,13 @@ const UpdateInvoicePageView = () => {
                     value={values.amount_paid}
                     onChange={(e) => {
                       const value = e.target.value;
-                      if (value === '') {
-                        setFieldValue("amount_paid", 0);
-                        setAmountPaid(0);
-                      } else {
-                        setFieldValue("amount_paid", value);
-                        setAmountPaid(value);
-                      }
+                      setFieldValue("amount_paid", value);
+                      setAmountPaid(value);
+                      // if (value === '') {
+                      // setFieldValue("amount_paid", 0);
+                      // setAmountPaid(0);
+                      // } else {
+                      // }
                     }}
                     helperText={touched.amount_paid && errors.amount_paid} error={Boolean(touched.amount_paid && errors.amount_paid)} />
                   <FlexBetween mt={1} mx={1}>
@@ -1738,7 +1775,15 @@ const UpdateInvoicePageView = () => {
                   </FlexBetween>
 
                   <FlexBetween my={1}>
-                    <Paragraph fontWeight={500}>Paid Amount</Paragraph>
+                    <Paragraph fontWeight={500}>Already Paid Amount</Paragraph>
+                    <Paragraph fontWeight={500}>
+                      -&nbsp;&nbsp;&nbsp;
+                      <span style={{ color: "green", fontWeight: 600 }}> {partiallyPaid}</span>
+                    </Paragraph>
+                  </FlexBetween>
+
+                  <FlexBetween my={1}>
+                    <Paragraph fontWeight={500}>Current Pay Amount</Paragraph>
                     <Paragraph fontWeight={500}>
                       -&nbsp;&nbsp;&nbsp;
                       <span style={{ color: "green", fontWeight: 600 }}> {parseInt(amountPaid)}</span>
@@ -1751,7 +1796,7 @@ const UpdateInvoicePageView = () => {
 
                   <FlexBetween my={1}>
                     <H6 fontSize={16}>Due Amount</H6>
-                    <H6 fontSize={16} style={{ color: "red" }}>{(Subtotal - parseInt(discount) + parseInt(shipping)) - parseInt(amountPaid)}</H6>
+                    <H6 fontSize={16} style={{ color: "red" }}>{(Subtotal - parseInt(discount) + parseInt(shipping)) - parseInt(amountPaid) - parseInt(partiallyPaid)}</H6>
                   </FlexBetween>
                 </Box>
               </Grid>

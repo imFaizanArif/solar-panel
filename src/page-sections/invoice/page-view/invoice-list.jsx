@@ -73,6 +73,8 @@ const InvoiceListPageView = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [query, setQuery] = useState(null);
   const [current, setCurrent] = useState(1);
+  const [partiallyPaid, setPartiallyPaid] = useState(0);
+  const [payable, setPayable] = useState([]);
   const [pageSize, setPageSize] = useState(10);
   const [openMenuEl, setOpenMenuEl] = useState(null);
   const [InvoiceData, setInvoiceData] = useState([]);
@@ -492,9 +494,13 @@ const InvoiceListPageView = () => {
         multiple: 3,
       },
       render: (text, record) => {
+        const payableEntry = payable?.find(entry => entry.id === record.id);
+        const payableAmount = payableEntry ? payableEntry.payable : 0;
         return (
-          <span style={{ color: "red", fontWeight: 600 }}>{parseInt(record.total) - parseInt(record.amount_paid)}</span>
-        )
+          <span style={{ color: "red", fontWeight: 600 }}>
+            {parseInt(payableAmount)}
+          </span>
+        );
       },
     },
     {
@@ -503,9 +509,10 @@ const InvoiceListPageView = () => {
       key: '3',
       width: 150,
       render: (text, record) => {
+        const sum = partiallyPaid[record.id];
         return (
-          <span style={{ color: "green", fontWeight: 600 }}>{parseInt(record.amount_paid)}</span>
-        )
+          <span style={{ color: "green", fontWeight: 600 }}>{sum !== undefined ? parseInt(sum) : 'Loading...'}</span>
+        );
       },
       sorter: {
         compare: (a, b) => a.id - b.id,
@@ -690,6 +697,39 @@ const InvoiceListPageView = () => {
       })
       .catch((err) => console.log(err.response.data));
   };
+  const fetchPartialPayments = async () => {
+    try {
+      const res = await axios.get(baseApiUrl + "/invoice/" + "?format=json");
+      const invoiceData = res?.data;
+      const paymentSums = {};
+      invoiceData.forEach(invoice => {
+        if (Array.isArray(invoice.partial_payments)) {
+          const sum = invoice.partial_payments.reduce((acc, paid) => {
+            const amount = parseFloat(paid.amount);
+            return acc + (isNaN(amount) ? 0 : amount);
+          }, 0);
+          paymentSums[invoice.id] = sum;
+        }
+      });
+      // Calculate the payable amount for each invoice
+      const payableAmounts = invoiceData?.map(invoice => {
+        const sumOfPayments = paymentSums[invoice.id] || 0;
+        console.log(sumOfPayments, "summm")
+        console.log(sumOfPayments, "summm")
+        return {
+          id: invoice.id,
+          payable: parseFloat(invoice.total) - sumOfPayments,
+        };
+      });
+
+      console.log(payableAmounts, "Payable amounts");
+      setPayable(payableAmounts);
+      setPartiallyPaid(paymentSums);
+    } catch (err) {
+      console.log(err.response.data);
+    }
+  };
+
   const getExpendituresList = async () => {
     try {
       const res = await axios.get(baseApiUrl + "/api/Expenditures/" + "?format=json");
@@ -789,6 +829,7 @@ const InvoiceListPageView = () => {
 
 
   useEffect(() => {
+    fetchPartialPayments();
     getInvoiceList();
     getExpendituresList();
   }, []);

@@ -695,7 +695,7 @@ const CreateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="System Capacity" label="System Capacity"
+                  <TextField fullWidth type="text" name="System Capacity" label="System Capacity"
                     // value={values.system_capacity}
                     onChange={(e) => {
                       const value = e.target.value;
