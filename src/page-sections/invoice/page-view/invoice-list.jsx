@@ -76,8 +76,12 @@ const InvoiceListPageView = () => {
   const [pageSize, setPageSize] = useState(10);
   const [openMenuEl, setOpenMenuEl] = useState(null);
   const [InvoiceData, setInvoiceData] = useState([]);
+  const [invoiceDataDetailed, setInvoiceDeatiledData] = useState([]);
+  const [installments, setInstallments] = useState([]);
   const [expendituresData, setExpendituresData] = useState([]);
   const [specificExpendituresData, setSpecificExpendituresData] = useState([]);
+  const [expandedRowKeys, setExpandedRowKeys] = useState([]);
+  const [rowId, setRowId] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null); // Added anchor element state
   const [loading, setloading] = useState(false);
   const initialValues = {
@@ -121,168 +125,320 @@ const InvoiceListPageView = () => {
   //   }
   // };
   // Search
-  // const expandedRowRender = () => {
-  //   const columns = [
-  //     {
-  //       title: 'Discount',
-  //       dataIndex: 'discount',
-  //       width: 150,
-  //       key: 'date',
-  //     },
-  //     {
-  //       title: 'Shipping Charges',
-  //       dataIndex: 'shipping_charges',
-  //       width: 150,
-  //       key: 'name',
-  //     },
-  //     {
-  //       title: 'Solar Panel',
-  //       children: [
-  //         {
-  //           title: 'Name',
-  //           dataIndex: 'solar_panel',
-  //           width: 150,
-  //           key: 'date',
-  //           render: (text, record) => {
-  //             return (
-  //               <span>{text.name}</span>
-  //             )
-  //           },
-  //         },
-  //         {
-  //           title: 'Quantity',
-  //           dataIndex: 'solar_panel_quantity',
-  //           width: 150,
-  //           key: 'name',
-  //           render: (text, record) => {
-  //             return (
-  //               <span>{record.solar_panel_quantity}</span>
-  //             )
-  //           },
-  //         },
-  //         {
-  //           title: 'Price',
-  //           key: 'solar_panel_price',
-  //           width: 150,
-  //           render: (text, record) => {
-  //             return (
-  //               <span>{record.solar_panel_price}</span>
-  //             )
-  //           },
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       title: 'Inverter',
-  //       children: [
-  //         {
-  //           title: 'Name',
-  //           dataIndex: 'inverter',
-  //           width: 150,
-  //           key: 'date',
-  //           render: (text, record) => {
-  //             return (
-  //               <span>{text.name}</span>
-  //             )
-  //           },
-  //         },
-  //         {
-  //           title: 'Quantity',
-  //           dataIndex: 'inverter_quantity',
-  //           width: 150,
-  //           key: 'name',
-  //           render: (text, record) => {
-  //             return (
-  //               <span>{record.inverter_quantity}</span>
-  //             )
-  //           },
-  //         },
-  //         {
-  //           title: 'Price',
-  //           key: 'inverter_price',
-  //           width: 150,
-  //           render: (text, record) => {
-  //             return (
-  //               <span>{record.inverter_price}</span>
-  //             )
-  //           },
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       title: 'Cabling',
-  //       children: [
-  //         {
-  //           title: 'Name',
-  //           dataIndex: 'cabling',
-  //           width: 150,
-  //           key: 'date',
-  //           render: (text, record) => {
-  //             return (
-  //               <span>{text.name}</span>
-  //             )
-  //           },
-  //         },
-  //         {
-  //           title: 'Quantity',
-  //           dataIndex: 'cabling_quantity',
-  //           width: 150,
-  //           key: 'name',
-  //           render: (text, record) => {
-  //             return (
-  //               <span>{record.cabling_quantity}</span>
-  //             )
-  //           },
-  //         },
-  //         {
-  //           title: 'Price',
-  //           key: 'cabling_price',
-  //           width: 150,
-  //           render: (text, record) => {
-  //             return (
-  //               <span>{record.cabling_price}</span>
-  //             )
-  //           },
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       title: 'Net Metering',
-  //       children: [
-  //         {
-  //           title: 'Name',
-  //           dataIndex: ['net_metering', 'name'],
-  //           width: 150,
-  //           key: 'net_metering_name',
-  //         },
-  //         {
-  //           title: 'Quantity',
-  //           dataIndex: 'net_metering_quantity',
-  //           width: 150,
-  //           key: 'net_metering_quantity',
-  //         },
-  //         {
-  //           title: 'Price',
-  //           dataIndex: 'net_metering_price',
-  //           width: 150,
-  //           key: 'net_metering_price',
-  //         },
-  //       ],
-  //     },
-
-  //   ];
-  //   return <Table
-  //     columns={columns}
-  //     dataSource={filteredData}
-  //     locale={locale}
-  //     pagination={false}
-  //     bordered
-  //     size="middle"
-  //     rowKey={(record) => record?.id}
-  //     onChange={handleTableChange}
-  //     scroll={{ x: 1200 }}
-  //   />;
-  // };
+  const secondRowRender = () => {
+    const columns = [
+      {
+        title: 'Installments',
+        children: [
+          {
+            title: 'Amount',
+            dataIndex: 'amount',
+            width: 150,
+            key: 'date',
+            // render: (text, record) => {
+            //   return (
+            //     <span>{text.name}</span>
+            //   )
+            // },
+          },
+          {
+            title: 'Date',
+            dataIndex: 'time',
+            key: 'time',
+            width: 150,
+            render: (text) => format(new Date(text), 'dd-MM-yyyy'),
+          },
+        ],
+      },
+    ];
+    return <Table
+      columns={columns}
+      dataSource={installments}
+      locale={locale}
+      pagination={false}
+      bordered
+      size="small"
+      rowKey={(record) => record?.id}
+    // onChange={handleTableChange}
+    // scroll={{ x: 4200 }}
+    />;
+  };
+  console.log(invoiceDataDetailed?.partial_payments, "invoiceDataDetailed?.partial_payments")
+  const expandedRowRender = () => {
+    const columns = [
+      {
+        title: 'Discount',
+        dataIndex: 'discount',
+        width: 150,
+        key: 'date',
+      },
+      {
+        title: 'Shipping Charges',
+        dataIndex: 'shipping_charges',
+        width: 150,
+        key: 'name',
+      },
+      {
+        title: 'Solar Panel',
+        children: [
+          {
+            title: 'Name',
+            dataIndex: 'solar_panel',
+            width: 150,
+            key: 'date',
+            render: (text, record) => {
+              return (
+                <span>{text.name}</span>
+              )
+            },
+          },
+          {
+            title: 'Quantity',
+            dataIndex: 'solar_panel_quantity',
+            width: 150,
+            key: 'name',
+            render: (text, record) => {
+              return (
+                <span>{record.solar_panel_quantity}</span>
+              )
+            },
+          },
+          {
+            title: 'Price',
+            key: 'solar_panel_price',
+            width: 150,
+            render: (text, record) => {
+              return (
+                <span>{record.solar_panel_price}</span>
+              )
+            },
+          },
+        ],
+      },
+      {
+        title: 'Inverter',
+        children: [
+          {
+            title: 'Name',
+            dataIndex: 'inverter',
+            width: 150,
+            key: 'date',
+            render: (text, record) => {
+              return (
+                <span>{text.name}</span>
+              )
+            },
+          },
+          {
+            title: 'Quantity',
+            dataIndex: 'inverter_quantity',
+            width: 150,
+            key: 'name',
+            render: (text, record) => {
+              return (
+                <span>{record.inverter_quantity}</span>
+              )
+            },
+          },
+          {
+            title: 'Price',
+            key: 'inverter_price',
+            width: 150,
+            render: (text, record) => {
+              return (
+                <span>{record.inverter_price}</span>
+              )
+            },
+          },
+        ],
+      },
+      {
+        title: 'Cabling',
+        children: [
+          {
+            title: 'Name',
+            dataIndex: 'cabling',
+            width: 150,
+            key: 'date',
+            render: (text, record) => {
+              return (
+                <span>{text.name}</span>
+              )
+            },
+          },
+          {
+            title: 'Quantity',
+            dataIndex: 'cabling_quantity',
+            width: 150,
+            key: 'name',
+            render: (text, record) => {
+              return (
+                <span>{record.cabling_quantity}</span>
+              )
+            },
+          },
+          {
+            title: 'Price',
+            key: 'cabling_price',
+            width: 150,
+            render: (text, record) => {
+              return (
+                <span>{record.cabling_price}</span>
+              )
+            },
+          },
+        ],
+      },
+      {
+        title: 'Structure',
+        children: [
+          {
+            title: 'Name',
+            dataIndex: 'structure',
+            width: 150,
+            key: 'date',
+            render: (text, record) => {
+              return (
+                <span>{text.name}</span>
+              )
+            },
+          },
+          {
+            title: 'Quantity',
+            dataIndex: 'structure_quantity',
+            width: 150,
+            key: 'name',
+            render: (text, record) => {
+              return (
+                <span>{record.structure_quantity}</span>
+              )
+            },
+          },
+          {
+            title: 'Price',
+            key: 'structure_price',
+            width: 150,
+            render: (text, record) => {
+              return (
+                <span>{record.structure_price}</span>
+              )
+            },
+          },
+        ],
+      },
+      {
+        title: 'Net Metering',
+        children: [
+          {
+            title: 'Name',
+            dataIndex: ['net_metering', 'name'],
+            width: 150,
+            key: 'net_metering_name',
+          },
+          {
+            title: 'Quantity',
+            dataIndex: 'net_metering_quantity',
+            width: 150,
+            key: 'net_metering_quantity',
+          },
+          {
+            title: 'Price',
+            dataIndex: 'net_metering_price',
+            width: 150,
+            key: 'net_metering_price',
+          },
+        ],
+      },
+      {
+        title: 'Battery',
+        children: [
+          {
+            title: 'Name',
+            dataIndex: ['battery', 'name'],
+            width: 150,
+            key: 'battery_name',
+          },
+          {
+            title: 'Quantity',
+            dataIndex: 'battery_quantity',
+            width: 150,
+            key: 'battery_quantity',
+          },
+          {
+            title: 'Price',
+            dataIndex: 'battery_price',
+            width: 150,
+            key: 'battery_price',
+          },
+        ],
+      },
+      {
+        title: 'Installation',
+        children: [
+          {
+            title: 'Name',
+            dataIndex: ['installation', 'name'],
+            width: 150,
+            key: 'installation_name',
+          },
+          {
+            title: 'Quantity',
+            dataIndex: 'installation_quantity',
+            width: 150,
+            key: 'installation_quantity',
+          },
+          {
+            title: 'Price',
+            dataIndex: 'installation_price',
+            width: 150,
+            key: 'installation_price',
+          },
+        ],
+      },
+      {
+        title: 'Lightning Arrestor',
+        children: [
+          {
+            title: 'Name',
+            dataIndex: ['lightning_arrestor', 'name'],
+            width: 150,
+            key: 'lightning_arrestor_name',
+          },
+          {
+            title: 'Quantity',
+            dataIndex: 'lightning_arrestor_quantity',
+            width: 150,
+            key: 'lightning_arrestor_quantity',
+          },
+          {
+            title: 'Price',
+            dataIndex: 'lightning_arrestor_price',
+            width: 150,
+            key: 'lightning_arrestor_price',
+          },
+        ],
+      },
+    ];
+    return <Table
+      columns={columns}
+      dataSource={invoiceDataDetailed}
+      locale={locale}
+      pagination={false}
+      bordered
+      size="middle"
+      rowKey={(record) => record?.id}
+      // expandable={{
+      //   secondRowRender,
+      //   expandedRowKeys,
+      //   onExpand: handleExpand,
+      // }}
+      expandable={{
+        expandedRowRender: secondRowRender,
+        rowExpandable: (record) => record.partial_payments && record.partial_payments.length > 0,
+      }}
+      scroll={{ x: 4200 }}
+    />;
+  };
   const columns = [
     {
       title: 'ID',
@@ -526,6 +682,11 @@ const InvoiceListPageView = () => {
         // console.log(res.data)
         setInvoiceData(res?.data.reverse());
         setFilteredData(res?.data);
+        setInvoiceDeatiledData(res?.data?.filter(invoice => invoice.id === rowId));
+        const partial_payments = res?.data?.filter(invoice => invoice.id === rowId);
+        setInstallments(partial_payments[0]?.partial_payments)
+        // console.log(partial_payments[0]?.partial_payments, "partial_payments")
+        // console.log(res?.data?.filter(invoice => invoice.id === rowId), "res.data")
       })
       .catch((err) => console.log(err.response.data));
   };
@@ -602,7 +763,16 @@ const InvoiceListPageView = () => {
     setDateRange(value);
     // console.log(value, "kkkkkkkkkkkkkkk");
   };
-
+  const handleExpand = (expanded, record) => {
+    if (expanded) {
+      // console.log(record.id, "id")
+      setRowId(record.id);
+      setExpandedRowKeys([record.id]);
+    } else {
+      setRowId(0);
+      setExpandedRowKeys([]);
+    }
+  };
   const filterData = () => {
     let filtered = InvoiceData;
 
@@ -623,9 +793,9 @@ const InvoiceListPageView = () => {
     getExpendituresList();
   }, []);
   useEffect(() => {
+    getInvoiceList();
     getExpendituresList();
-  }, [query]); // Fetch data whenever `query` changes
-
+  }, [query || rowId || expandedRowKeys]); // Fetch data whenever `query` changes
   useEffect(() => {
     filterData();
   }, [searchTerm, dateRange, InvoiceData]);
@@ -673,10 +843,11 @@ const InvoiceListPageView = () => {
       dataSource={filteredData?.map(item => ({ ...item, key: item?.id }))}
       // dataSource={InvoiceData}
       locale={locale}
-      // expandable={{
-      //   expandedRowRender,
-      //   defaultExpandedRowKeys: ['0'],
-      // }}
+      expandable={{
+        expandedRowRender,
+        expandedRowKeys,
+        onExpand: handleExpand,
+      }}
       pagination={{
         total: InvoiceData?.length,
         showTotal: (total, range) => `Showing ${range[0]} to ${range[1]} of ${total} entries`,
