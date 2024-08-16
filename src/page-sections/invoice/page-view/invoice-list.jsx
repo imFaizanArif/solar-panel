@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Badge, Table } from 'antd';
+import { Formik } from "formik";
+import * as Yup from "yup";
 import { TableMoreMenu } from "@/components/table";
 import { H5, H6, Paragraph } from "@/components/typography";
 import { FlexBox, FlexBetween } from "@/components/flexbox";
-import { Box, Button, Card, Chip, Menu, MenuItem, Modal, Stack, styled, TextField } from "@mui/material";
+import { Box, Button, Card, Chip, Divider, Grid, Menu, MenuItem, Modal, Stack, styled, TextField } from "@mui/material";
 
 import useNavigate from "@/hooks/useNavigate"; // CUSTOM DEFINED HOOK
 
@@ -41,6 +43,20 @@ const style = {
   borderRadius: '24px',
   boxShadow: 24,
   p: 4,
+  height: 350,
+  overflow: "hidden",
+  overflowY: "scroll",
+  '&::-webkit-scrollbar': {
+    width: '0.1em'
+  },
+  '&::-webkit-scrollbar-track': {
+    boxShadow: 'inset 0 0 0px rgba(0,0,0,0.00)',
+    webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)'
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: 'rgba(0,0,0,0.00)',
+    outline: '0px solid slategrey'
+  }
 };
 const InvoiceListPageView = () => {
   let navigate = useNavigate();
@@ -49,16 +65,29 @@ const InvoiceListPageView = () => {
     emptyText: 'Loading...',
   };
   const handleOpen = () => setOpen(true);
+  const isModalOpen = () => setModalOpen(true);
   const handleClose = () => setOpen(false);
+  const isModalClose = () => setModalOpen(false);
+  const [flag, setFlag] = useState(false);
   const [open, setOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const [query, setQuery] = useState(null);
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [openMenuEl, setOpenMenuEl] = useState(null);
   const [InvoiceData, setInvoiceData] = useState([]);
   const [expendituresData, setExpendituresData] = useState([]);
+  const [specificExpendituresData, setSpecificExpendituresData] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null); // Added anchor element state
-
+  const [loading, setloading] = useState(false);
+  const initialValues = {
+    name: "",
+    value: "",
+    inv_id: "",
+  };
+  const validationSchema = Yup.object().shape({
+    name: Yup.string().required("Name To is Required!"),
+  });
   const handleCloseOpenMenu = () => {
     setOpenMenuEl(null);
     setAnchorEl(null); // Reset anchor element
@@ -448,7 +477,8 @@ const InvoiceListPageView = () => {
               <MenuItem
                 onClick={() => {
                   handleCloseOpenMenu();
-                  navigate(`/dashboard/create-expenditure/${record.id}`);
+                  isModalOpen();
+                  setQuery(record.id); // Correctly set the query with the record ID
                 }}
               >
                 <Payment fontSize="16" color="primary" />&nbsp; Add Expenditure
@@ -504,6 +534,7 @@ const InvoiceListPageView = () => {
       const res = await axios.get(baseApiUrl + "/api/Expenditures/" + "?format=json");
       const ExpendituresData = res?.data;
       setExpendituresData(ExpendituresData);
+      setSpecificExpendituresData(ExpendituresData.filter(expenditure => expenditure.inv_id === query));
     } catch (err) {
       console.log(err.response.data);
     }
@@ -592,8 +623,14 @@ const InvoiceListPageView = () => {
     getExpendituresList();
   }, []);
   useEffect(() => {
+    getExpendituresList();
+  }, [query]); // Fetch data whenever `query` changes
+
+  useEffect(() => {
     filterData();
   }, [searchTerm, dateRange, InvoiceData]);
+
+  const totalSumExpenditure = specificExpendituresData.reduce((sum, expenditure) => sum + expenditure.value, 0);
 
   return <Card>
     <ToastContainer
@@ -687,6 +724,151 @@ const InvoiceListPageView = () => {
       </Modal>
     </div>
     {/* Delete Modal */}
+    {/* Add Expenditure Modal */}
+    <div>
+      <Modal
+        open={modalOpen}
+        onClose={isModalClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+        BackdropProps={{
+          onClick: (event) => event.stopPropagation() // Prevent clicking outside from closing the modal
+        }}
+      >
+        <Box sx={style}>
+          <H6 fontSize={20}>Add Expenditure</H6>
+
+          <Formik initialValues={initialValues} validationSchema={validationSchema}
+            onSubmit={async (values, { setSubmitting, resetForm }) => {
+              const formData = {
+                name: values.name,
+                value: values.value,
+                inv_id: query,
+              }
+              const header = {
+                headers: {
+                  "Content-Type": "multipart/form-data"
+                }
+              };
+              try {
+                setloading(true);
+                const res = await axios.post(
+                  baseApiUrl + `/api/Expenditures/`, formData, header
+                );
+                if (res.status == 201) {
+                  await getExpendituresList();
+                  setFlag(true);
+                  resetForm(); // Clear the form fields
+                  toast.success("Expenditure Added Successfully");
+                  setloading(false);
+                }
+              } catch (err) {
+                setloading(false);
+                toast.error("Record Not Added");
+              }
+            }}
+            children={({
+              values,
+              errors,
+              touched,
+              handleChange,
+              handleSubmit,
+              setFieldValue,
+            }) => {
+              return <form onSubmit={handleSubmit}>
+
+                <Grid container spacing={3} my={2}>
+                  <Grid item md={12} sm={6} xs={12}>
+                    <Box marginBottom={0}>
+                      <TextField fullWidth name="Name" label="Name" value={values.name}
+                        onChange={(e) => {
+                          setFieldValue("name", e.target.value);
+                        }}
+                        helperText={touched.name && errors.name} error={Boolean(touched.name && errors.name)} />
+                    </Box>
+                  </Grid>
+                </Grid>
+                <Grid container spacing={3}>
+                  <Grid item md={12} sm={6} xs={12}>
+                    <Box marginBottom={0}>
+                      <TextField fullWidth type="number" name="Price" label="Price" value={values.value}
+                        onChange={(e) => {
+                          setFieldValue("value", e.target.value);
+                        }}
+                      />
+                    </Box>
+                  </Grid>
+                </Grid>
+
+
+                <FlexBox justifyContent="flex-end" gap={2} marginTop={4}>
+                  <Button fullWidth variant="outlined" onClick={() => {
+                    isModalClose();
+                    setFlag(false);
+                  }}>
+                    Cancel
+                  </Button>
+
+                  {loading ? (
+                    <Button fullWidth type="submit" variant="contained" disabled={true}>
+                      <div className="spinner-border text-warning" role="status">
+                        <span className="sr-only">Saving...</span>
+                      </div>
+                    </Button>
+                  ) : (
+                    <Button fullWidth type="submit" variant="contained" color="success">
+                      Save
+                    </Button>
+                  )}
+                </FlexBox>
+              </form>;
+            }} />
+          {flag ?
+            (
+              <Grid container spacing={3}>
+                <Grid item md={12} sm={6} xs={12}>
+                  <Box maxWidth={320}>
+                    <H6 fontSize={16} mt={4}>Expenditures History</H6>
+                    {/* <H6 fontSize={16} my={3}>Net Amount</H6> */}
+                    <FlexBetween mt={1}>
+                      <Paragraph fontWeight={500}>Name</Paragraph>
+                      <Paragraph fontWeight={500}>Price</Paragraph>
+                    </FlexBetween>
+                    <FlexBetween>
+                      <Paragraph fontWeight={500} color="#494949" textAlign={"start"}>
+                        {
+                          specificExpendituresData?.map((expenditure, index) => {
+                            return <div style={{ marginBottom: "2px", marginTop: "2px" }} key={index}>
+                              {expenditure?.name}
+                            </div>;
+                          })
+                        }
+                      </Paragraph>
+                      <Paragraph fontWeight={500} color="#494949" textAlign={"start"}>
+                        {
+                          specificExpendituresData?.map((expenditure, index) => {
+                            return <div style={{ marginBottom: "2px", marginTop: "2px" }} key={index}>
+                              {expenditure?.value}
+                            </div>;
+                          })
+                        }
+                      </Paragraph>
+                    </FlexBetween>
+                    <Divider sx={{
+                      mt: 7
+                    }} />
+                    <FlexBetween my={2}>
+                      <H6 fontSize={16}>Total</H6>
+                      <H6 fontSize={16}>{totalSumExpenditure}</H6>
+                    </FlexBetween>
+                  </Box>
+                </Grid>
+              </Grid>
+            ) : null}
+        </Box>
+      </Modal>
+    </div>
+    {/* Add Expenditure */}
   </Card>;
 };
 

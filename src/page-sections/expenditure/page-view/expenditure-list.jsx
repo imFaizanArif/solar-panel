@@ -81,7 +81,59 @@ const ExpenditureListPageView = () => {
     }
   };
   // Search
-
+  const expandedRowRender = () => {
+    const columns = [
+      {
+        title: 'Date',
+        dataIndex: 'date',
+        key: 'date',
+      },
+      {
+        title: 'Name',
+        dataIndex: 'name',
+        key: 'name',
+      },
+      {
+        title: 'Status',
+        key: 'state',
+        // render: () => <Badge status="success" text="Finished" />,
+      },
+      {
+        title: 'Upgrade Status',
+        dataIndex: 'upgradeNum',
+        key: 'upgradeNum',
+      },
+      {
+        title: 'Action',
+        key: 'operation',
+        // render: () => (
+        //   <Space size="middle">
+        //     <a>Pause</a>
+        //     <a>Stop</a>
+        //     <Dropdown
+        //       menu={{
+        //         items,
+        //       }}
+        //     >
+        //       <a>
+        //         More <DownOutlined />
+        //       </a>
+        //     </Dropdown>
+        //   </Space>
+        // ),
+      },
+    ];
+    const data = [];
+    for (let i = 0; i < 3; ++i) {
+      data.push({
+        key: i.toString(),
+        date: '2014-12-24 23:12:00',
+        name: 'This is production name',
+        upgradeNum: 'Upgraded: 56',
+      });
+    }
+    return <Table columns={columns} dataSource={data} pagination={false} />;
+  };
   const columns = [
     {
       title: 'ID',
@@ -168,7 +220,13 @@ const ExpenditureListPageView = () => {
       },
     },
   ];
-
+  const handleExpand = (expanded, record) => {
+    if (expanded) {
+      console.log('Expanded row inv_id:', record.inv_id);
+    } else {
+      console.log('Collapsed row inv_id:', record.inv_id);
+    }
+  };
   const handleOpenMenu = (event, record) => {
     setOpenMenuEl(record.id);
     setAnchorEl(event.currentTarget); // Set the anchor element to the current target
@@ -199,7 +257,18 @@ const ExpenditureListPageView = () => {
     getExpenditureList();
   }, []);
 
-
+  const data = [];
+  for (let i = 0; i < 3; ++i) {
+    data.push({
+      key: i.toString(),
+      name: 'Screen',
+      platform: 'iOS',
+      version: '10.3.4.5654',
+      upgradeNum: 500,
+      creator: 'Jack',
+      createdAt: '2014-12-24 23:12:00',
+    });
+  }
   return <Card>
     <ToastContainer
       position="top-right"
@@ -254,6 +323,10 @@ const ExpenditureListPageView = () => {
       rowKey={(record) => record.id}
       onChange={handleTableChange}
       scroll={{ x: 600 }}
+    // expandable={{
+    //   expandedRowRender,
+    //   defaultExpandedRowKeys: ['0'],
+    // }}
     />
 
     {/* Delete Modal */}
