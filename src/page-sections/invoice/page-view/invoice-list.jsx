@@ -475,8 +475,9 @@ const InvoiceListPageView = () => {
       key: '2',
       width: 150,
       render: (text, record) => {
+        console.log(text, " nnnnnnnnnn", record)
         return (
-          <span style={{ fontWeight: 600 }}>{parseInt(record.total)}</span>
+          <span style={{ fontWeight: 600 }}>{parseInt(record.total) + parseInt(record.shipping_charges) - parseInt(record.discount)}</span>
         )
       },
       sorter: {
@@ -718,7 +719,7 @@ const InvoiceListPageView = () => {
         console.log(sumOfPayments, "summm")
         return {
           id: invoice.id,
-          payable: parseFloat(invoice.total) - sumOfPayments,
+          payable: parseFloat(invoice.total) - parseFloat(invoice.discount) - sumOfPayments + parseFloat(invoice.shipping_charges),
         };
       });
 
