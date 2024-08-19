@@ -475,8 +475,9 @@ const InvoiceListPageView = () => {
       key: '2',
       width: 150,
       render: (text, record) => {
+        console.log(text, " nnn", record)
         return (
-          <span style={{ fontWeight: 600 }}>{parseInt(record.total)}</span>
+          <span style={{ fontWeight: 600 }}>{parseInt(record.total) + parseInt(record.shipping_charges) - parseInt(record.discount)}</span>
         )
       },
       sorter: {
