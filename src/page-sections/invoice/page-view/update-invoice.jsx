@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Formik } from "formik";
+import { Formik, setIn } from "formik";
 import * as Yup from "yup";
 import Select from "react-select";
 import { ToastContainer, toast } from "react-toastify";
@@ -83,6 +83,13 @@ const UpdateInvoicePageView = () => {
   const [lightningArrestorPrice, setLightningArrestorPrice] = useState(0);
   const [clientData, setClientData] = useState([]);
   const [expendituresData, setExpendituresData] = useState([]);
+  const [solarPanelQuantity, setSolarPanelQuantity] = useState(0);
+  const [inverterQuantity, setInverterQuantity] = useState(0);
+  const [structureQuantity, setStructureQuantity] = useState(0);
+  const [cablingQuantity, setCablingQuantity] = useState(0);
+  const [netMeteringQuantity, setNetMeteringQuantity] = useState(0);
+  const [batteriesQuantity, setBatteriesQuantity] = useState(0);
+  const [lightningArrestorQuantity, setLightningArrestorQuantity] = useState(0);
   const [nextPageUrl, setNextPageUrl] = useState(null);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -466,22 +473,29 @@ const UpdateInvoicePageView = () => {
   }, []);
 
   useEffect(() => {
-    console.log(invoiceData.solar_panel, "qweruiopoi"); // Log the state after it's set
-    setSolarPanelPrice(invoiceData.solar_panel_price)
-    setsolarPanelId(invoiceData.solar_panel)
+    setSolarPanelPrice(parseInt(invoiceData.solar_panel_price) * parseInt(inverterData.solar_panel_quantity));
+    setsolarPanelId(invoiceData.solar_panel);
+    setSolarPanelQuantity(inverterData.solar_panel_quantity);
+    console.log(parseInt(invoiceData.solar_panel_price) * solarPanelQuantity, "qweruiopoi"); // Log the state after it's set
     // setsolarPanelSpecificRecord(invoiceData.solar_panel_price)
-    setInverterPrice(invoiceData.inverter_price)
-    setInverterId(invoiceData.inverter)
-    setStructurePrice(invoiceData.structure_price)
-    setStructureId(invoiceData.structure)
-    setCablingPrice(invoiceData.cabling_price)
-    setCablingId(invoiceData.cabling)
-    setNetMeteringPrice(invoiceData.net_metering_price)
-    setNetMeteringId(invoiceData.net_metering)
-    setBatteriesPrice(invoiceData.battery_price)
-    setBatteriesId(invoiceData.battery)
-    setLightningArrestorPrice(invoiceData.lightning_arrestor_price)
-    setLightningArrestorId(invoiceData.lightning_arrestor)
+    setInverterPrice(parseInt(invoiceData.inverter_price) * parseInt(inverterData.inverter_quantity));
+    setInverterId(invoiceData.inverter);
+    setInverterQuantity(invoiceData.inverter_quantity);
+    setStructurePrice(parseInt(invoiceData.structure_price) * parseInt(inverterData.structure_quantity));
+    setStructureId(invoiceData.structure);
+    setStructureQuantity(invoiceData.structure_quantity);
+    setCablingPrice(parseInt(invoiceData.cabling_price) * parseInt(inverterData.cabling_quantity));
+    setCablingId(invoiceData.cabling);
+    setCablingQuantity(invoiceData.cabling_quantity);
+    setNetMeteringPrice(parseInt(invoiceData.net_metering_price) * parseInt(inverterData.net_metering_quantity));
+    setNetMeteringId(invoiceData.net_metering);
+    setNetMeteringQuantity(invoiceData.net_metering_quantity);
+    setBatteriesPrice(parseInt(invoiceData.battery_price) * parseInt(inverterData.battery_quantity));
+    setBatteriesId(invoiceData.battery);
+    setBatteriesQuantity(invoiceData.battery_quantity);
+    setLightningArrestorPrice(parseInt(invoiceData.lightning_arrestor_price) * parseInt(inverterData.lightning_arrestor_quantity));
+    setLightningArrestorId(invoiceData.lightning_arrestor);
+    setLightningArrestorQuantity(invoiceData.lightning_arrestor_quantity);
     setInstallationPrice(invoiceData.installation_price)
     setInstallationId(invoiceData.installation)
     setDiscount(invoiceData.discount)
@@ -507,10 +521,10 @@ const UpdateInvoicePageView = () => {
     // This effect will run whenever the discounts change to ensure latest values are used.
   }, [solarPanelDiscount, inverterDiscount, structureDiscount, cablingDiscount, netMeteringDiscount, batteriesId, lightningArrestorId, installationId || clientResponse || invoiceResponse]);
 
+  // const Subtotal = parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice);
+  // const Subtotal2 = parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice) + parseInt(shipping) - parseInt(discount);
+
   const Subtotal = parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice);
-  const Subtotal2 = parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice) + parseInt(shipping) - parseInt(discount);
-
-
   return <Box pt={2} pb={4}>
     <ToastContainer
       position="top-right"
@@ -727,7 +741,7 @@ const UpdateInvoicePageView = () => {
             discount: values.discount,
             shipping_charges: values.shipping_charges,
             amount_paid: parseInt(values.amount_paid) ? parseInt(values.amount_paid) : 0,
-            total: Subtotal2,
+            total: Subtotal,
             status: values.status
           }
           const header = {
@@ -827,6 +841,7 @@ const UpdateInvoicePageView = () => {
                   <TextField type="number" fullWidth name="Solar Panel Quantity" label="Solar Panel Quantity" value={values.solar_panel_quantity}
                     onChange={(e) => {
                       setFieldValue("solar_panel_quantity", e.target.value);
+                      setSolarPanelQuantity(e.target.value);
                     }}
                     helperText={touched.solar_panel_quantity && errors.solar_panel_quantity} error={Boolean(touched.solar_panel_quantity && errors.solar_panel_quantity)} />
                 </Box>
@@ -842,7 +857,7 @@ const UpdateInvoicePageView = () => {
                         setSolarPanelPrice(0);
                       } else {
                         setFieldValue("solar_panel_price", value);
-                        setSolarPanelPrice(value);
+                        setSolarPanelPrice(value * solarPanelQuantity);
                         const discount = Math.max(0, (solarPanelSpecificRecord?.price * values.solar_panel_quantity) - values.solar_panel_price);
                         setSolarPanelDiscount(discount);
                       }
@@ -950,6 +965,7 @@ const UpdateInvoicePageView = () => {
                   <TextField fullWidth type="number" name="Inverter Quantity" label="Inverter Quantity" value={values.inverter_quantity}
                     onChange={(e) => {
                       setFieldValue("inverter_quantity", e.target.value);
+                      setInverterQuantity(e.target.value);
                     }}
                     helperText={touched.inverter_quantity && errors.inverter_quantity} error={Boolean(touched.inverter_quantity && errors.inverter_quantity)} />
                 </Box>
@@ -965,7 +981,7 @@ const UpdateInvoicePageView = () => {
                         setInverterPrice(0);
                       } else {
                         setFieldValue("inverter_price", value);
-                        setInverterPrice(value);
+                        setInverterPrice(value * inverterQuantity);
                         const discount = Math.max(0, (inverterSpecificRecord?.price * values.inverter_quantity) - values.inverter_price);
                         setInverterDiscount(discount);
                       }
@@ -1048,6 +1064,7 @@ const UpdateInvoicePageView = () => {
                   <TextField fullWidth type="number" name="Structure Quantity" label="Structure Quantity" value={values.structure_quantity}
                     onChange={(e) => {
                       setFieldValue("structure_quantity", e.target.value);
+                      setStructureQuantity(e.target.value);
                     }}
                     helperText={touched.structure_quantity && errors.structure_quantity} error={Boolean(touched.structure_quantity && errors.structure_quantity)} />
                 </Box>
@@ -1063,7 +1080,7 @@ const UpdateInvoicePageView = () => {
                         setStructurePrice(0);
                       } else {
                         setFieldValue("structure_price", value);
-                        setStructurePrice(value);
+                        setStructurePrice(value * structureQuantity);
                         const discount = Math.max(0, (structureSpecificRecord?.price * values.structure_quantity) - values.structure_price);
                         setStructureDiscount(discount);
                       }
@@ -1146,6 +1163,7 @@ const UpdateInvoicePageView = () => {
                   <TextField fullWidth type="number" name="Cabling Quantity" label="Cabling Quantity" value={values.cabling_quantity}
                     onChange={(e) => {
                       setFieldValue("cabling_quantity", e.target.value);
+                      setCablingQuantity(e.target.value);
                     }}
                     helperText={touched.cabling_quantity && errors.cabling_quantity} error={Boolean(touched.cabling_quantity && errors.cabling_quantity)} />
                 </Box>
@@ -1161,7 +1179,7 @@ const UpdateInvoicePageView = () => {
                         setCablingPrice(0);
                       } else {
                         setFieldValue("cabling_price", value);
-                        setCablingPrice(value);
+                        setCablingPrice(value * cablingQuantity);
                         const discount = Math.max(0, (cablingSpecificRecord?.price * values.cabling_quantity) - values.cabling_price);
                         setCablingDiscount(discount);
                       }
@@ -1244,6 +1262,7 @@ const UpdateInvoicePageView = () => {
                   <TextField fullWidth type="number" name="Net Metering Quantity" label="Net Metering Quantity" value={values.net_metering_quantity}
                     onChange={(e) => {
                       setFieldValue("net_metering_quantity", e.target.value);
+                      setNetMeteringQuantity(e.target.value);
                     }}
                     helperText={touched.net_metering_quantity && errors.net_metering_quantity} error={Boolean(touched.net_metering_quantity && errors.net_metering_quantity)} />
                 </Box>
@@ -1259,7 +1278,7 @@ const UpdateInvoicePageView = () => {
                         setNetMeteringPrice(0);
                       } else {
                         setFieldValue("net_metering_price", value);
-                        setNetMeteringPrice(value);
+                        setNetMeteringPrice(value * netMeteringQuantity);
                         const discount = Math.max(0, (netMeteringSpecificRecord?.price * values.net_metering_quantity) - values.net_metering_price);
                         setNetMeteringDiscount(discount);
                       }
@@ -1343,6 +1362,7 @@ const UpdateInvoicePageView = () => {
                   <TextField fullWidth type="number" name="Battery Quantity" label="Battery Quantity" value={values.battery_quantity}
                     onChange={(e) => {
                       setFieldValue("battery_quantity", e.target.value);
+                      setBatteriesQuantity(e.target.value);
                     }}
                     helperText={touched.battery_quantity && errors.battery_quantity} error={Boolean(touched.battery_quantity && errors.battery_quantity)} />
                 </Box>
@@ -1358,7 +1378,7 @@ const UpdateInvoicePageView = () => {
                         setBatteriesPrice(0);
                       } else {
                         setFieldValue("battery_price", value);
-                        setBatteriesPrice(value);
+                        setBatteriesPrice(value * batteriesQuantity);
                         const discount = Math.max(0, (batteriesSpecificRecord?.price * values.battery_quantity) - values.battery_price);
                         setBatteriesDiscount(discount);
                       }
@@ -1442,6 +1462,7 @@ const UpdateInvoicePageView = () => {
                   <TextField fullWidth type="number" name="Lightning Arrestor Quantity" label="Lightning Arrestor Quantity" value={values.lightning_arrestor_quantity}
                     onChange={(e) => {
                       setFieldValue("lightning_arrestor_quantity", e.target.value);
+                      setLightningArrestorQuantity(e.target.value);
                     }}
                     helperText={touched.lightning_arrestor_quantity && errors.lightning_arrestor_quantity} error={Boolean(touched.lightning_arrestor_quantity && errors.lightning_arrestor_quantity)} />
                 </Box>
@@ -1457,7 +1478,7 @@ const UpdateInvoicePageView = () => {
                         setLightningArrestorPrice(0);
                       } else {
                         setFieldValue("lightning_arrestor_price", value);
-                        setLightningArrestorPrice(value);
+                        setLightningArrestorPrice(value * lightningArrestorQuantity);
                         const discount = Math.max(0, (lightningArrestorSpecificRecord?.price * values.lightning_arrestor_quantity) - values.lightning_arrestor_price);
                         setLightningArrestorDiscount(discount);
                       }
