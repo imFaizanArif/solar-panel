@@ -84,6 +84,7 @@ const UpdateInvoicePageView = () => {
   const [clientData, setClientData] = useState([]);
   const [expendituresData, setExpendituresData] = useState([]);
   const [solarPanelQuantity, setSolarPanelQuantity] = useState(0);
+  const [solarPanelT, setSolarPanelT] = useState(0);
   const [inverterQuantity, setInverterQuantity] = useState(0);
   const [structureQuantity, setStructureQuantity] = useState(0);
   const [cablingQuantity, setCablingQuantity] = useState(0);
@@ -473,29 +474,30 @@ const UpdateInvoicePageView = () => {
   }, []);
 
   useEffect(() => {
-    setSolarPanelPrice(parseInt(invoiceData.solar_panel_price) * parseInt(inverterData.solar_panel_quantity));
+    // setSolarPanelT(parseInt(invoiceData.solar_panel_quantity));
+    setSolarPanelQuantity(parseInt(inverterData.solar_panel_quantity));
+    setSolarPanelPrice(solarPanelT * parseInt(invoiceData.solar_panel_price));
     setsolarPanelId(invoiceData.solar_panel);
-    setSolarPanelQuantity(inverterData.solar_panel_quantity);
-    console.log(parseInt(invoiceData.solar_panel_price) * solarPanelQuantity, "qweruiopoi"); // Log the state after it's set
+    console.log(solarPanelQuantity * parseInt(invoiceData.solar_panel_price), "qweruiopoi"); // Log the state after it's set
     // setsolarPanelSpecificRecord(invoiceData.solar_panel_price)
-    setInverterPrice(parseInt(invoiceData.inverter_price) * parseInt(inverterData.inverter_quantity));
     setInverterId(invoiceData.inverter);
     setInverterQuantity(invoiceData.inverter_quantity);
-    setStructurePrice(parseInt(invoiceData.structure_price) * parseInt(inverterData.structure_quantity));
+    setInverterPrice(parseInt(invoiceData.inverter_price) * inverterQuantity);
     setStructureId(invoiceData.structure);
     setStructureQuantity(invoiceData.structure_quantity);
-    setCablingPrice(parseInt(invoiceData.cabling_price) * parseInt(inverterData.cabling_quantity));
+    setStructurePrice(parseInt(invoiceData.structure_price) * structureQuantity);
     setCablingId(invoiceData.cabling);
     setCablingQuantity(invoiceData.cabling_quantity);
-    setNetMeteringPrice(parseInt(invoiceData.net_metering_price) * parseInt(inverterData.net_metering_quantity));
+    setCablingPrice(parseInt(invoiceData.cabling_price) * cablingQuantity);
     setNetMeteringId(invoiceData.net_metering);
     setNetMeteringQuantity(invoiceData.net_metering_quantity);
-    setBatteriesPrice(parseInt(invoiceData.battery_price) * parseInt(inverterData.battery_quantity));
+    setNetMeteringPrice(parseInt(invoiceData.net_metering_price) * netMeteringQuantity);
     setBatteriesId(invoiceData.battery);
     setBatteriesQuantity(invoiceData.battery_quantity);
-    setLightningArrestorPrice(parseInt(invoiceData.lightning_arrestor_price) * parseInt(inverterData.lightning_arrestor_quantity));
+    setBatteriesPrice(parseInt(invoiceData.battery_price) * batteriesQuantity);
     setLightningArrestorId(invoiceData.lightning_arrestor);
     setLightningArrestorQuantity(invoiceData.lightning_arrestor_quantity);
+    setLightningArrestorPrice(parseInt(invoiceData.lightning_arrestor_price) * lightningArrestorQuantity);
     setInstallationPrice(invoiceData.installation_price)
     setInstallationId(invoiceData.installation)
     setDiscount(invoiceData.discount)
