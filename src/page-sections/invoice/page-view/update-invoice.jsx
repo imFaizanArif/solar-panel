@@ -456,9 +456,9 @@ const UpdateInvoicePageView = () => {
   };
   const totalSum = installmentData.reduce((sum, installment) => sum + installment.amount, 0);
   const totalSumExpenditure = expendituresData.reduce((sum, expenditure) => sum + expenditure.value, 0);
-  useEffect(() => {
-    getInvoiceList();
-  }, [])
+  // useEffect(() => {
+  //   getInvoiceList();
+  // }, [])
   useEffect(() => {
     getPartiallyPaidList();
     getClientList();
@@ -473,6 +473,7 @@ const UpdateInvoicePageView = () => {
     getBatteriesList();
     getLightningArrestorList();
     getInstallationList();
+    console.log(getInvoiceList(), " mjjjjjjjjjjjjjj");
   }, [invoiceData]);
 
   useEffect(() => {
