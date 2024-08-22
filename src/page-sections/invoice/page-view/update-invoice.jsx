@@ -555,14 +555,14 @@ const UpdateInvoicePageView = () => {
   // const Subtotal2 = parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice) + parseInt(shipping) - parseInt(discount);
 
   const Subtotal = parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice);
-  // console.log(typeof Subtotal, " sub")
-  // console.log(typeof parseInt(solarPanelPrice), " solar ", typeof parseInt(inverterPrice), " inverter ", typeof parseInt(cablingPrice), " cabling ", typeof parseInt(structurePrice), "structure", typeof parseInt(netMeteringPrice), " net ", typeof parseInt(batteriesPrice), " battery ", typeof parseInt(lightningArrestorPrice), " llight ", typeof parseInt(installationPrice), " install");
-  // console.log(parseInt(solarPanelPrice), " solar ", parseInt(inverterPrice), " inverter ", parseInt(cablingPrice), " cabling ", parseInt(structurePrice), "structure", parseInt(netMeteringPrice), " net ", parseInt(batteriesPrice), " battery ", parseInt(lightningArrestorPrice), " light ", parseInt(installationPrice), " install");
+  console.log(typeof Subtotal, " sub")
+  console.log(typeof parseInt(solarPanelPrice), " solar ", typeof parseInt(inverterPrice), " inverter ", typeof parseInt(cablingPrice), " cabling ", typeof parseInt(structurePrice), "structure", typeof parseInt(netMeteringPrice), " net ", typeof parseInt(batteriesPrice), " battery ", typeof parseInt(lightningArrestorPrice), " llight ", typeof parseInt(installationPrice), " install");
+  console.log(parseInt(solarPanelPrice), " solar ", parseInt(inverterPrice), " inverter ", parseInt(cablingPrice), " cabling ", parseInt(structurePrice), "structure", parseInt(netMeteringPrice), " net ", parseInt(batteriesPrice), " battery ", parseInt(lightningArrestorPrice), " light ", parseInt(installationPrice), " install");
   const test = Subtotal - parseInt(discount);
-  // console.log("dddddddddddd", Subtotal - parseInt(discount));
-  // console.log("ccccccccccc", typeof test)
-  // console.log(parseInt(discount), " dis")
-  // console.log(Subtotal, " tot")
+  console.log("dddddddddddd", Subtotal - parseInt(discount));
+  console.log("ccccccccccc", typeof test)
+  console.log(parseInt(discount), " dis")
+  console.log(Subtotal, " tot")
   return <Box pt={2} pb={4}>
     <ToastContainer
       position="top-right"
