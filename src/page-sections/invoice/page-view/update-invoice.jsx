@@ -273,7 +273,7 @@ const UpdateInvoicePageView = () => {
           // amount_paid: Invoice.amount_paid,
           status: Invoice.status,
         })
-        // console.log(Invoice, "zxcvbnmmnbv")
+        console.log(Invoice, "zxcvbnmmnbv")
         setInvoiceData(Invoice)
       }
 
