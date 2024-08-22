@@ -471,13 +471,13 @@ const UpdateInvoicePageView = () => {
     getBatteriesList();
     getLightningArrestorList();
     getInstallationList();
-  }, []);
+  }, [invoiceData]);
 
   useEffect(() => {
     console.log(invoiceData, "invoiceData")
     // setSolarPanelT(parseInt(invoiceData.solar_panel_quantity));
     setSolarPanelQuantity(parseInt(invoiceData.solar_panel_quantity));
-    console.log(parseInt(solarPanelQuantity) * parseInt(invoiceData.solar_panel_price), "invoiceData-")
+    console.log(parseInt(solarPanelQuantity) * parseInt(invoiceData.solar_panel_price), "invoiceData-+")
     setsolarPanelId(invoiceData.solar_panel);
     setSolarPanelPrice(parseInt(solarPanelQuantity) * parseInt(invoiceData.solar_panel_price));
     // console.log(parseInt(invoiceData.solar_panel_quantity), "eoi"); // Log the state after it's set
