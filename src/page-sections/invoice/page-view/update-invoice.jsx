@@ -273,9 +273,9 @@ const UpdateInvoicePageView = () => {
           // amount_paid: Invoice.amount_paid,
           status: Invoice.status,
         })
+        // console.log(Invoice, "zxcvbnmmnbv")
+        setInvoiceData(Invoice)
       }
-      // console.log(Invoice, "zxcvbnmmnbv")
-      setInvoiceData(Invoice)
 
     } catch (err) {
       console.log(err.response.data);
@@ -474,8 +474,10 @@ const UpdateInvoicePageView = () => {
   }, []);
 
   useEffect(() => {
+    console.log(invoiceData, "invoiceData")
     // setSolarPanelT(parseInt(invoiceData.solar_panel_quantity));
     setSolarPanelQuantity(parseInt(invoiceData.solar_panel_quantity));
+    console.log(parseInt(solarPanelQuantity) * parseInt(invoiceData.solar_panel_price), "invoiceData-")
     setsolarPanelId(invoiceData.solar_panel);
     setSolarPanelPrice(parseInt(solarPanelQuantity) * parseInt(invoiceData.solar_panel_price));
     // console.log(parseInt(invoiceData.solar_panel_quantity), "eoi"); // Log the state after it's set
@@ -505,7 +507,7 @@ const UpdateInvoicePageView = () => {
     setDiscount(invoiceData.discount)
     setShipping(invoiceData.shipping_charges)
     // setAmountPaid(invoiceData.amount_paid)
-  }, [invoiceData]);
+  }, []);
 
   useEffect(() => {
     if (solarPanelId || inverterId || structureId || cablingId || netMeteringId || batteriesId || lightningArrestorId || installationId) {
