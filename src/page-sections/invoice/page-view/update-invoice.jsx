@@ -477,7 +477,7 @@ const UpdateInvoicePageView = () => {
     // setSolarPanelT(parseInt(invoiceData.solar_panel_quantity));
     setSolarPanelQuantity(parseInt(invoiceData.solar_panel_quantity));
     setsolarPanelId(invoiceData.solar_panel);
-    setSolarPanelPrice(solarPanelQuantity * parseInt(invoiceData.solar_panel_price));
+    setSolarPanelPrice(parseInt(solarPanelQuantity) * parseInt(invoiceData.solar_panel_price));
     // console.log(parseInt(invoiceData.solar_panel_quantity), "eoi"); // Log the state after it's set
     // console.log(solarPanelQuantity * parseInt(invoiceData.solar_panel_price), "qweruiopoi"); // Log the state after it's set
     // setsolarPanelSpecificRecord(invoiceData.solar_panel_price)
