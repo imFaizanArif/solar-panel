@@ -816,7 +816,7 @@ const UpdateInvoicePageView = () => {
             lightning_arrestor_quantity: values.lightning_arrestor_quantity,
             lightning_arrestor_price: values.lightning_arrestor_price,
             installation: values.installation,
-            installation_quantity: 0,
+            installation_quantity: 1,
             installation_price: values.installation_price,
             discount: values.discount,
             shipping_charges: values.shipping_charges,
