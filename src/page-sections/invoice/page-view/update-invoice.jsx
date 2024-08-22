@@ -534,6 +534,8 @@ const UpdateInvoicePageView = () => {
   const test = Subtotal - parseInt(discount);
   console.log("dddddddddddd", Subtotal - parseInt(discount));
   console.log("ccccccccccc", typeof test)
+  console.log(parseInt(discount), " dis")
+  console.log(Subtotal, " tot")
 
   return <Box pt={2} pb={4}>
     <ToastContainer
