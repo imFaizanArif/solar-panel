@@ -531,6 +531,10 @@ const UpdateInvoicePageView = () => {
   const Subtotal = parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice);
   console.log(typeof Subtotal, " sub")
   console.log(typeof parseInt(solarPanelPrice), " solar ", typeof parseInt(inverterPrice), " inverter ", typeof parseInt(cablingPrice), " cabling ", typeof parseInt(structurePrice), "structure", typeof parseInt(netMeteringPrice), " net ", typeof parseInt(batteriesPrice), " battery ", typeof parseInt(lightningArrestorPrice), " llight ", typeof parseInt(installationPrice), " install");
+  const test = Subtotal - parseInt(discount);
+  console.log("dddddddddddd", Subtotal - parseInt(discount));
+  console.log("ccccccccccc", typeof test)
+
   return <Box pt={2} pb={4}>
     <ToastContainer
       position="top-right"
