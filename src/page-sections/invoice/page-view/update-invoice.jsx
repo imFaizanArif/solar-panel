@@ -472,52 +472,54 @@ const UpdateInvoicePageView = () => {
           return panel.id === InvoiceId;
         });
         if (Invoice) {
-          // console.log(Invoice, "invoiceData")
-          // setSolarPanelT(parseInt(invoiceData.solar_panel_quantity));
-          setSolarPanelQuantity(parseInt(Invoice.solar_panel_quantity));
-          // console.log(parseInt(Invoice.solar_panel_price) * parseInt(solarPanelQuantity), "invoiceData-+")
-          setsolarPanelId(Invoice.solar_panel);
-          setSolarPanelPrice(parseInt(solarPanelQuantity) * parseInt(Invoice.solar_panel_price));
-          // console.log(parseInt(invoiceData.solar_panel_quantity), "eoi"); // Log the state after it's set
-          console.log(Invoice.solar_panel_quantity * parseInt(invoiceData.solar_panel_price), "qweruiopoi"); // Log the state after it's set
-          // setsolarPanelSpecificRecord(invoiceData.solar_panel_price)
-          setInverterId(Invoice.inverter);
-          setInverterQuantity(Invoice.inverter_quantity);
-          // solarPanelT()
-          setInverterPrice(parseInt(Invoice.inverter_price) * inverterQuantity);
-          setStructureId(Invoice.structure);
-          setStructureQuantity(Invoice.structure_quantity);
-          setStructurePrice(parseInt(Invoice.structure_price) * structureQuantity);
-          setCablingId(Invoice.cabling);
-          setCablingQuantity(Invoice.cabling_quantity);
-          setCablingPrice(parseInt(Invoice.cabling_price) * cablingQuantity);
-          setNetMeteringId(Invoice.net_metering);
-          setNetMeteringQuantity(Invoice.net_metering_quantity);
-          setNetMeteringPrice(parseInt(Invoice.net_metering_price) * netMeteringQuantity);
-          setBatteriesId(Invoice.battery);
-          setBatteriesQuantity(Invoice.battery_quantity);
-          setBatteriesPrice(parseInt(Invoice.battery_price) * batteriesQuantity);
-          setLightningArrestorId(Invoice.lightning_arrestor);
-          setLightningArrestorQuantity(Invoice.lightning_arrestor_quantity);
-          setLightningArrestorPrice(parseInt(Invoice.lightning_arrestor_price) * lightningArrestorQuantity);
-          setInstallationPrice(Invoice.installation_price)
-          setInstallationId(Invoice.installation)
-          setDiscount(Invoice.discount)
-          setShipping(Invoice.shipping_charges)
-          setInvoiceData(Invoice)
-          const totalSum =
-            (parseInt(solarPanelPrice) || 0) +
-            (parseInt(inverterPrice) || 0) +
-            (parseInt(cablingPrice) || 0) +
-            (parseInt(structurePrice) || 0) +
-            (parseInt(netMeteringPrice) || 0) +
-            (parseInt(batteriesPrice) || 0) +
-            (parseInt(lightningArrestorPrice) || 0) +
-            (parseInt(installationPrice) || 0);
+          console.log(Invoice, "invoiceData")
+          const solarPanelQuantity = Invoice.solar_panel_quantity;
+          const solarPanelPrice = parseFloat(Invoice.solar_panel_price);
+          const inverterQuantity = Invoice.inverter_quantity;
+          const inverterPrice = parseFloat(Invoice.inverter_price);
+          const structureQuantity = Invoice.structure_quantity;
+          const structurePrice = parseFloat(Invoice.structure_price);
+          const cablingQuantity = Invoice.cabling_quantity;
+          const cablingPrice = parseFloat(Invoice.cabling_price);
+          const netMeteringQuantity = Invoice.net_metering_quantity;
+          const netMeteringPrice = parseFloat(Invoice.net_metering_price);
+          const batteriesQuantity = Invoice.battery_quantity;
+          const batteriesPrice = parseFloat(Invoice.battery_price);
+          const lightningArrestorQuantity = Invoice.lightning_arrestor_quantity;
+          const lightningArrestorPrice = parseFloat(Invoice.lightning_arrestor_price);
+          const installationPrice = parseFloat(Invoice.installation_price);
 
-          console.log(solarPanelPrice, "solarPanelPrice")
+          // Calculate the total sum directly
+          const totalSum =
+            (solarPanelQuantity * solarPanelPrice || 0) +
+            (inverterQuantity * inverterPrice || 0) +
+            (cablingQuantity * cablingPrice || 0) +
+            (structureQuantity * structurePrice || 0) +
+            (netMeteringQuantity * netMeteringPrice || 0) +
+            (batteriesQuantity * batteriesPrice || 0) +
+            (lightningArrestorQuantity * lightningArrestorPrice || 0) +
+            (installationPrice || 0);
+
           console.log("Total Sum:", totalSum);
           setTotal(totalSum);
+
+          // Set state if necessary
+          setInvoiceData(Invoice);
+          setSolarPanelQuantity(solarPanelQuantity);
+          setSolarPanelPrice(solarPanelPrice);
+          setInverterQuantity(inverterQuantity);
+          setInverterPrice(inverterPrice);
+          setStructureQuantity(structureQuantity);
+          setStructurePrice(structurePrice);
+          setCablingQuantity(cablingQuantity);
+          setCablingPrice(cablingPrice);
+          setNetMeteringQuantity(netMeteringQuantity);
+          setNetMeteringPrice(netMeteringPrice);
+          setBatteriesQuantity(batteriesQuantity);
+          setBatteriesPrice(batteriesPrice);
+          setLightningArrestorQuantity(lightningArrestorQuantity);
+          setLightningArrestorPrice(lightningArrestorPrice);
+          setInstallationPrice(installationPrice);
         }
         // console.log("mmmmqqqqqqq", parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice))
         // setTotal(parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice));
