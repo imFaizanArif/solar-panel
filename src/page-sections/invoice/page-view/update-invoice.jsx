@@ -40,6 +40,7 @@ const UpdateInvoicePageView = () => {
   const [invoiceResponse, setInvoiceResponse] = useState(false);
   const [invoiceData, setInvoiceData] = useState([]);
   const [invoicedClientId, setInvoicedClientId] = useState(0);
+  const [total, setTotal] = useState(0);
   const [installmentData, setInstallmentData] = useState([]);
   const [solarPanelId, setsolarPanelId] = useState(0);
   const [solarPanelSpecificRecord, setsolarPanelSpecificRecord] = useState("");
@@ -478,7 +479,7 @@ const UpdateInvoicePageView = () => {
           setsolarPanelId(Invoice.solar_panel);
           setSolarPanelPrice(parseInt(solarPanelQuantity) * parseInt(Invoice.solar_panel_price));
           // console.log(parseInt(invoiceData.solar_panel_quantity), "eoi"); // Log the state after it's set
-          // console.log(solarPanelQuantity * parseInt(invoiceData.solar_panel_price), "qweruiopoi"); // Log the state after it's set
+          console.log(Invoice.solar_panel_quantity * parseInt(invoiceData.solar_panel_price), "qweruiopoi"); // Log the state after it's set
           // setsolarPanelSpecificRecord(invoiceData.solar_panel_price)
           setInverterId(Invoice.inverter);
           setInverterQuantity(Invoice.inverter_quantity);
@@ -504,9 +505,22 @@ const UpdateInvoicePageView = () => {
           setDiscount(Invoice.discount)
           setShipping(Invoice.shipping_charges)
           setInvoiceData(Invoice)
-          // console.log("mmmmqqqqqqq", Invoice)
+          const totalSum =
+            (parseInt(solarPanelPrice) || 0) +
+            (parseInt(inverterPrice) || 0) +
+            (parseInt(cablingPrice) || 0) +
+            (parseInt(structurePrice) || 0) +
+            (parseInt(netMeteringPrice) || 0) +
+            (parseInt(batteriesPrice) || 0) +
+            (parseInt(lightningArrestorPrice) || 0) +
+            (parseInt(installationPrice) || 0);
 
+          console.log(solarPanelPrice, "solarPanelPrice")
+          console.log("Total Sum:", totalSum);
+          setTotal(totalSum);
         }
+        // console.log("mmmmqqqqqqq", parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice))
+        // setTotal(parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice));
 
       } catch (err) {
         console.log(err.response.data);
@@ -554,15 +568,31 @@ const UpdateInvoicePageView = () => {
   // const Subtotal = parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice);
   // const Subtotal2 = parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice) + parseInt(shipping) - parseInt(discount);
 
-  const Subtotal = parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice);
-  console.log(typeof Subtotal, " sub")
-  console.log(typeof parseInt(solarPanelPrice), " solar ", typeof parseInt(inverterPrice), " inverter ", typeof parseInt(cablingPrice), " cabling ", typeof parseInt(structurePrice), "structure", typeof parseInt(netMeteringPrice), " net ", typeof parseInt(batteriesPrice), " battery ", typeof parseInt(lightningArrestorPrice), " llight ", typeof parseInt(installationPrice), " install");
-  console.log(parseInt(solarPanelPrice), " solar ", parseInt(inverterPrice), " inverter ", parseInt(cablingPrice), " cabling ", parseInt(structurePrice), "structure", parseInt(netMeteringPrice), " net ", parseInt(batteriesPrice), " battery ", parseInt(lightningArrestorPrice), " light ", parseInt(installationPrice), " install");
-  const test = Subtotal - parseInt(discount);
-  console.log("dddddddddddd", Subtotal - parseInt(discount));
-  console.log("ccccccccccc", typeof test)
-  console.log(parseInt(discount), " dis")
-  console.log(Subtotal, " tot")
+  // setTotal(parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice));
+  // console.log(typeof Subtotal, " sub")
+  // console.log(typeof parseInt(solarPanelPrice), " solar ", typeof parseInt(inverterPrice), " inverter ", typeof parseInt(cablingPrice), " cabling ", typeof parseInt(structurePrice), "structure", typeof parseInt(netMeteringPrice), " net ", typeof parseInt(batteriesPrice), " battery ", typeof parseInt(lightningArrestorPrice), " llight ", typeof parseInt(installationPrice), " install");
+  // console.log(parseInt(solarPanelPrice), " solar ", parseInt(inverterPrice), " inverter ", parseInt(cablingPrice), " cabling ", parseInt(structurePrice), "structure", parseInt(netMeteringPrice), " net ", parseInt(batteriesPrice), " battery ", parseInt(lightningArrestorPrice), " light ", parseInt(installationPrice), " install");
+  // const test = Subtotal - parseInt(discount);
+  // console.log("dddddddddddd", Subtotal - parseInt(discount));
+  // console.log("ccccccccccc", typeof test)
+  // console.log(parseInt(discount), " dis")
+  // console.log(Subtotal, " tot")
+  // useEffect(() => {
+  //   const totalSum =
+  //     (parseInt(solarPanelPrice) || 0) +
+  //     (parseInt(inverterPrice) || 0) +
+  //     (parseInt(cablingPrice) || 0) +
+  //     (parseInt(structurePrice) || 0) +
+  //     (parseInt(netMeteringPrice) || 0) +
+  //     (parseInt(batteriesPrice) || 0) +
+  //     (parseInt(lightningArrestorPrice) || 0) +
+  //     (parseInt(installationPrice) || 0);
+
+  //   console.log(solarPanelPrice, "solarPanelPrice")
+  //   console.log("Total Sum:", totalSum);
+  //   setTotal(totalSum);
+  // }, [solarPanelPrice, inverterPrice, cablingPrice, structurePrice, netMeteringPrice, batteriesPrice, lightningArrestorPrice, installationPrice]);
+
   return <Box pt={2} pb={4}>
     <ToastContainer
       position="top-right"
@@ -779,7 +809,7 @@ const UpdateInvoicePageView = () => {
             discount: values.discount,
             shipping_charges: values.shipping_charges,
             amount_paid: parseInt(values.amount_paid) ? parseInt(values.amount_paid) : 0,
-            total: Subtotal,
+            total: total,
             status: values.status
           }
           const header = {
@@ -1797,7 +1827,7 @@ const UpdateInvoicePageView = () => {
                   <H6 fontSize={16} my={3}>Net Amount</H6>
                   <FlexBetween my={1}>
                     <Paragraph fontWeight={500}>Subtotal</Paragraph>
-                    <Paragraph fontWeight={500}>{Subtotal}</Paragraph>
+                    <Paragraph fontWeight={500}>{total}</Paragraph>
                   </FlexBetween>
                   <FlexBetween my={1}>
                     <Paragraph fontWeight={500}>Discount</Paragraph>
@@ -1808,7 +1838,7 @@ const UpdateInvoicePageView = () => {
                   }} />
                   <FlexBetween my={2}>
                     <H6 fontSize={16}>After Discount</H6>
-                    <H6 fontSize={16}>{Subtotal - parseInt(discount)}</H6>
+                    <H6 fontSize={16}>{total - parseInt(discount)}</H6>
                   </FlexBetween>
                 </Box>
               </Grid>
@@ -1825,7 +1855,7 @@ const UpdateInvoicePageView = () => {
                   <H6 fontSize={16} my={3}>Payable Amount</H6>
                   <FlexBetween my={1}>
                     <Paragraph fontWeight={500}>After Discount</Paragraph>
-                    <Paragraph fontWeight={500}>{Subtotal - parseInt(discount)}</Paragraph>
+                    <Paragraph fontWeight={500}>{total - parseInt(discount)}</Paragraph>
                   </FlexBetween>
 
                   <FlexBetween my={1}>
@@ -1855,7 +1885,7 @@ const UpdateInvoicePageView = () => {
 
                   <FlexBetween my={1}>
                     <H6 fontSize={16}>Due Amount</H6>
-                    <H6 fontSize={16} style={{ color: "red" }}>{(Subtotal - parseInt(discount) + parseInt(shipping)) - parseInt(amountPaid) - parseInt(partiallyPaid)}</H6>
+                    <H6 fontSize={16} style={{ color: "red" }}>{(total - parseInt(discount) + parseInt(shipping)) - parseInt(amountPaid) - parseInt(partiallyPaid)}</H6>
                   </FlexBetween>
                 </Box>
               </Grid>
