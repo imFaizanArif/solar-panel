@@ -473,6 +473,7 @@ const UpdateInvoicePageView = () => {
         });
         if (Invoice) {
           console.log(Invoice, "invoiceData")
+
           const solarPanelQuantity = Invoice.solar_panel_quantity;
           const solarPanelPrice = parseFloat(Invoice.solar_panel_price);
           const inverterQuantity = Invoice.inverter_quantity;
@@ -500,7 +501,7 @@ const UpdateInvoicePageView = () => {
             (lightningArrestorQuantity * lightningArrestorPrice || 0) +
             (installationPrice || 0);
 
-          console.log("Total Sum:", totalSum);
+          console.log("Total S-um:", totalSum);
           setTotal(totalSum);
 
           // Set state if necessary
@@ -520,9 +521,18 @@ const UpdateInvoicePageView = () => {
           setLightningArrestorQuantity(lightningArrestorQuantity);
           setLightningArrestorPrice(lightningArrestorPrice);
           setInstallationPrice(installationPrice);
+          setsolarPanelId(Invoice.solar_panel);
+          setInverterId(Invoice.inverter);
+          setStructureId(Invoice.structure);
+          setCablingId(Invoice.cabling);
+          setNetMeteringId(Invoice.net_metering);
+          setBatteriesId(Invoice.battery);
+          setLightningArrestorId(Invoice.lightning_arrestor);
+          setInstallationId(Invoice.installation)
+          setDiscount(Invoice.discount)
+          setShipping(Invoice.shipping_charges)
+          setInvoiceData(Invoice)
         }
-        // console.log("mmmmqqqqqqq", parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice))
-        // setTotal(parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice));
 
       } catch (err) {
         console.log(err.response.data);
