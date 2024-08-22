@@ -474,7 +474,7 @@ const UpdateInvoicePageView = () => {
     getLightningArrestorList();
     getInstallationList();
     console.log(getInvoiceList(), " mjjjjjjjjjjjjjj");
-  }, [invoiceData]);
+  }, []);
 
   useEffect(() => {
     console.log(invoiceData, "invoiceData")
