@@ -171,7 +171,7 @@ const UpdateInvoicePageView = () => {
       otherwise: Yup.string().notRequired()
     }),
     status: Yup.string().required("Status is Required!").oneOf(
-      ['PARTIALLY_PAID', 'PAID'],
+      ['QUOTE', 'PARTIALLY_PAID', 'PAID'],
       'Status Selection must be Partially Paid or Paid'
     ),
   });
