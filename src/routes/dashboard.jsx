@@ -64,6 +64,10 @@ const InvoiceList = Loadable(lazy(() => import("@/pages/dashboard/invoice/list")
 const InvoiceCreate = Loadable(lazy(() => import("@/pages/dashboard/invoice/create")));
 const InvoiceUpdate = Loadable(lazy(() => import("@/pages/dashboard/invoice/update"))); // PRODUCT RELATED PAGES
 
+const ClientList = Loadable(lazy(() => import("@/pages/dashboard/client/list")));
+const ClientCreate = Loadable(lazy(() => import("@/pages/dashboard/client/create")));
+const ClientUpdate = Loadable(lazy(() => import("@/pages/dashboard/client/update"))); // PRODUCT RELATED PAGES
+
 const ProductList = Loadable(lazy(() => import("@/pages/dashboard/products/list")));
 const ProductGrid = Loadable(lazy(() => import("@/pages/dashboard/products/grid")));
 const ProductCreate = Loadable(lazy(() => import("@/pages/dashboard/products/create")));
@@ -255,7 +259,8 @@ export const DashboardRoutes = [{
   {
     path: "account",
     element: <Account />
-  }, {
+  },
+  {
     path: "invoice-list",
     element: <InvoiceList />
   },
@@ -266,6 +271,18 @@ export const DashboardRoutes = [{
   {
     path: "update-invoice/:id",
     element: <InvoiceUpdate />
+  },
+  {
+    path: "client-list",
+    element: <ClientList />
+  },
+  {
+    path: "create-client",
+    element: <ClientCreate />
+  },
+  {
+    path: "update-client/:id",
+    element: <ClientUpdate />
   },
   // {
   //   path: "product-list",

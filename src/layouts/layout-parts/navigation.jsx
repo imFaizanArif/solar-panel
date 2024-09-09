@@ -112,7 +112,11 @@ export const navigations = [{
   icon: duotone.MessagesDollar,
   path: "/dashboard/expenditure-list"
 },
-
+{
+  name: "Client",
+  icon: duotone.Accounts,
+  path: "/dashboard/client-list"
+},
 // {
 //   name: "Profiles",
 //   icon: duotone.UserProfile,
@@ -257,11 +261,13 @@ export const navigations = [{
   name: "Profiles",
   icon: duotone.UserProfile,
   path: "/dashboard/profile"
-}, {
+},
+{
   name: "Accounts",
   icon: duotone.Accounts,
   path: "/dashboard/account"
 },
+
   // {
   //   path: "https://quickframe-doc.vercel.app/",
   //   name: "Item Disabled",
