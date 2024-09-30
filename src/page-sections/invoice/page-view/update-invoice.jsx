@@ -139,6 +139,7 @@ const UpdateInvoicePageView = () => {
     shipping_charges: "",
     amount_paid: 0,
     status: "",
+    system_capacity: "",
   });
   const clientValidationSchema = Yup.object().shape({
     // name: Yup.string().required("Name To is Required!"),
@@ -271,6 +272,7 @@ const UpdateInvoicePageView = () => {
           installation_price: Invoice.installation_price,
           discount: Invoice.discount,
           shipping_charges: Invoice.shipping_charges,
+          system_capacity: Invoice.system_capacity,
           // amount_paid: Invoice.amount_paid,
           status: Invoice.status,
         })
@@ -501,7 +503,7 @@ const UpdateInvoicePageView = () => {
             (lightningArrestorQuantity * lightningArrestorPrice || 0) +
             (installationPrice || 0);
 
-          console.log("Total S-um:", totalSum);
+          // console.log("Total S-um:", totalSum);
           setTotal(totalSum);
 
           // Set state if necessary
@@ -555,9 +557,24 @@ const UpdateInvoicePageView = () => {
     // console.log(getInvoiceList(), " mjjjjjjjjjjjjjj");
   }, []);
   useEffect(() => {
+    const totalSum = solarPanelPrice + inverterPrice + cablingPrice + structurePrice + netMeteringPrice + batteriesPrice + lightningArrestorPrice + installationPrice;
+    // console.log(solarPanelPrice, "solarPanelPrice")
+    // console.log(inverterPrice, "inverterPrice")
+    // console.log(cablingPrice, "cablingPrice")
+    // console.log(structurePrice, "structurePrice")
+    // console.log(netMeteringPrice, "netMeteringPrice")
+    // console.log(batteriesPrice, "batteriesPrice")
+    // console.log(lightningArrestorPrice, "lightningArrestorPrice")
+    // console.log(installationPrice, "installationPrice")
 
+    // console.log(totalSum, "totalSum")
+    setTotal(totalSum)
     // setAmountPaid(invoiceData.amount_paid)
-  }, []);
+  }, [solarPanelPrice, inverterPrice, structurePrice, cablingPrice, netMeteringPrice, batteriesPrice, lightningArrestorPrice, installationPrice, discount, shipping, amountPaid, solarPanelQuantity, inverterQuantity, structureQuantity, cablingQuantity, netMeteringQuantity, batteriesQuantity, lightningArrestorQuantity]);
+  useEffect(() => {
+    console.log(solarPanelPrice, "solarPanelPrice-")
+    // setAmountPaid(invoiceData.amount_paid)
+  }, [solarPanelQuantity, inverterQuantity, structureQuantity, cablingQuantity, netMeteringQuantity, batteriesQuantity, lightningArrestorQuantity]);
 
   useEffect(() => {
     if (solarPanelId || inverterId || structureId || cablingId || netMeteringId || batteriesId || lightningArrestorId || installationId) {
@@ -578,7 +595,7 @@ const UpdateInvoicePageView = () => {
   }, [solarPanelDiscount, inverterDiscount, structureDiscount, cablingDiscount, netMeteringDiscount, batteriesId, lightningArrestorId, installationId || clientResponse || invoiceResponse]);
 
   // const Subtotal = parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice);
-  // const Subtotal2 = parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice) + parseInt(shipping) - parseInt(discount);
+  // setTotal(parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice) + parseInt(shipping) - parseInt(discount));
 
   // setTotal(parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice));
   // console.log(typeof Subtotal, " sub")
