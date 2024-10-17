@@ -103,7 +103,19 @@ const InvoiceListPageView = () => {
     setCurrent(pagination.current);
     setPageSize(pagination.pageSize);
   };
+  const formatNumber = (value) => {
 
+    // if (!value) return '';
+    // return Math.floor(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    // Return '0' if the value is falsy (null, undefined, or an empty string)
+    if (value === null || value === undefined || value === '') return '0';
+
+    // Convert the value to a number and use Math.floor to remove decimals
+    const num = Math.floor(Number(value));
+
+    // Format the number with commas and return it
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
   // Search
   const [filteredData, setFilteredData] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -133,23 +145,33 @@ const InvoiceListPageView = () => {
         title: 'Installments',
         children: [
           {
-            title: 'Amount',
+            title: (<div>
+
+              <span style={{ paddingRight: '48px' }}>Date</span>
+              <span> & </span>
+              <span style={{ paddingLeft: '48px' }}>Amount</span>
+            </div>
+            ),
             dataIndex: 'amount',
             width: 150,
             key: 'date',
-            // render: (text, record) => {
-            //   return (
-            //     <span>{text.name}</span>
-            //   )
-            // },
+            render: (text, record) => {
+              return (
+                <div>
+                  <span>{format(new Date(record.time), 'dd-MM-yyyy')}</span>
+                  <span style={{ marginLeft: '36px', marginRight: '36px' }}></span>
+                  <span >{formatNumber(record.amount)}</span>
+                </div>
+              )
+            },
           },
-          {
-            title: 'Date',
-            dataIndex: 'time',
-            key: 'time',
-            width: 150,
-            render: (text) => format(new Date(text), 'dd-MM-yyyy'),
-          },
+          // {
+          //   title: 'Date',
+          //   dataIndex: 'time',
+          //   key: 'time',
+          //   width: 150,
+          //   render: (text) => format(new Date(text), 'dd-MM-yyyy'),
+          // },
         ],
       },
     ];
@@ -173,12 +195,22 @@ const InvoiceListPageView = () => {
         dataIndex: 'discount',
         width: 150,
         key: 'date',
+        render: (text, record) => {
+          return (
+            <span>{formatNumber(record.discount)}</span>
+          )
+        },
       },
       {
         title: 'Shipping Charges',
         dataIndex: 'shipping_charges',
         width: 150,
         key: 'name',
+        render: (text, record) => {
+          return (
+            <span>{formatNumber(record.shipping_charges)}</span>
+          )
+        },
       },
       {
         title: 'Solar Panel',
@@ -201,7 +233,7 @@ const InvoiceListPageView = () => {
             key: 'name',
             render: (text, record) => {
               return (
-                <span>{record.solar_panel_quantity}</span>
+                <span>{formatNumber(record.solar_panel_quantity)}</span>
               )
             },
           },
@@ -211,7 +243,7 @@ const InvoiceListPageView = () => {
             width: 150,
             render: (text, record) => {
               return (
-                <span>{record.solar_panel_price}</span>
+                <span>{formatNumber(record.solar_panel_price)}</span>
               )
             },
           },
@@ -238,7 +270,7 @@ const InvoiceListPageView = () => {
             key: 'name',
             render: (text, record) => {
               return (
-                <span>{record.inverter_quantity}</span>
+                <span>{formatNumber(record.inverter_quantity)}</span>
               )
             },
           },
@@ -248,7 +280,7 @@ const InvoiceListPageView = () => {
             width: 150,
             render: (text, record) => {
               return (
-                <span>{record.inverter_price}</span>
+                <span>{formatNumber(record.inverter_price)}</span>
               )
             },
           },
@@ -275,7 +307,7 @@ const InvoiceListPageView = () => {
             key: 'name',
             render: (text, record) => {
               return (
-                <span>{record.cabling_quantity}</span>
+                <span>{formatNumber(record.cabling_quantity)}</span>
               )
             },
           },
@@ -285,7 +317,7 @@ const InvoiceListPageView = () => {
             width: 150,
             render: (text, record) => {
               return (
-                <span>{record.cabling_price}</span>
+                <span>{formatNumber(record.cabling_price)}</span>
               )
             },
           },
@@ -312,7 +344,7 @@ const InvoiceListPageView = () => {
             key: 'name',
             render: (text, record) => {
               return (
-                <span>{record.structure_quantity}</span>
+                <span>{formatNumber(record.structure_quantity)}</span>
               )
             },
           },
@@ -322,7 +354,7 @@ const InvoiceListPageView = () => {
             width: 150,
             render: (text, record) => {
               return (
-                <span>{record.structure_price}</span>
+                <span>{formatNumber(record.structure_price)}</span>
               )
             },
           },
@@ -342,12 +374,22 @@ const InvoiceListPageView = () => {
             dataIndex: 'net_metering_quantity',
             width: 150,
             key: 'net_metering_quantity',
+            render: (text, record) => {
+              return (
+                <span>{formatNumber(record.net_metering_quantity)}</span>
+              )
+            },
           },
           {
             title: 'Price',
             dataIndex: 'net_metering_price',
             width: 150,
             key: 'net_metering_price',
+            render: (text, record) => {
+              return (
+                <span>{formatNumber(record.net_metering_price)}</span>
+              )
+            },
           },
         ],
       },
@@ -365,12 +407,22 @@ const InvoiceListPageView = () => {
             dataIndex: 'battery_quantity',
             width: 150,
             key: 'battery_quantity',
+            render: (text, record) => {
+              return (
+                <span>{formatNumber(record.battery_quantity)}</span>
+              )
+            },
           },
           {
             title: 'Price',
             dataIndex: 'battery_price',
             width: 150,
             key: 'battery_price',
+            render: (text, record) => {
+              return (
+                <span>{formatNumber(record.battery_price)}</span>
+              )
+            },
           },
         ],
       },
@@ -388,12 +440,22 @@ const InvoiceListPageView = () => {
             dataIndex: 'installation_quantity',
             width: 150,
             key: 'installation_quantity',
+            render: (text, record) => {
+              return (
+                <span>{formatNumber(record.installation_quantity)}</span>
+              )
+            },
           },
           {
             title: 'Price',
             dataIndex: 'installation_price',
             width: 150,
             key: 'installation_price',
+            render: (text, record) => {
+              return (
+                <span>{formatNumber(record.installation_price)}</span>
+              )
+            },
           },
         ],
       },
@@ -411,12 +473,22 @@ const InvoiceListPageView = () => {
             dataIndex: 'lightning_arrestor_quantity',
             width: 150,
             key: 'lightning_arrestor_quantity',
+            render: (text, record) => {
+              return (
+                <span>{formatNumber(record.lightning_arrestor_quantity)}</span>
+              )
+            },
           },
           {
             title: 'Price',
             dataIndex: 'lightning_arrestor_price',
             width: 150,
             key: 'lightning_arrestor_price',
+            render: (text, record) => {
+              return (
+                <span>{formatNumber(record.lightning_arrestor_price)}</span>
+              )
+            },
           },
         ],
       },
@@ -475,9 +547,9 @@ const InvoiceListPageView = () => {
       key: '2',
       width: 150,
       render: (text, record) => {
-        console.log(text, " nnnnnnnnnn", record)
+        // console.log(text, " nnnnnnnnnn", record)
         return (
-          <span style={{ fontWeight: 600 }}>{parseInt(record.total) + parseInt(record.shipping_charges) - parseInt(record.discount)}</span>
+          <span style={{ fontWeight: 600 }}>{formatNumber(parseInt(record.total) + parseInt(record.shipping_charges) - parseInt(record.discount))}</span>
         )
       },
       sorter: {
@@ -499,7 +571,7 @@ const InvoiceListPageView = () => {
         const payableAmount = payableEntry ? payableEntry.payable : 0;
         return (
           <span style={{ color: "red", fontWeight: 600 }}>
-            {parseInt(payableAmount)}
+            {formatNumber(parseInt(payableAmount))}
           </span>
         );
       },
@@ -512,7 +584,7 @@ const InvoiceListPageView = () => {
       render: (text, record) => {
         const sum = partiallyPaid[record.id];
         return (
-          <span style={{ color: "green", fontWeight: 600 }}>{sum !== undefined ? parseInt(sum) : 'Loading...'}</span>
+          <span style={{ color: "green", fontWeight: 600 }}>{sum !== undefined ? formatNumber(parseInt(sum)) : 'Loading...'}</span>
         );
       },
       sorter: {

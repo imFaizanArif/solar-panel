@@ -623,8 +623,17 @@ const UpdateInvoicePageView = () => {
   // }, [solarPanelPrice, inverterPrice, cablingPrice, structurePrice, netMeteringPrice, batteriesPrice, lightningArrestorPrice, installationPrice]);
   // Function to format number with commas
   const formatNumber = (value) => {
-    if (!value) return '';
-    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+    // if (!value) return '';
+    // return Math.floor(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    // Return '0' if the value is falsy (null, undefined, or an empty string)
+    if (value === null || value === undefined || value === '') return '0';
+
+    // Convert the value to a number and use Math.floor to remove decimals
+    const num = Math.floor(Number(value));
+
+    // Format the number with commas and return it
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   };
 
   // Function to remove commas for calculation
@@ -1083,61 +1092,59 @@ const UpdateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Inverter Price" label="Inverter Price"
-                    value={values.inverter_price}
+                  <TextField
+                    fullWidth
+                    type="text"
+                    name="Inverter Price"
+                    label="Inverter Price"
+                    value={formatNumber(values.inverter_price)} // Format with commas
                     onChange={(e) => {
-                      const value = e.target.value;
-                      if (value === '') {
+                      const rawValue = removeCommas(e.target.value); // Remove commas before setting field value
+                      if (rawValue === '') {
                         setFieldValue("inverter_price", 0);
                         setInverterPrice(0);
                       } else {
-                        setFieldValue("inverter_price", value);
-                        setInverterPrice(value * inverterQuantity);
-                        const discount = Math.max(0, (inverterSpecificRecord?.price * values.inverter_quantity) - values.inverter_price);
+                        const numberValue = parseFloat(rawValue); // Convert raw value to number for calculations
+                        setFieldValue("inverter_price", numberValue);
+                        setInverterPrice(numberValue * inverterQuantity);
+                        const discount = Math.max(0, (inverterSpecificRecord?.price * values.inverter_quantity) - numberValue);
                         setInverterDiscount(discount);
                       }
                     }}
-                    helperText={touched.inverter_price && errors.inverter_price} error={Boolean(touched.inverter_price && errors.inverter_price)} />
+                    helperText={touched.inverter_price && errors.inverter_price}
+                    error={Boolean(touched.inverter_price && errors.inverter_price)}
+                  />
+
                   <FlexBetween mt={1} mx={1}>
                     <Paragraph fontWeight={500} fontSize={12} color="grey">
-                      <i>
-                        Per Inverter Price:
-                      </i>
+                      <i>Per Inverter Price:</i>
                     </Paragraph>
                     <Paragraph fontWeight={500} fontSize={12}>
-                      <i>
-                        {inverterSpecificRecord?.price ? inverterSpecificRecord?.price : 0}
-                      </i>
+                      <i>{formatNumber(inverterSpecificRecord?.price ? inverterSpecificRecord?.price : 0)}</i>
                     </Paragraph>
                   </FlexBetween>
+
                   <FlexBetween mx={1}>
                     <Paragraph fontWeight={500} fontSize={12} color="grey">
-                      <i>
-                        Total Inverter Price: {inverterSpecificRecord?.price} X {values.inverter_quantity ? values.inverter_quantity : 0} =
-                      </i>
+                      <i>Total Inverter Price: {formatNumber(inverterSpecificRecord?.price)} X {formatNumber(values.inverter_quantity ? values.inverter_quantity : 0)} =</i>
                     </Paragraph>
                     <Paragraph fontWeight={500} fontSize={12}>
-                      <i>
-                        {isNaN(inverterSpecificRecord?.price * values.inverter_quantity) ? 0 : inverterSpecificRecord?.price * values.inverter_quantity}
-                      </i>
+                      <i>{formatNumber(isNaN(inverterSpecificRecord?.price * values.inverter_quantity) ? 0 : inverterSpecificRecord?.price * values.inverter_quantity)}</i>
                     </Paragraph>
                   </FlexBetween>
+
                   <FlexBetween mx={1}>
                     <Paragraph fontWeight={500} fontSize={12} color="grey">
-                      <i>
-                        Discount:
-                      </i>
+                      <i>Discount:</i>
                     </Paragraph>
                     <Paragraph fontWeight={500} fontSize={12}>
                       <i>
-                        {
-                          (() => {
-                            const total = inverterSpecificRecord?.price * values.inverter_quantity;
-                            const discount = isNaN(total - values.inverter_price) ? 0 : Math.max(0, total - values.inverter_price);
-                            setInverterDiscount(discount);
-                            return discount;
-                          })()
-                        }
+                        {(() => {
+                          const total = inverterSpecificRecord?.price * values.inverter_quantity;
+                          const discount = isNaN(total - values.inverter_price) ? 0 : Math.max(0, total - values.inverter_price);
+                          setInverterDiscount(discount);
+                          return formatNumber(discount);
+                        })()}
                       </i>
                     </Paragraph>
                   </FlexBetween>
@@ -1182,61 +1189,59 @@ const UpdateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Structure Price" label="Structure Price"
-                    value={values.structure_price}
+                  <TextField
+                    fullWidth
+                    type="text"
+                    name="Structure Price"
+                    label="Structure Price"
+                    value={formatNumber(values.structure_price)} // Format with commas
                     onChange={(e) => {
-                      const value = e.target.value;
-                      if (value === '') {
+                      const rawValue = removeCommas(e.target.value); // Remove commas before setting field value
+                      if (rawValue === '') {
                         setFieldValue("structure_price", 0);
                         setStructurePrice(0);
                       } else {
-                        setFieldValue("structure_price", value);
-                        setStructurePrice(value * structureQuantity);
-                        const discount = Math.max(0, (structureSpecificRecord?.price * values.structure_quantity) - values.structure_price);
+                        const numberValue = parseFloat(rawValue); // Convert raw value to number for calculations
+                        setFieldValue("structure_price", numberValue);
+                        setStructurePrice(numberValue * structureQuantity);
+                        const discount = Math.max(0, (structureSpecificRecord?.price * values.structure_quantity) - numberValue);
                         setStructureDiscount(discount);
                       }
                     }}
-                    helperText={touched.structure_price && errors.structure_price} error={Boolean(touched.structure_price && errors.structure_price)} />
+                    helperText={touched.structure_price && errors.structure_price}
+                    error={Boolean(touched.structure_price && errors.structure_price)}
+                  />
+
                   <FlexBetween mt={1} mx={1}>
                     <Paragraph fontWeight={500} fontSize={12} color="grey">
-                      <i>
-                        Per Structure Price:
-                      </i>
+                      <i>Per Structure Price:</i>
                     </Paragraph>
                     <Paragraph fontWeight={500} fontSize={12}>
-                      <i>
-                        {structureSpecificRecord?.price ? structureSpecificRecord?.price : 0}
-                      </i>
+                      <i>{formatNumber(structureSpecificRecord?.price ? structureSpecificRecord?.price : 0)}</i>
                     </Paragraph>
                   </FlexBetween>
+
                   <FlexBetween mx={1}>
                     <Paragraph fontWeight={500} fontSize={12} color="grey">
-                      <i>
-                        Total structure Price: {structureSpecificRecord?.price} X {values.structure_quantity ? values.structure_quantity : 0} =
-                      </i>
+                      <i>Total Structure Price: {formatNumber(structureSpecificRecord?.price)} X {formatNumber(values.structure_quantity ? values.structure_quantity : 0)} =</i>
                     </Paragraph>
                     <Paragraph fontWeight={500} fontSize={12}>
-                      <i>
-                        {isNaN(structureSpecificRecord?.price * values.structure_quantity) ? 0 : structureSpecificRecord?.price * values.structure_quantity}
-                      </i>
+                      <i>{formatNumber(isNaN(structureSpecificRecord?.price * values.structure_quantity) ? 0 : structureSpecificRecord?.price * values.structure_quantity)}</i>
                     </Paragraph>
                   </FlexBetween>
+
                   <FlexBetween mx={1}>
                     <Paragraph fontWeight={500} fontSize={12} color="grey">
-                      <i>
-                        Discount:
-                      </i>
+                      <i>Discount:</i>
                     </Paragraph>
                     <Paragraph fontWeight={500} fontSize={12}>
                       <i>
-                        {
-                          (() => {
-                            const total = structureSpecificRecord?.price * values.structure_quantity;
-                            const discount = isNaN(total - values.structure_price) ? 0 : Math.max(0, total - values.structure_price);
-                            setStructureDiscount(discount);
-                            return discount;
-                          })()
-                        }
+                        {(() => {
+                          const total = structureSpecificRecord?.price * values.structure_quantity;
+                          const discount = isNaN(total - values.structure_price) ? 0 : Math.max(0, total - values.structure_price);
+                          setStructureDiscount(discount);
+                          return formatNumber(discount);
+                        })()}
                       </i>
                     </Paragraph>
                   </FlexBetween>
@@ -1281,61 +1286,59 @@ const UpdateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Cabling Price" label="Cabling Price"
-                    value={values.cabling_price}
+                  <TextField
+                    fullWidth
+                    type="text"
+                    name="Cabling Price"
+                    label="Cabling Price"
+                    value={formatNumber(values.cabling_price)} // Format with commas
                     onChange={(e) => {
-                      const value = e.target.value;
-                      if (value === '') {
+                      const rawValue = removeCommas(e.target.value); // Remove commas before setting field value
+                      if (rawValue === '') {
                         setFieldValue("cabling_price", 0);
                         setCablingPrice(0);
                       } else {
-                        setFieldValue("cabling_price", value);
-                        setCablingPrice(value * cablingQuantity);
-                        const discount = Math.max(0, (cablingSpecificRecord?.price * values.cabling_quantity) - values.cabling_price);
+                        const numberValue = parseFloat(rawValue); // Convert raw value to number for calculations
+                        setFieldValue("cabling_price", numberValue);
+                        setCablingPrice(numberValue * cablingQuantity);
+                        const discount = Math.max(0, (cablingSpecificRecord?.price * values.cabling_quantity) - numberValue);
                         setCablingDiscount(discount);
                       }
                     }}
-                    helperText={touched.cabling_price && errors.cabling_price} error={Boolean(touched.cabling_price && errors.cabling_price)} />
+                    helperText={touched.cabling_price && errors.cabling_price}
+                    error={Boolean(touched.cabling_price && errors.cabling_price)}
+                  />
+
                   <FlexBetween mt={1} mx={1}>
                     <Paragraph fontWeight={500} fontSize={12} color="grey">
-                      <i>
-                        Per Cabling Price:
-                      </i>
+                      <i>Per Cabling Price:</i>
                     </Paragraph>
                     <Paragraph fontWeight={500} fontSize={12}>
-                      <i>
-                        {cablingSpecificRecord?.price ? cablingSpecificRecord?.price : 0}
-                      </i>
+                      <i>{formatNumber(cablingSpecificRecord?.price ? cablingSpecificRecord?.price : 0)}</i>
                     </Paragraph>
                   </FlexBetween>
+
                   <FlexBetween mx={1}>
                     <Paragraph fontWeight={500} fontSize={12} color="grey">
-                      <i>
-                        Total Cabling Price: {cablingSpecificRecord?.price} X {values.cabling_quantity ? values.cabling_quantity : 0} =
-                      </i>
+                      <i>Total Cabling Price: {formatNumber(cablingSpecificRecord?.price)} X {formatNumber(values.cabling_quantity ? values.cabling_quantity : 0)} =</i>
                     </Paragraph>
                     <Paragraph fontWeight={500} fontSize={12}>
-                      <i>
-                        {isNaN(cablingSpecificRecord?.price * values.cabling_quantity) ? 0 : cablingSpecificRecord?.price * values.cabling_quantity}
-                      </i>
+                      <i>{formatNumber(isNaN(cablingSpecificRecord?.price * values.cabling_quantity) ? 0 : cablingSpecificRecord?.price * values.cabling_quantity)}</i>
                     </Paragraph>
                   </FlexBetween>
+
                   <FlexBetween mx={1}>
                     <Paragraph fontWeight={500} fontSize={12} color="grey">
-                      <i>
-                        Discount:
-                      </i>
+                      <i>Discount:</i>
                     </Paragraph>
                     <Paragraph fontWeight={500} fontSize={12}>
                       <i>
-                        {
-                          (() => {
-                            const total = cablingSpecificRecord?.price * values.cabling_quantity;
-                            const discount = isNaN(total - values.cabling_price) ? 0 : Math.max(0, total - values.cabling_price);
-                            setCablingDiscount(discount);
-                            return discount;
-                          })()
-                        }
+                        {(() => {
+                          const total = cablingSpecificRecord?.price * values.cabling_quantity;
+                          const discount = isNaN(total - values.cabling_price) ? 0 : Math.max(0, total - values.cabling_price);
+                          setCablingDiscount(discount);
+                          return formatNumber(discount);
+                        })()}
                       </i>
                     </Paragraph>
                   </FlexBetween>
@@ -1380,17 +1383,20 @@ const UpdateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Net Metering Price" label="Net Metering Price"
-                    value={values.net_metering_price}
+                  <TextField fullWidth type="text" name="Net Metering Price" label="Net Metering Price"
+                    value={formatNumber(values.net_metering_price)}
                     onChange={(e) => {
-                      const value = e.target.value;
-                      if (value === '') {
+                      const rawValue = removeCommas(e.target.value); // Remove commas before setting field value
+
+                      if (rawValue === '') {
                         setFieldValue("net_metering_price", 0);
                         setNetMeteringPrice(0);
                       } else {
-                        setFieldValue("net_metering_price", value);
-                        setNetMeteringPrice(value * netMeteringQuantity);
-                        const discount = Math.max(0, (netMeteringSpecificRecord?.price * values.net_metering_quantity) - values.net_metering_price);
+                        const numberValue = parseFloat(rawValue); // Convert raw value to number for calculations
+                        setFieldValue("net_metering_price", numberValue);
+                        setNetMeteringPrice(numberValue * netMeteringQuantity);
+                        // Calculate the discount
+                        const discount = Math.max(0, (netMeteringSpecificRecord?.price * values.net_metering_quantity) - numberValue);
                         setNetMeteringDiscount(discount);
                       }
                     }}
@@ -1403,19 +1409,19 @@ const UpdateInvoicePageView = () => {
                     </Paragraph>
                     <Paragraph fontWeight={500} fontSize={12}>
                       <i>
-                        {netMeteringSpecificRecord?.price ? netMeteringSpecificRecord?.price : 0}
+                        {formatNumber(netMeteringSpecificRecord?.price ? netMeteringSpecificRecord?.price : 0)}
                       </i>
                     </Paragraph>
                   </FlexBetween>
                   <FlexBetween mx={1}>
                     <Paragraph fontWeight={500} fontSize={12} color="grey">
                       <i>
-                        Total Net Metering Price: {netMeteringSpecificRecord?.price} X {values.net_metering_quantity ? values.net_metering_quantity : 0} =
+                        Total Net Metering Price: {formatNumber(netMeteringSpecificRecord?.price)} X {formatNumber(values.net_metering_quantity ? values.net_metering_quantity : 0)} =
                       </i>
                     </Paragraph>
                     <Paragraph fontWeight={500} fontSize={12}>
                       <i>
-                        {isNaN(netMeteringSpecificRecord?.price * values.net_metering_quantity) ? 0 : netMeteringSpecificRecord?.price * values.net_metering_quantity}
+                        {formatNumber(isNaN(netMeteringSpecificRecord?.price * values.net_metering_quantity) ? 0 : netMeteringSpecificRecord?.price * values.net_metering_quantity)}
                       </i>
                     </Paragraph>
                   </FlexBetween>
@@ -1432,7 +1438,7 @@ const UpdateInvoicePageView = () => {
                             const total = netMeteringSpecificRecord?.price * values.net_metering_quantity;
                             const discount = isNaN(total - values.net_metering_price) ? 0 : Math.max(0, total - values.net_metering_price);
                             setNetMeteringDiscount(discount);
-                            return discount;
+                            return formatNumber(discount);
                           })()
                         }
                       </i>
@@ -1480,65 +1486,63 @@ const UpdateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Battery Price" label="Battery Price"
-                    value={values.battery_price}
+                  <TextField
+                    fullWidth
+                    type="text"
+                    name="Battery Price"
+                    label="Battery Price"
+                    value={formatNumber(values.battery_price)} // Format the value
                     onChange={(e) => {
-                      const value = e.target.value;
-                      if (value === '') {
+                      const rawValue = removeCommas(e.target.value); // Remove commas before setting field value
+                      if (rawValue === '') {
                         setFieldValue("battery_price", 0);
                         setBatteriesPrice(0);
                       } else {
-                        setFieldValue("battery_price", value);
-                        setBatteriesPrice(value * batteriesQuantity);
-                        const discount = Math.max(0, (batteriesSpecificRecord?.price * values.battery_quantity) - values.battery_price);
+                        const numberValue = parseFloat(rawValue); // Convert raw value to number for calculations
+                        setFieldValue("battery_price", numberValue);
+                        setBatteriesPrice(numberValue * batteriesQuantity);
+
+                        // Calculate the discount
+                        const discount = Math.max(0, (batteriesSpecificRecord?.price * values.battery_quantity) - numberValue);
                         setBatteriesDiscount(discount);
                       }
                     }}
-                    helperText={touched.battery_price && errors.battery_price} error={Boolean(touched.battery_price && errors.battery_price)} />
+                    helperText={touched.battery_price && errors.battery_price}
+                    error={Boolean(touched.battery_price && errors.battery_price)}
+                  />
                   <FlexBetween mt={1} mx={1}>
                     <Paragraph fontWeight={500} fontSize={12} color="grey">
-                      <i>
-                        Per Battery Price:
-                      </i>
+                      <i>Per Battery Price:</i>
                     </Paragraph>
                     <Paragraph fontWeight={500} fontSize={12}>
-                      <i>
-                        {batteriesSpecificRecord?.price ? batteriesSpecificRecord?.price : 0}
-                      </i>
+                      <i>{formatNumber(batteriesSpecificRecord?.price ? batteriesSpecificRecord?.price : 0)}</i>
                     </Paragraph>
                   </FlexBetween>
                   <FlexBetween mx={1}>
                     <Paragraph fontWeight={500} fontSize={12} color="grey">
-                      <i>
-                        Total Batteries Price: {batteriesSpecificRecord?.price} X {values.battery_quantity ? values.battery_quantity : 0} =
-                      </i>
+                      <i>Total Batteries Price: {formatNumber(batteriesSpecificRecord?.price)} X {formatNumber(values.battery_quantity ? values.battery_quantity : 0)} =</i>
                     </Paragraph>
                     <Paragraph fontWeight={500} fontSize={12}>
-                      <i>
-                        {isNaN(batteriesSpecificRecord?.price * values.battery_quantity) ? 0 : batteriesSpecificRecord?.price * values.battery_quantity}
-                      </i>
+                      <i>{formatNumber(isNaN(batteriesSpecificRecord?.price * values.battery_quantity) ? 0 : batteriesSpecificRecord?.price * values.battery_quantity)}</i>
                     </Paragraph>
                   </FlexBetween>
                   <FlexBetween mx={1}>
                     <Paragraph fontWeight={500} fontSize={12} color="grey">
-                      <i>
-                        Discount:
-                      </i>
+                      <i>Discount:</i>
                     </Paragraph>
                     <Paragraph fontWeight={500} fontSize={12}>
-                      <i>
-                        {
-                          (() => {
-                            const total = batteriesSpecificRecord?.price * values.battery_quantity;
-                            const discount = isNaN(total - values.battery_price) ? 0 : Math.max(0, total - values.battery_price);
-                            setBatteriesDiscount(discount);
-                            return discount;
-                          })()
-                        }
-                      </i>
+                      <i>{
+                        (() => {
+                          const total = batteriesSpecificRecord?.price * values.battery_quantity;
+                          const discount = isNaN(total - values.battery_price) ? 0 : Math.max(0, total - values.battery_price);
+                          setBatteriesDiscount(discount);
+                          return formatNumber(discount);
+                        })()
+                      }</i>
                     </Paragraph>
                   </FlexBetween>
                 </Box>
+
               </Grid>
 
             </Grid>
@@ -1580,65 +1584,63 @@ const UpdateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Lightning Arrestor Price" label="Lightning Arrestor Price"
-                    value={values.lightning_arrestor_price}
+                  <TextField
+                    fullWidth
+                    type="text"
+                    name="Lightning Arrestor Price"
+                    label="Lightning Arrestor Price"
+                    value={formatNumber(values.lightning_arrestor_price)} // Format the value
                     onChange={(e) => {
-                      const value = e.target.value;
-                      if (value === '') {
+                      const rawValue = removeCommas(e.target.value); // Remove commas before setting field value
+                      if (rawValue === '') {
                         setFieldValue("lightning_arrestor_price", 0);
                         setLightningArrestorPrice(0);
                       } else {
-                        setFieldValue("lightning_arrestor_price", value);
-                        setLightningArrestorPrice(value * lightningArrestorQuantity);
-                        const discount = Math.max(0, (lightningArrestorSpecificRecord?.price * values.lightning_arrestor_quantity) - values.lightning_arrestor_price);
+                        const numberValue = parseFloat(rawValue); // Convert raw value to number for calculations
+                        setFieldValue("lightning_arrestor_price", numberValue);
+                        setLightningArrestorPrice(numberValue * lightningArrestorQuantity);
+
+                        // Calculate the discount
+                        const discount = Math.max(0, (lightningArrestorSpecificRecord?.price * values.lightning_arrestor_quantity) - numberValue);
                         setLightningArrestorDiscount(discount);
                       }
                     }}
-                    helperText={touched.lightning_arrestor_price && errors.lightning_arrestor_price} error={Boolean(touched.lightning_arrestor_price && errors.lightning_arrestor_price)} />
+                    helperText={touched.lightning_arrestor_price && errors.lightning_arrestor_price}
+                    error={Boolean(touched.lightning_arrestor_price && errors.lightning_arrestor_price)}
+                  />
                   <FlexBetween mt={1} mx={1}>
                     <Paragraph fontWeight={500} fontSize={12} color="grey">
-                      <i>
-                        Per Lightning Arrestor Price:
-                      </i>
+                      <i>Per Lightning Arrestor Price:</i>
                     </Paragraph>
                     <Paragraph fontWeight={500} fontSize={12}>
-                      <i>
-                        {lightningArrestorSpecificRecord?.price ? lightningArrestorSpecificRecord?.price : 0}
-                      </i>
+                      <i>{formatNumber(lightningArrestorSpecificRecord?.price ? lightningArrestorSpecificRecord?.price : 0)}</i>
                     </Paragraph>
                   </FlexBetween>
                   <FlexBetween mx={1}>
                     <Paragraph fontWeight={500} fontSize={12} color="grey">
-                      <i>
-                        Total Lightning Arrestor Price: {lightningArrestorSpecificRecord?.price} X {values.lightning_arrestor_quantity ? values.lightning_arrestor_quantity : 0} =
-                      </i>
+                      <i>Total Lightning Arrestor Price: {formatNumber(lightningArrestorSpecificRecord?.price)} X {formatNumber(values.lightning_arrestor_quantity ? values.lightning_arrestor_quantity : 0)} =</i>
                     </Paragraph>
                     <Paragraph fontWeight={500} fontSize={12}>
-                      <i>
-                        {isNaN(lightningArrestorSpecificRecord?.price * values.lightning_arrestor_quantity) ? 0 : lightningArrestorSpecificRecord?.price * values.lightning_arrestor_quantity}
-                      </i>
+                      <i>{formatNumber(isNaN(lightningArrestorSpecificRecord?.price * values.lightning_arrestor_quantity) ? 0 : lightningArrestorSpecificRecord?.price * values.lightning_arrestor_quantity)}</i>
                     </Paragraph>
                   </FlexBetween>
                   <FlexBetween mx={1}>
                     <Paragraph fontWeight={500} fontSize={12} color="grey">
-                      <i>
-                        Discount:
-                      </i>
+                      <i>Discount:</i>
                     </Paragraph>
                     <Paragraph fontWeight={500} fontSize={12}>
-                      <i>
-                        {
-                          (() => {
-                            const total = lightningArrestorSpecificRecord?.price * values.lightning_arrestor_quantity;
-                            const discount = isNaN(total - values.lightning_arrestor_price) ? 0 : Math.max(0, total - values.lightning_arrestor_price);
-                            setLightningArrestorDiscount(discount);
-                            return discount;
-                          })()
-                        }
-                      </i>
+                      <i>{
+                        (() => {
+                          const total = lightningArrestorSpecificRecord?.price * values.lightning_arrestor_quantity;
+                          const discount = isNaN(total - values.lightning_arrestor_price) ? 0 : Math.max(0, total - values.lightning_arrestor_price);
+                          setLightningArrestorDiscount(discount);
+                          return formatNumber(discount);
+                        })()
+                      }</i>
                     </Paragraph>
                   </FlexBetween>
                 </Box>
+
               </Grid>
 
             </Grid>
@@ -1669,17 +1671,19 @@ const UpdateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Installation Price" label="Installation Price"
-                    value={values.installation_price}
+                  <TextField fullWidth type="text" name="Installation Price" label="Installation Price"
+                    value={formatNumber(values.installation_price)}
                     onChange={(e) => {
-                      const value = e.target.value;
-                      if (value === '') {
+                      const rawValue = removeCommas(e.target.value); // Remove commas before setting field value
+                      if (rawValue === '') {
                         setFieldValue("installation_price", 0);
                         setInstallationPrice(0);
                       } else {
-                        setFieldValue("installation_price", value);
-                        setInstallationPrice(value);
-                        const discount = Math.max(0, (installationSpecificRecord?.price * values.installation_quantity) - values.installation_price);
+                        const numberValue = parseFloat(rawValue); // Convert raw value to number for calculations
+                        // Calculate the discount
+                        setFieldValue("installation_price", numberValue);
+                        setInstallationPrice(numberValue);
+                        const discount = Math.max(0, (installationSpecificRecord?.price * values.installation_quantity) - numberValue);
                         setInstallationDiscount(discount);
                       }
                     }}
@@ -1697,7 +1701,7 @@ const UpdateInvoicePageView = () => {
                             const total = installationSpecificRecord?.price ? installationSpecificRecord?.price : 0;
                             const discount = isNaN(total - values.installation_price) ? 0 : Math.max(0, total - values.installation_price);
                             setInstallationDiscount(discount);
-                            return discount;
+                            return formatNumber(discount);
                           })()
                         }
                       </i>
@@ -1714,16 +1718,17 @@ const UpdateInvoicePageView = () => {
             <Grid container spacing={3}>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Discount" label="Discount"
-                    value={values.discount}
+                  <TextField fullWidth type="text" name="Discount" label="Discount"
+                    value={formatNumber(values.discount)}
                     onChange={(e) => {
-                      const value = e.target.value;
-                      if (value === '') {
+                      const rawValue = removeCommas(e.target.value); // Remove commas before setting field value
+                      if (rawValue === '') {
                         setFieldValue("discount", 0);
                         setDiscount(0);
                       } else {
-                        setFieldValue("discount", value);
-                        setDiscount(value);
+                        const numberValue = parseFloat(rawValue); // Convert raw value to number for calculations
+                        setFieldValue("discount", numberValue);
+                        setDiscount(numberValue);
                       }
                     }}
                     helperText={touched.discount && errors.discount} error={Boolean(touched.discount && errors.discount)} />
@@ -1743,19 +1748,19 @@ const UpdateInvoicePageView = () => {
 
                       </i>
                     </Paragraph>
-                    <Paragraph fontWeight={500} fontSize={12}>
+                    <Paragraph fontWeight={500} fontSize={12} textAlign="right">
                       <i>
                         <br />
-                        {solarPanelDiscount}
-                        <br /> {inverterDiscount}
-                        <br /> {structureDiscount}
-                        <br /> {cablingDiscount}
-                        <br /> {netMeteringDiscount}
-                        <br /> {batteriesDiscount}
-                        <br /> {lightningArrestorDiscount}
-                        <br /> {installationDiscount}
+                        {formatNumber(solarPanelDiscount)}
+                        <br /> {formatNumber(inverterDiscount)}
+                        <br /> {formatNumber(structureDiscount)}
+                        <br /> {formatNumber(cablingDiscount)}
+                        <br /> {formatNumber(netMeteringDiscount)}
+                        <br /> {formatNumber(batteriesDiscount)}
+                        <br /> {formatNumber(lightningArrestorDiscount)}
+                        <br /> {formatNumber(installationDiscount)}
                         <hr style={{ marginTop: '2px', marginBottom: '2px' }} />
-                        {solarPanelDiscount + inverterDiscount + structureDiscount + cablingDiscount + netMeteringDiscount + batteriesDiscount + lightningArrestorDiscount + installationDiscount}
+                        {formatNumber(solarPanelDiscount + inverterDiscount + structureDiscount + cablingDiscount + netMeteringDiscount + batteriesDiscount + lightningArrestorDiscount + installationDiscount)}
                       </i>
                     </Paragraph>
                   </FlexBetween>
@@ -1763,16 +1768,17 @@ const UpdateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Shipping Charges" label="Shipping Charges"
-                    value={values.shipping_charges}
+                  <TextField fullWidth type="text" name="Shipping Charges" label="Shipping Charges"
+                    value={formatNumber(values.shipping_charges)}
                     onChange={(e) => {
-                      const value = e.target.value;
-                      if (value === '') {
+                      const rawValue = removeCommas(e.target.value); // Remove commas before setting field value
+                      if (rawValue === '') {
                         setFieldValue("shipping_charges", 0);
                         setShipping(0);
                       } else {
-                        setFieldValue("shipping_charges", value);
-                        setShipping(value);
+                        const numberValue = parseFloat(rawValue); // Convert raw value to number for calculations
+                        setFieldValue("shipping_charges", numberValue);
+                        setShipping(numberValue);
                       }
                     }}
                     helperText={touched.shipping_charges && errors.shipping_charges} error={Boolean(touched.shipping_charges && errors.shipping_charges)} />
@@ -1780,12 +1786,12 @@ const UpdateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Amount Paid" label="Amount Paid"
-                    value={values.amount_paid}
+                  <TextField fullWidth type="text" name="Amount Paid" label="Amount Paid"
+                    value={formatNumber(values.amount_paid)}
                     onChange={(e) => {
-                      const value = e.target.value;
-                      setFieldValue("amount_paid", value);
-                      setAmountPaid(value);
+                      const rawValue = removeCommas(e.target.value);
+                      setFieldValue("amount_paid", rawValue);
+                      setAmountPaid(rawValue);
                       // if (value === '') {
                       // setFieldValue("amount_paid", 0);
                       // setAmountPaid(0);
@@ -1815,7 +1821,7 @@ const UpdateInvoicePageView = () => {
                         <span style={{ fontWeight: 500, fontSize: 13, color: 'black' }}>Recived Amount</span>
                       </i>
                     </Paragraph>
-                    <Paragraph fontWeight={500} fontSize={12} color="#494949">
+                    <Paragraph fontWeight={500} fontSize={12} color="#494949" textAlign="right">
                       <i>
                         <br />
                         <span style={{ fontWeight: 500, fontSize: 13, color: 'black' }}>
@@ -1824,13 +1830,13 @@ const UpdateInvoicePageView = () => {
                         {
                           installmentData.map((installment, index) => {
                             return <div key={index}>
-                              {installment.amount}
+                              {formatNumber(installment.amount)}
                             </div>;
                           })
                         }
                         <hr style={{ marginTop: '2px', marginBottom: '2px' }} />
                         <span style={{ fontWeight: 500, fontSize: 13, color: 'black' }}>
-                          {totalSum}
+                          {formatNumber(totalSum)}
                         </span>
                       </i>
                     </Paragraph>
@@ -1870,18 +1876,18 @@ const UpdateInvoicePageView = () => {
                   <H6 fontSize={16} my={3}>Net Amount</H6>
                   <FlexBetween my={1}>
                     <Paragraph fontWeight={500}>Subtotal</Paragraph>
-                    <Paragraph fontWeight={500}>{total}</Paragraph>
+                    <Paragraph fontWeight={500}>{formatNumber(total)}</Paragraph>
                   </FlexBetween>
                   <FlexBetween my={1}>
                     <Paragraph fontWeight={500}>Discount</Paragraph>
-                    <Paragraph fontWeight={500}>-&nbsp;&nbsp;&nbsp; {discount}</Paragraph>
+                    <Paragraph fontWeight={500}>-&nbsp;&nbsp;&nbsp; {formatNumber(discount)}</Paragraph>
                   </FlexBetween>
                   <Divider sx={{
                     mt: 7
                   }} />
                   <FlexBetween my={2}>
                     <H6 fontSize={16}>After Discount</H6>
-                    <H6 fontSize={16}>{total - parseInt(discount)}</H6>
+                    <H6 fontSize={16}>{formatNumber(total - parseInt(discount))}</H6>
                   </FlexBetween>
                 </Box>
               </Grid>
@@ -1898,19 +1904,19 @@ const UpdateInvoicePageView = () => {
                   <H6 fontSize={16} my={3}>Payable Amount</H6>
                   <FlexBetween my={1}>
                     <Paragraph fontWeight={500}>After Discount</Paragraph>
-                    <Paragraph fontWeight={500}>{total - parseInt(discount)}</Paragraph>
+                    <Paragraph fontWeight={500}>{formatNumber(total - parseInt(discount))}</Paragraph>
                   </FlexBetween>
 
                   <FlexBetween my={1}>
                     <Paragraph fontWeight={500}>Shipping Amount</Paragraph>
-                    <Paragraph fontWeight={500}>+&nbsp;&nbsp;&nbsp; {parseInt(shipping)}</Paragraph>
+                    <Paragraph fontWeight={500}>+&nbsp;&nbsp;&nbsp; {formatNumber(parseInt(shipping))}</Paragraph>
                   </FlexBetween>
 
                   <FlexBetween my={1}>
                     <Paragraph fontWeight={500}>Already Paid Amount</Paragraph>
                     <Paragraph fontWeight={500}>
                       -&nbsp;&nbsp;&nbsp;
-                      <span style={{ color: "green", fontWeight: 600 }}> {partiallyPaid}</span>
+                      <span style={{ color: "green", fontWeight: 600 }}> {formatNumber(partiallyPaid)}</span>
                     </Paragraph>
                   </FlexBetween>
 
@@ -1918,7 +1924,7 @@ const UpdateInvoicePageView = () => {
                     <Paragraph fontWeight={500}>Current Pay Amount</Paragraph>
                     <Paragraph fontWeight={500}>
                       -&nbsp;&nbsp;&nbsp;
-                      <span style={{ color: "green", fontWeight: 600 }}> {parseInt(amountPaid)}</span>
+                      <span style={{ color: "green", fontWeight: 600 }}> {formatNumber(amountPaid ? parseInt(amountPaid) : 0)}</span>
                     </Paragraph>
                   </FlexBetween>
 
@@ -1928,7 +1934,7 @@ const UpdateInvoicePageView = () => {
 
                   <FlexBetween my={1}>
                     <H6 fontSize={16}>Due Amount</H6>
-                    <H6 fontSize={16} style={{ color: "red" }}>{(total - parseInt(discount) + parseInt(shipping)) - parseInt(amountPaid) - parseInt(partiallyPaid)}</H6>
+                    <H6 fontSize={16} style={{ color: "red" }}>{formatNumber((total - parseInt(discount) + parseInt(shipping)) - parseInt(amountPaid) - parseInt(partiallyPaid))}</H6>
                   </FlexBetween>
                 </Box>
               </Grid>
@@ -1984,7 +1990,7 @@ const UpdateInvoicePageView = () => {
                       {
                         expendituresData.map((expenditure, index) => {
                           return <div style={{ marginBottom: "2px", marginTop: "2px" }} key={index}>
-                            {expenditure.value}
+                            {formatNumber(expenditure.value)}
                           </div>;
                         })
                       }
@@ -1995,7 +2001,7 @@ const UpdateInvoicePageView = () => {
                   }} />
                   <FlexBetween my={2}>
                     <H6 fontSize={16}>Total</H6>
-                    <H6 fontSize={16}>{totalSumExpenditure}</H6>
+                    <H6 fontSize={16}>{formatNumber(totalSumExpenditure)}</H6>
                   </FlexBetween>
                 </Box>
               </Grid>
