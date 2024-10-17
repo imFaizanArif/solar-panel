@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { Formik, setIn } from "formik";
 import * as Yup from "yup";
 import Select from "react-select";
 import { ToastContainer, toast } from "react-toastify";
-import { Box, Card, Grid, styled, Button, TextField, Divider } from "@mui/material";
+import { Box, Card, Grid, styled, Button, TextField, Divider, Typography } from "@mui/material";
 
 import useNavigate from "@/hooks/useNavigate"; // CUSTOM DEFINED HOOK
 import { H6, Paragraph } from "@/components/typography"; // CUSTOM DEFINED COMPONENTS
@@ -469,6 +469,7 @@ const UpdateInvoicePageView = () => {
       try {
         const res = await axios.get(baseApiUrl + "/api/Invoice/" + "?format=json");
         const InvoiceData = res?.data;
+        console.log(InvoiceData, "invoice---Data")
         const InvoiceId = parseInt(id, 10);
         const Invoice = InvoiceData.find((panel) => {
           return panel.id === InvoiceId;
@@ -503,7 +504,7 @@ const UpdateInvoicePageView = () => {
             (lightningArrestorQuantity * lightningArrestorPrice || 0) +
             (installationPrice || 0);
 
-          // console.log("Total S-um:", totalSum);
+          console.log("Total S-um:", totalSum);
           setTotal(totalSum);
 
           // Set state if necessary
@@ -558,16 +559,17 @@ const UpdateInvoicePageView = () => {
   }, []);
   useEffect(() => {
     const totalSum = solarPanelPrice + inverterPrice + cablingPrice + structurePrice + netMeteringPrice + batteriesPrice + lightningArrestorPrice + installationPrice;
-    // console.log(solarPanelPrice, "solarPanelPrice")
-    // console.log(inverterPrice, "inverterPrice")
-    // console.log(cablingPrice, "cablingPrice")
-    // console.log(structurePrice, "structurePrice")
-    // console.log(netMeteringPrice, "netMeteringPrice")
-    // console.log(batteriesPrice, "batteriesPrice")
-    // console.log(lightningArrestorPrice, "lightningArrestorPrice")
-    // console.log(installationPrice, "installationPrice")
+    // const totalSum = (solarPanelPrice * solarPanelQuantity) + (inverterPrice * inverterQuantity) + (cablingPrice * cablingQuantity) + (structurePrice * structureQuantity) + (netMeteringPrice * netMeteringQuantity) + (batteriesPrice * batteriesQuantity) + (lightningArrestorPrice * lightningArrestorQuantity) + installationPrice;
+    console.log(solarPanelPrice, "solarPanelPrice")
+    console.log(inverterPrice, "inverterPrice")
+    console.log(cablingPrice, "cablingPrice")
+    console.log(structurePrice, "structurePrice")
+    console.log(netMeteringPrice, "netMeteringPrice")
+    console.log(batteriesPrice, "batteriesPrice")
+    console.log(lightningArrestorPrice, "lightningArrestorPrice")
+    console.log(installationPrice, "installationPrice")
 
-    // console.log(totalSum, "totalSum")
+    console.log(totalSum, "totalSum")
     setTotal(totalSum)
     // setAmountPaid(invoiceData.amount_paid)
   }, [solarPanelPrice, inverterPrice, structurePrice, cablingPrice, netMeteringPrice, batteriesPrice, lightningArrestorPrice, installationPrice, discount, shipping, amountPaid, solarPanelQuantity, inverterQuantity, structureQuantity, cablingQuantity, netMeteringQuantity, batteriesQuantity, lightningArrestorQuantity]);
@@ -640,7 +642,31 @@ const UpdateInvoicePageView = () => {
   const removeCommas = (value) => {
     return value.toString().replace(/,/g, '');
   };
-  return <Box pt={2} pb={4}>
+
+  const [isModalVisible, setModalVisible] = useState(false);
+
+  // Handler for scroll event
+  const handleScroll = () => {
+    const scrollPosition = window.scrollY; // or you can use event.target.scrollTop for a container
+    console.log('Scroll position:', scrollPosition);
+
+    // Set visibility based on scroll position
+    if (scrollPosition > 300 && scrollPosition < 2700) { // Adjust these values to your needs
+      setModalVisible(true);
+    } else {
+      setModalVisible(false);
+    }
+  };
+
+  // Attach scroll event listener on mount and detach it on unmount
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+  return <Box pt={2} pb={4} >
     <ToastContainer
       position="top-right"
       autoClose={5000}
@@ -652,12 +678,43 @@ const UpdateInvoicePageView = () => {
       draggable
       pauseOnHover
     />
+    {isModalVisible && (
+      <Box
+        sx={{
+          position: 'sticky',
+          top: '74px',
+          marginLeft: 'auto',
+          width: '25%',
+          backgroundColor: 'white',
+          zIndex: 1000,
+          padding: '8px',
+          paddingLeft: '12px',
+          paddingRight: '12px',
+          borderRadius: '8px',
+          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.3)',
+        }}
+      >
+        <FlexBetween my={1}>
+          <p style={{ fontSize: '16px', fontWeight: 600 }}>
+            Due Amount
+          </p>
+          <Typography variant="h6" fontSize={12} sx={{ color: 'red' }}>
+            {/* Replace with your formatted number */}
+            {formatNumber(
+              total - parseInt(discount) + parseInt(shipping) - parseInt(amountPaid) - parseInt(partiallyPaid)
+            )}
+          </Typography>
+        </FlexBetween>
+      </Box>
+    )}
     <Card sx={{
-      padding: 3
+      padding: 3,
+      position: 'relative',
     }}>
       <H6 fontSize={22} mb={4}>
-        Add Invoice
+        Update Invoice
       </H6>
+      {/* Modal Section */}
       {/* Client Info */}
       <Formik initialValues={clientInitialValues}
         validationSchema={clientValidationSchema}
@@ -705,7 +762,7 @@ const UpdateInvoicePageView = () => {
           return <form onSubmit={handleSubmit}>
 
             <H6 fontSize={18} mb={2}>
-              Create Client
+              Update Client
             </H6>
             <Divider sx={{
               my: 4
@@ -893,7 +950,7 @@ const UpdateInvoicePageView = () => {
           return <form onSubmit={handleSubmit}>
 
             <H6 fontSize={18} mb={2}>
-              Create Invoice
+              Update Invoice
             </H6>
             <Divider sx={{
               my: 4
@@ -2010,7 +2067,7 @@ const UpdateInvoicePageView = () => {
         }} >
       </Formik>
     </Card>
-  </Box>;
+  </Box >;
 };
 
 export default UpdateInvoicePageView;

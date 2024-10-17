@@ -4,7 +4,7 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import Select from "react-select";
 import { ToastContainer, toast } from "react-toastify";
-import { Box, Card, Grid, styled, Button, TextField, Divider } from "@mui/material";
+import { Box, Card, Grid, styled, Button, TextField, Divider, Typography } from "@mui/material";
 
 import useNavigate from "@/hooks/useNavigate"; // CUSTOM DEFINED HOOK
 import { H6, Paragraph } from "@/components/typography"; // CUSTOM DEFINED COMPONENTS
@@ -394,6 +394,29 @@ const CreateInvoicePageView = () => {
   const removeCommas = (value) => {
     return value.toString().replace(/,/g, '');
   };
+  const [isModalVisible, setModalVisible] = useState(false);
+
+  // Handler for scroll event
+  const handleScroll = () => {
+    const scrollPosition = window.scrollY; // or you can use event.target.scrollTop for a container
+    console.log('Scroll position:', scrollPosition);
+
+    // Set visibility based on scroll position
+    if (scrollPosition > 300 && scrollPosition < 2700) { // Adjust these values to your needs
+      setModalVisible(true);
+    } else {
+      setModalVisible(false);
+    }
+  };
+
+  // Attach scroll event listener on mount and detach it on unmount
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
   return <Box pt={2} pb={4}>
     <ToastContainer
       position="top-right"
@@ -406,6 +429,33 @@ const CreateInvoicePageView = () => {
       draggable
       pauseOnHover
     />
+    {isModalVisible && (
+      <Box
+        sx={{
+          position: 'sticky',
+          top: '74px',
+          marginLeft: 'auto',
+          width: '25%',
+          backgroundColor: 'white',
+          zIndex: 1000,
+          padding: '8px',
+          paddingLeft: '12px',
+          paddingRight: '12px',
+          borderRadius: '8px',
+          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.3)',
+        }}
+      >
+        <FlexBetween my={1}>
+          <p style={{ fontSize: '16px', fontWeight: 600 }}>
+            Due Amount
+          </p>
+          <Typography variant="h6" fontSize={12} sx={{ color: 'red' }}>
+            {/* Replace with your formatted number */}
+            {formatNumber((Subtotal - parseInt(discount) + parseInt(shipping)) - parseInt(amountPaid))}
+          </Typography>
+        </FlexBetween>
+      </Box>
+    )}
     <Card sx={{
       padding: 3
     }}>
