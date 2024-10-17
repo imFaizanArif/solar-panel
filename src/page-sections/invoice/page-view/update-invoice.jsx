@@ -621,7 +621,16 @@ const UpdateInvoicePageView = () => {
   //   console.log("Total Sum:", totalSum);
   //   setTotal(totalSum);
   // }, [solarPanelPrice, inverterPrice, cablingPrice, structurePrice, netMeteringPrice, batteriesPrice, lightningArrestorPrice, installationPrice]);
+  // Function to format number with commas
+  const formatNumber = (value) => {
+    if (!value) return '';
+    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
 
+  // Function to remove commas for calculation
+  const removeCommas = (value) => {
+    return value.toString().replace(/,/g, '');
+  };
   return <Box pt={2} pb={4}>
     <ToastContainer
       position="top-right"
@@ -945,17 +954,22 @@ const UpdateInvoicePageView = () => {
               </Grid>
               <Grid item md={4} sm={6} xs={12}>
                 <Box marginBottom={0}>
-                  <TextField fullWidth type="number" name="Solar Panel Price" label="Solar Panel Price"
-                    value={values.solar_panel_price}
+                  <TextField fullWidth type="text" name="Solar Panel Price" label="Solar Panel Price"
+                    //value={values.solar_panel_price}
+                    value={formatNumber(values.solar_panel_price)}
                     onChange={(e) => {
-                      const value = e.target.value;
-                      if (value === '') {
+                      const rawValue = removeCommas(e.target.value); // Remove commas before setting field value
+                      console.log(rawValue, " rawValue")
+                      if (rawValue === '') {
                         setFieldValue("solar_panel_price", 0);
                         setSolarPanelPrice(0);
                       } else {
-                        setFieldValue("solar_panel_price", value);
-                        setSolarPanelPrice(value * solarPanelQuantity);
-                        const discount = Math.max(0, (solarPanelSpecificRecord?.price * values.solar_panel_quantity) - values.solar_panel_price);
+                        const numberValue = parseFloat(rawValue); // Convert raw value to number for calculations
+                        setFieldValue("solar_panel_price", numberValue);
+                        setSolarPanelPrice(numberValue * solarPanelQuantity);
+
+                        // Calculate the discount
+                        const discount = Math.max(0, (solarPanelSpecificRecord?.price * values.solar_panel_quantity) - numberValue);
                         setSolarPanelDiscount(discount);
                       }
                     }}
@@ -994,19 +1008,19 @@ const UpdateInvoicePageView = () => {
                     </Paragraph>
                     <Paragraph fontWeight={500} fontSize={12}>
                       <i>
-                        {solarPanelSpecificRecord?.price ? solarPanelSpecificRecord?.price : 0}
+                        {formatNumber(solarPanelSpecificRecord?.price ? solarPanelSpecificRecord?.price : 0)}
                       </i>
                     </Paragraph>
                   </FlexBetween>
                   <FlexBetween mx={0}>
                     <Paragraph fontWeight={500} fontSize={12} color="grey">
                       <i>
-                        Total Solar Panel Price: {solarPanelSpecificRecord?.price} X {values.solar_panel_quantity ? values.solar_panel_quantity : 0} =
+                        Total Solar Panel Price: {formatNumber(solarPanelSpecificRecord?.price)} X {formatNumber(values.solar_panel_quantity ? values.solar_panel_quantity : 0)} =
                       </i>
                     </Paragraph>
                     <Paragraph fontWeight={500} fontSize={12}>
                       <i>
-                        {isNaN(solarPanelSpecificRecord?.price * values.solar_panel_quantity) ? 0 : solarPanelSpecificRecord?.price * values.solar_panel_quantity}
+                        {formatNumber(isNaN(solarPanelSpecificRecord?.price * values.solar_panel_quantity) ? 0 : solarPanelSpecificRecord?.price * values.solar_panel_quantity)}
                       </i>
                     </Paragraph>
                   </FlexBetween>
@@ -1023,7 +1037,7 @@ const UpdateInvoicePageView = () => {
                             const total = solarPanelSpecificRecord?.price * values.solar_panel_quantity;
                             const discount = isNaN(total - values.solar_panel_price) ? 0 : Math.max(0, total - values.solar_panel_price);
                             setSolarPanelDiscount(discount);
-                            return discount;
+                            return formatNumber(discount);
                           })()
                         }
                       </i>
