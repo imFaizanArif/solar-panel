@@ -86,6 +86,7 @@ const InvoiceListPageView = () => {
   const [rowId, setRowId] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null); // Added anchor element state
   const [loading, setloading] = useState(false);
+  const [selectedDate, setSelectedDate] = useState([]);
   const initialValues = {
     name: "",
     value: "",
@@ -187,7 +188,7 @@ const InvoiceListPageView = () => {
     // scroll={{ x: 4200 }}
     />;
   };
-  console.log(invoiceDataDetailed?.partial_payments, "invoiceDataDetailed?.partial_payments")
+  // console.log(invoiceDataDetailed?.partial_payments, "invoiceDataDetailed?.partial_payments")
   const expandedRowRender = () => {
     const columns = [
       {
@@ -787,22 +788,30 @@ const InvoiceListPageView = () => {
       // Calculate the payable amount for each invoice
       const payableAmounts = invoiceData?.map(invoice => {
         const sumOfPayments = paymentSums[invoice.id] || 0;
-        console.log(sumOfPayments, "summm")
-        console.log(sumOfPayments, "summm")
+        // console.log(sumOfPayments, "summm")
+        // console.log(sumOfPayments, "summm")
         return {
           id: invoice.id,
           payable: parseFloat(invoice.total) - parseFloat(invoice.discount) - sumOfPayments + parseFloat(invoice.shipping_charges),
         };
       });
 
-      console.log(payableAmounts, "Payable amounts");
+      // console.log(payableAmounts, "Payable amounts");
       setPayable(payableAmounts);
       setPartiallyPaid(paymentSums);
     } catch (err) {
       console.log(err.response.data);
     }
   };
-
+  const getInvoiceFilteredList = (startDate, endDate, querry) => {
+    axios.get(baseApiUrl + `/api/Invoice?date_range=${startDate}+to+${endDate}&q=${querry}`)
+      .then((res) => {
+        // console.log(startDate, "nnnnnnnnnnn", endDate)
+        // console.log(res?.data, "145678900987654321234567890")
+        setFilteredData(res?.data?.reverse());
+      })
+      .catch((err) => console.log(err.response.data));
+  };
   const getExpendituresList = async () => {
     try {
       const res = await axios.get(baseApiUrl + "/api/Expenditures/" + "?format=json");
@@ -873,8 +882,12 @@ const InvoiceListPageView = () => {
     }
   };
   const handleDateRangeChange = (value) => {
-    setDateRange(value);
-    // console.log(value, "kkkkkkkkkkkkkkk");
+    if (value == null || value == '') {
+      setSelectedDate('');
+    } else {
+      const formattedDatesArray = value.map(date => date.toISOString().split('T')[0]);
+      setSelectedDate(formattedDatesArray);
+    }
   };
   const handleExpand = (expanded, record) => {
     if (expanded) {
@@ -886,20 +899,6 @@ const InvoiceListPageView = () => {
       setExpandedRowKeys([]);
     }
   };
-  const filterData = () => {
-    let filtered = InvoiceData;
-
-    if (dateRange[0] && dateRange[1]) {
-      const [startDate, endDate] = dateRange;
-      filtered = filtered.filter((item) => {
-        const itemDate = new Date(item.created_at);
-        return itemDate >= startDate && itemDate <= endDate;
-      });
-    }
-
-    setFilteredData(filtered);
-  };
-
 
   useEffect(() => {
     fetchPartialPayments();
@@ -911,8 +910,8 @@ const InvoiceListPageView = () => {
     getExpendituresList();
   }, [query || rowId || expandedRowKeys]); // Fetch data whenever `query` changes
   useEffect(() => {
-    filterData();
-  }, [searchTerm, dateRange, InvoiceData]);
+    getInvoiceFilteredList(selectedDate[0], selectedDate[1], '');
+  }, [selectedDate]);
 
   const totalSumExpenditure = specificExpendituresData.reduce((sum, expenditure) => sum + expenditure.value, 0);
 
@@ -963,7 +962,7 @@ const InvoiceListPageView = () => {
         onExpand: handleExpand,
       }}
       pagination={{
-        total: InvoiceData?.length,
+        total: filteredData?.length,
         showTotal: (total, range) => `Showing ${range[0]} to ${range[1]} of ${total} entries`,
         showSizeChanger: true,
         pageSize: pageSize,

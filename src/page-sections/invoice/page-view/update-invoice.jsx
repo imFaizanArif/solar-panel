@@ -469,13 +469,13 @@ const UpdateInvoicePageView = () => {
       try {
         const res = await axios.get(baseApiUrl + "/api/Invoice/" + "?format=json");
         const InvoiceData = res?.data;
-        console.log(InvoiceData, "invoice---Data")
+        // console.log(InvoiceData, "invoice---Data")
         const InvoiceId = parseInt(id, 10);
         const Invoice = InvoiceData.find((panel) => {
           return panel.id === InvoiceId;
         });
         if (Invoice) {
-          console.log(Invoice, "invoiceData")
+          // console.log(Invoice, "invoiceData")
 
           const solarPanelQuantity = Invoice.solar_panel_quantity;
           const solarPanelPrice = parseFloat(Invoice.solar_panel_price);
@@ -504,7 +504,7 @@ const UpdateInvoicePageView = () => {
             (lightningArrestorQuantity * lightningArrestorPrice || 0) +
             (installationPrice || 0);
 
-          console.log("Total S-um:", totalSum);
+          // console.log("Total S-um:", totalSum);
           setTotal(totalSum);
 
           // Set state if necessary
@@ -560,21 +560,21 @@ const UpdateInvoicePageView = () => {
   useEffect(() => {
     const totalSum = solarPanelPrice + inverterPrice + cablingPrice + structurePrice + netMeteringPrice + batteriesPrice + lightningArrestorPrice + installationPrice;
     // const totalSum = (solarPanelPrice * solarPanelQuantity) + (inverterPrice * inverterQuantity) + (cablingPrice * cablingQuantity) + (structurePrice * structureQuantity) + (netMeteringPrice * netMeteringQuantity) + (batteriesPrice * batteriesQuantity) + (lightningArrestorPrice * lightningArrestorQuantity) + installationPrice;
-    console.log(solarPanelPrice, "solarPanelPrice")
-    console.log(inverterPrice, "inverterPrice")
-    console.log(cablingPrice, "cablingPrice")
-    console.log(structurePrice, "structurePrice")
-    console.log(netMeteringPrice, "netMeteringPrice")
-    console.log(batteriesPrice, "batteriesPrice")
-    console.log(lightningArrestorPrice, "lightningArrestorPrice")
-    console.log(installationPrice, "installationPrice")
+    // console.log(solarPanelPrice, "solarPanelPrice")
+    // console.log(inverterPrice, "inverterPrice")
+    // console.log(cablingPrice, "cablingPrice")
+    // console.log(structurePrice, "structurePrice")
+    // console.log(netMeteringPrice, "netMeteringPrice")
+    // console.log(batteriesPrice, "batteriesPrice")
+    // console.log(lightningArrestorPrice, "lightningArrestorPrice")
+    // console.log(installationPrice, "installationPrice")
 
-    console.log(totalSum, "totalSum")
+    // console.log(totalSum, "totalSum")
     setTotal(totalSum)
     // setAmountPaid(invoiceData.amount_paid)
   }, [solarPanelPrice, inverterPrice, structurePrice, cablingPrice, netMeteringPrice, batteriesPrice, lightningArrestorPrice, installationPrice, discount, shipping, amountPaid, solarPanelQuantity, inverterQuantity, structureQuantity, cablingQuantity, netMeteringQuantity, batteriesQuantity, lightningArrestorQuantity]);
   useEffect(() => {
-    console.log(solarPanelPrice, "solarPanelPrice-")
+    // console.log(solarPanelPrice, "solarPanelPrice-")
     // setAmountPaid(invoiceData.amount_paid)
   }, [solarPanelQuantity, inverterQuantity, structureQuantity, cablingQuantity, netMeteringQuantity, batteriesQuantity, lightningArrestorQuantity]);
 
@@ -648,7 +648,7 @@ const UpdateInvoicePageView = () => {
   // Handler for scroll event
   const handleScroll = () => {
     const scrollPosition = window.scrollY; // or you can use event.target.scrollTop for a container
-    console.log('Scroll position:', scrollPosition);
+    // console.log('Scroll position:', scrollPosition);
 
     // Set visibility based on scroll position
     if (scrollPosition > 300 && scrollPosition < 2700) { // Adjust these values to your needs
@@ -1025,7 +1025,7 @@ const UpdateInvoicePageView = () => {
                     value={formatNumber(values.solar_panel_price)}
                     onChange={(e) => {
                       const rawValue = removeCommas(e.target.value); // Remove commas before setting field value
-                      console.log(rawValue, " rawValue")
+                      // console.log(rawValue, " rawValue")
                       if (rawValue === '') {
                         setFieldValue("solar_panel_price", 0);
                         setSolarPanelPrice(0);

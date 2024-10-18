@@ -399,7 +399,7 @@ const CreateInvoicePageView = () => {
   // Handler for scroll event
   const handleScroll = () => {
     const scrollPosition = window.scrollY; // or you can use event.target.scrollTop for a container
-    console.log('Scroll position:', scrollPosition);
+    // console.log('Scroll position:', scrollPosition);
 
     // Set visibility based on scroll position
     if (scrollPosition > 300 && scrollPosition < 2700) { // Adjust these values to your needs
