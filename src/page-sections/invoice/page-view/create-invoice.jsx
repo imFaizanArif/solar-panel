@@ -330,7 +330,7 @@ const CreateInvoicePageView = () => {
       console.log(err.response.data);
     }
   };
-
+  const [Subtotal, setSubtotal] = useState(0);
   useEffect(() => {
     getClientList();
     getSolarPanelList();
@@ -355,12 +355,34 @@ const CreateInvoicePageView = () => {
       getInstallationList();
     }
   }, [solarPanelId, inverterId, structureId, cablingId, netMeteringId, batteriesId || lightningArrestorId || installationId || clientResponse || invoiceResponse]);
+  useEffect(() => {
+    const solarPanelAmount = parseInt(solarPanelPrice) * parseInt(solarPanelQuantity);
+    const inverterAmount = parseInt(inverterPrice) * parseInt(inverterQuantity);
+    const structureAmount = parseInt(structurePrice) * parseInt(structureQuantity);
+    const cablingAmount = parseInt(cablingPrice) * parseInt(cablingQuantity);
+    const netMeteringAmount = parseInt(netMeteringPrice) * parseInt(netMeteringQuantity);
+    const batteriesAmount = parseInt(batteriesPrice) * parseInt(batteriesQuantity);
+    const lightningArrestorAmount = parseInt(lightningArrestorPrice) * parseInt(lightningArrestorQuantity);
+    const installationAmount = parseInt(installationPrice);
+    const discountAmount = parseInt(discount);
+    // const shippingAmount = parseInt(shipping);
+    // const amountPaidd = parseInt(amountPaid);
+    const total = solarPanelAmount + inverterAmount + structureAmount + cablingAmount + netMeteringAmount + batteriesAmount + lightningArrestorAmount + installationAmount;
+    // const totalAmount = total + shippingAmount - discountAmount - amountPaidd
+    setSubtotal(total);
+    console.log(total, 't');
+    // console.log(totalAmount, 'tt');
+    // console.log(shipping, 'sh')
+    // console.log(discountAmount, 'dis')
+    // console.log(amountPaidd, 'ap')
+    // console.log(totalAmount, "ccc");
+  }, [solarPanelPrice, solarPanelQuantity, inverterPrice, inverterQuantity, structurePrice, structureQuantity, cablingPrice, cablingQuantity, netMeteringPrice, netMeteringQuantity, batteriesPrice, batteriesQuantity, lightningArrestorPrice, lightningArrestorQuantity, installationPrice, discount, shipping, amountPaid]);
 
   useEffect(() => {
     // This effect will run whenever the discounts change to ensure latest values are used.
   }, [solarPanelDiscount, inverterDiscount, structureDiscount, cablingDiscount, netMeteringDiscount, batteriesId, lightningArrestorId, installationId || clientResponse || invoiceResponse]);
 
-  const Subtotal = parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice);
+  // const Subtotal = parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice);
   // const Subtotal2 = parseInt(solarPanelPrice) + parseInt(inverterPrice) + parseInt(cablingPrice) + parseInt(structurePrice) + parseInt(netMeteringPrice) + parseInt(batteriesPrice) + parseInt(lightningArrestorPrice) + parseInt(installationPrice) + parseInt(shipping) - parseInt(discount);
   // const Subtotal =
   //   parseInt(solarPanelPrice) * parseInt(solarPanelQuantity) +
@@ -372,10 +394,10 @@ const CreateInvoicePageView = () => {
   //   parseInt(lightningArrestorPrice) * parseInt(lightningArrestorQuantity) +
   //   parseInt(installationPrice);
 
-  const Subtotal2 =
-    Subtotal +
-    parseInt(shipping) -
-    parseInt(discount);
+  // const Subtotal2 =
+  //   Subtotal +
+  //   parseInt(shipping) -
+  //   parseInt(discount);
   const formatNumber = (value) => {
 
     // if (!value) return '';
@@ -775,7 +797,7 @@ const CreateInvoicePageView = () => {
                       } else {
                         const numberValue = parseFloat(rawValue); // Convert raw value to number for calculations
                         setFieldValue("solar_panel_price", numberValue);
-                        setSolarPanelPrice(numberValue * solarPanelQuantity);
+                        setSolarPanelPrice(numberValue);
 
                         // Calculate the discount
                         const discount = Math.max(0, (solarPanelSpecificRecord?.price * values.solar_panel_quantity) - numberValue);
@@ -905,7 +927,7 @@ const CreateInvoicePageView = () => {
                       } else {
                         const numberValue = parseFloat(rawValue); // Convert raw value to number for calculations
                         setFieldValue("inverter_price", numberValue);
-                        setInverterPrice(numberValue * inverterQuantity);
+                        setInverterPrice(numberValue);
                         const discount = Math.max(0, (inverterSpecificRecord?.price * values.inverter_quantity) - numberValue);
                         setInverterDiscount(discount);
                       }
@@ -1001,7 +1023,7 @@ const CreateInvoicePageView = () => {
                       } else {
                         const numberValue = parseFloat(rawValue); // Convert raw value to number for calculations
                         setFieldValue("structure_price", numberValue);
-                        setStructurePrice(numberValue * structureQuantity);
+                        setStructurePrice(numberValue);
                         const discount = Math.max(0, (structureSpecificRecord?.price * values.structure_quantity) - numberValue);
                         setStructureDiscount(discount);
                       }
@@ -1097,7 +1119,7 @@ const CreateInvoicePageView = () => {
                       } else {
                         const numberValue = parseFloat(rawValue); // Convert raw value to number for calculations
                         setFieldValue("cabling_price", numberValue);
-                        setCablingPrice(numberValue * cablingQuantity);
+                        setCablingPrice(numberValue);
                         const discount = Math.max(0, (cablingSpecificRecord?.price * values.cabling_quantity) - numberValue);
                         setCablingDiscount(discount);
                       }
@@ -1190,7 +1212,7 @@ const CreateInvoicePageView = () => {
                       } else {
                         const numberValue = parseFloat(rawValue); // Convert raw value to number for calculations
                         setFieldValue("net_metering_price", numberValue);
-                        setNetMeteringPrice(numberValue * netMeteringQuantity);
+                        setNetMeteringPrice(numberValue);
                         // Calculate the discount
                         const discount = Math.max(0, (netMeteringSpecificRecord?.price * values.net_metering_quantity) - numberValue);
                         setNetMeteringDiscount(discount);
@@ -1295,7 +1317,7 @@ const CreateInvoicePageView = () => {
                       } else {
                         const numberValue = parseFloat(rawValue); // Convert raw value to number for calculations
                         setFieldValue("battery_price", numberValue);
-                        setBatteriesPrice(numberValue * batteriesQuantity);
+                        setBatteriesPrice(numberValue);
 
                         // Calculate the discount
                         const discount = Math.max(0, (batteriesSpecificRecord?.price * values.battery_quantity) - numberValue);
@@ -1391,7 +1413,7 @@ const CreateInvoicePageView = () => {
                       } else {
                         const numberValue = parseFloat(rawValue); // Convert raw value to number for calculations
                         setFieldValue("lightning_arrestor_price", numberValue);
-                        setLightningArrestorPrice(numberValue * lightningArrestorQuantity);
+                        setLightningArrestorPrice(numberValue);
 
                         // Calculate the discount
                         const discount = Math.max(0, (lightningArrestorSpecificRecord?.price * values.lightning_arrestor_quantity) - numberValue);
