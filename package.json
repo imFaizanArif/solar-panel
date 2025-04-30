@@ -56,7 +56,8 @@
     "stylis-plugin-rtl": "^2.1.1",
     "swiper": "^9.2.4",
     "typescript": "^5.2.2",
-    "yup": "^0.32.11"
+    "yup": "^0.32.11",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@types/lodash.merge": "^4.6.7",
