@@ -643,8 +643,9 @@ const CreateInvoicePageView = () => {
       .map((entry) => (Array.isArray(entry) ? entry : Object.values(entry))) // support both objects and arrays
       .flat()
       .reduce((sum, val) => sum + (parseFloat(val) || 0), 0);
-    setSubtotal(total);
-    console.log("Total price:", total);
+    const sumTotal = total + parseInt(installationPrice);
+    setSubtotal(sumTotal);
+    // console.log("Total price:", total);
   }, [
     solarPanelPrices,
     inverterPrices,
@@ -1067,11 +1068,13 @@ const CreateInvoicePageView = () => {
               lightning_arrestor3: values.lightning_arrestor3,
               lightning_arrestor4: values.lightning_arrestor4,
 
+              lightning_arrestor_quantity: values.lightning_arrestor_quantity,
               lightning_arrestor_quantity1: values.lightning_arrestor_quantity1,
               lightning_arrestor_quantity2: values.lightning_arrestor_quantity2,
               lightning_arrestor_quantity3: values.lightning_arrestor_quantity3,
               lightning_arrestor_quantity4: values.lightning_arrestor_quantity4,
 
+              lightning_arrestor_price: values.lightning_arrestor_price,
               lightning_arrestor_price1: values.lightning_arrestor_price1,
               lightning_arrestor_price2: values.lightning_arrestor_price2,
               lightning_arrestor_price3: values.lightning_arrestor_price3,
@@ -1281,8 +1284,8 @@ const CreateInvoicePageView = () => {
                   setQuantities={setCablingQuantities}
                   values={values}
                   namePrefix="cabling"
-                  pricePrefix="cabling_quantity"
-                  quantityPrefix="cabling_price"
+                  pricePrefix="cabling_price"
+                  quantityPrefix="cabling_quantity"
                 />
                 <Divider
                   sx={{
@@ -1302,8 +1305,8 @@ const CreateInvoicePageView = () => {
                   setQuantities={setNetMeteringQuantities}
                   values={values}
                   namePrefix="net_metering"
-                  pricePrefix="net_metering_quantity"
-                  quantityPrefix="net_metering_price"
+                  pricePrefix="net_metering_price"
+                  quantityPrefix="net_metering_quantity"
                 />
                 <Divider
                   sx={{
@@ -1323,8 +1326,8 @@ const CreateInvoicePageView = () => {
                   setQuantities={setBatteriesQuantities}
                   values={values}
                   namePrefix="battery"
-                  pricePrefix="battery_quantity"
-                  quantityPrefix="battery_price"
+                  pricePrefix="battery_price"
+                  quantityPrefix="battery_quantity"
                 />
                 <Divider
                   sx={{
@@ -1344,8 +1347,8 @@ const CreateInvoicePageView = () => {
                   setQuantities={setLightningArrestorQuantities}
                   values={values}
                   namePrefix="lightning_arrestor"
-                  pricePrefix="lightning_arrestor_quantity"
-                  quantityPrefix="lightning_arrestor_price"
+                  pricePrefix="lightning_arrestor_price"
+                  quantityPrefix="lightning_arrestor_quantity"
                 />
                 <Divider
                   sx={{
@@ -1416,30 +1419,6 @@ const CreateInvoicePageView = () => {
                             errors.installation_price
                         )}
                       />
-                      <FlexBetween mx={1}>
-                        <Paragraph fontWeight={500} fontSize={12} color="grey">
-                          <i>Discount:</i>
-                        </Paragraph>
-                        <Paragraph fontWeight={500} fontSize={12}>
-                          <i>
-                            {(() => {
-                              const total = installationSpecificRecord?.price
-                                ? installationSpecificRecord?.price
-                                : 0;
-                              const discount = isNaN(
-                                total - values.installation_price
-                              )
-                                ? 0
-                                : Math.max(
-                                    0,
-                                    total - values.installation_price
-                                  );
-                              setInstallationDiscount(discount);
-                              return formatNumber(discount);
-                            })()}
-                          </i>
-                        </Paragraph>
-                      </FlexBetween>
                     </Box>
                   </Grid>
                 </Grid>
