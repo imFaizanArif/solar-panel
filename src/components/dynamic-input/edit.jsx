@@ -85,6 +85,25 @@ const DynamicFields = ({
     setAvailableIds((prev) => [...prev, idToRemove].sort((a, b) => a - b));
   };
 
+  useEffect(() => {
+    const prices = {};
+    const quantities = {};
+
+    if (values[pricePrefix] !== undefined) prices.base = values[pricePrefix];
+    if (values[quantityPrefix] !== undefined)
+      quantities.base = values[quantityPrefix];
+
+    rows.forEach(({ id }) => {
+      const price = values[`${pricePrefix}${id}`];
+      const quantity = values[`${quantityPrefix}${id}`];
+      if (price !== undefined) prices[id] = price;
+      if (quantity !== undefined) quantities[id] = quantity;
+    });
+
+    setPrices(prices);
+    setQuantities(quantities);
+  }, [rows, values, pricePrefix, quantityPrefix, setPrices, setQuantities]);
+
   return (
     <>
       <Grid container spacing={2} alignItems="center" sx={{ mb: 2 }}>
