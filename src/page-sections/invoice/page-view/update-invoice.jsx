@@ -1266,6 +1266,7 @@ const UpdateInvoicePageView = () => {
               inverter_quantity4: values.inverter_quantity4,
 
               inverter_price: values.inverter_price,
+              inverter_price1: values.inverter_price1,
               inverter_price2: values.inverter_price2,
               inverter_price3: values.inverter_price3,
               inverter_price4: values.inverter_price4,
