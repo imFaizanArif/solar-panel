@@ -629,36 +629,59 @@ const CreateInvoicePageView = () => {
     }
   };
   useEffect(() => {
-    const allRelevantPrices = {
-      solarPanelPrices,
-      inverterPrices,
-      cablingPrices,
-      structurePrices,
-      netMeteringPrices,
-      batteriesPrices,
-      lightningArrestorPrices,
+    const allPrices = {
+      solarPanel: solarPanelPrices,
+      inverter: inverterPrices,
+      cabling: cablingPrices,
+      structure: structurePrices,
+      netMetering: netMeteringPrices,
+      batteries: batteriesPrices,
+      lightningArrestor: lightningArrestorPrices,
     };
 
-    const total = Object.values(allRelevantPrices)
-      .map((entry) => (Array.isArray(entry) ? entry : Object.values(entry))) // support both objects and arrays
-      .flat()
-      .reduce((sum, val) => sum + (parseFloat(val) || 0), 0);
-    const sumTotal = total + parseInt(installationPrice);
-    setSubtotal(sumTotal);
-    // console.log("Total price:", total);
+    const allQuantities = {
+      solarPanel: solarPanelQuantities,
+      inverter: inverterQuantities,
+      cabling: cablingQuantities,
+      structure: structureQuantities,
+      netMetering: netMeteringQuantities,
+      batteries: batteriesQuantities,
+      lightningArrestor: lightningArrestorQuantities,
+    };
+
+    let total = 0;
+
+    Object.keys(allPrices).forEach((category) => {
+      const priceObj = allPrices[category] || {};
+      const quantityObj = allQuantities[category] || {};
+
+      Object.keys(priceObj).forEach((key) => {
+        const price = parseFloat(priceObj[key]) || 0;
+        const quantity = parseFloat(quantityObj[key]) || 0;
+        total += price * quantity;
+      });
+    });
+
+    const installation = parseFloat(installationPrice) || 0;
+    const finalTotal = total + installation;
+
+    setSubtotal(finalTotal);
   }, [
     solarPanelPrices,
+    solarPanelQuantities,
     inverterPrices,
-    installationPrices,
+    inverterQuantities,
     cablingPrices,
+    cablingQuantities,
     structurePrices,
+    structureQuantities,
     netMeteringPrices,
+    netMeteringQuantities,
     batteriesPrices,
+    batteriesQuantities,
     lightningArrestorPrices,
+    lightningArrestorQuantities,
     installationPrice,
-    discount,
-    shipping,
-    amountPaid,
   ]);
 
   // Attach scroll event listener on mount and detach it on unmount
